@@ -134,6 +134,7 @@ toRow item =
     li []
         [ input [ onInput (ModifyName item.id), value item.name ] []
         , input [ onInput (ModifyEstimateOnHand item.id), value (item.estimateOnHand |> String.fromInt) ] []
-        , input [ onInput (ModifyMaxOnHand item.id) ] [ text (item.maxOnHand |> String.fromInt) ]
+        , input [ onInput (ModifyMaxOnHand item.id), value (item.maxOnHand |> String.fromInt) ] [ text (item.maxOnHand |> String.fromInt) ]
         , span [] [ text item.unit ]
+        , span [] [ text ((toFloat item.estimateOnHand / toFloat item.maxOnHand) |> String.fromFloat) ]
         ]

@@ -4596,6 +4596,9 @@ var author$project$Main$ModifyName = F2(
 	function (a, b) {
 		return {$: 'ModifyName', a: a, b: b};
 	});
+var elm$core$Basics$fdiv = _Basics_fdiv;
+var elm$core$Basics$toFloat = _Basics_toFloat;
+var elm$core$String$fromFloat = _String_fromNumber;
 var elm$core$String$fromInt = _String_fromNumber;
 var elm$core$Basics$identity = function (x) {
 	return x;
@@ -4615,12 +4618,10 @@ var elm$core$Array$Array_elm_builtin = F4(
 		return {$: 'Array_elm_builtin', a: a, b: b, c: c, d: d};
 	});
 var elm$core$Basics$ceiling = _Basics_ceiling;
-var elm$core$Basics$fdiv = _Basics_fdiv;
 var elm$core$Basics$logBase = F2(
 	function (base, number) {
 		return _Basics_log(number) / _Basics_log(base);
 	});
-var elm$core$Basics$toFloat = _Basics_toFloat;
 var elm$core$Array$shiftStep = elm$core$Basics$ceiling(
 	A2(elm$core$Basics$logBase, 2, elm$core$Array$branchFactor));
 var elm$core$Elm$JsArray$empty = _JsArray_empty;
@@ -5054,7 +5055,9 @@ var author$project$Main$toRow = function (item) {
 				_List_fromArray(
 					[
 						elm$html$Html$Events$onInput(
-						author$project$Main$ModifyMaxOnHand(item.id))
+						author$project$Main$ModifyMaxOnHand(item.id)),
+						elm$html$Html$Attributes$value(
+						elm$core$String$fromInt(item.maxOnHand))
 					]),
 				_List_fromArray(
 					[
@@ -5067,6 +5070,14 @@ var author$project$Main$toRow = function (item) {
 				_List_fromArray(
 					[
 						elm$html$Html$text(item.unit)
+					])),
+				A2(
+				elm$html$Html$span,
+				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$text(
+						elm$core$String$fromFloat(item.estimateOnHand / item.maxOnHand))
 					]))
 			]));
 };

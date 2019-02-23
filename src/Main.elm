@@ -14,8 +14,26 @@ main =
 -- MODEL
 
 
+type alias Id =
+    Int
+
+
+type alias EstimateOnHand =
+    Int
+
+
+type alias MaxOnHand =
+    Int
+
+
 type alias Item =
-    { id : Int, name : String, estimateOnHand : Int, maxOnHand : Int, unit : String }
+    { id : Id, name : String, estimateOnHand : EstimateOnHand, maxOnHand : MaxOnHand, unit : String }
+
+
+type Prop
+    = EstimateOnHand
+    | MaxOnHand
+    | Name
 
 
 type alias Model =
@@ -41,27 +59,53 @@ init =
 
 
 type Msg
-    = ModifyName String
-    | ModifyEstimateOnHand Int String
+    = ModifyTitle String
+    | ModifyEstimateOnHand Id String
+    | ModifyMaxOnHand Id String
+    | ModifyName Id String
 
 
 update : Msg -> Model -> Model
 update msg model =
     case msg of
-        ModifyName newTitle ->
+        ModifyTitle newTitle ->
             { model | title = newTitle }
 
+        ModifyName id newName ->
+            updateModel model id newName Name
+
         ModifyEstimateOnHand id newEstimate ->
-            { model | items = model.items |> List.map (\item -> updateItem id newEstimate item) }
+            updateModel model id newEstimate EstimateOnHand
+
+        ModifyMaxOnHand id newMax ->
+            updateModel model id newMax MaxOnHand
 
 
-updateItem : Int -> String -> Item -> Item
-updateItem id newEstimate item =
+updateModel : Model -> Id -> String -> Prop -> Model
+updateModel model id newVal prop =
+    { model | items = model.items |> List.map (\item -> updateItem item newVal id prop) }
+
+
+updateItem : Item -> String -> Int -> Prop -> Item
+updateItem item newVal id prop =
     if item.id == id then
-        { item | estimateOnHand = Maybe.withDefault 0 (newEstimate |> String.toInt) }
+        case prop of
+            EstimateOnHand ->
+                { item | estimateOnHand = newVal |> parseOnHand }
+
+            MaxOnHand ->
+                { item | maxOnHand = newVal |> parseOnHand }
+
+            Name ->
+                { item | name = newVal }
 
     else
         item
+
+
+parseOnHand : String -> Int
+parseOnHand stringVal =
+    Maybe.withDefault 0 (stringVal |> String.toInt)
 
 
 
@@ -77,7 +121,7 @@ view model =
                 , span [ class "header__logo__line" ] []
                 , span [] [ text "try" ]
                 ]
-            , input [ onInput ModifyName, value model.title, class "header__title" ] []
+            , input [ onInput ModifyTitle, value model.title, class "header__title" ] []
             ]
         , section [ class "mainContent" ]
             [ ul [ class "listContainer" ] (model.items |> List.map toRow)
@@ -88,8 +132,8 @@ view model =
 toRow : Item -> Html Msg
 toRow item =
     li []
-        [ input [ value item.name ] []
+        [ input [ onInput (ModifyName item.id), value item.name ] []
         , input [ onInput (ModifyEstimateOnHand item.id), value (item.estimateOnHand |> String.fromInt) ] []
-        , input [] [ text (item.maxOnHand |> String.fromInt) ]
+        , input [ onInput (ModifyMaxOnHand item.id) ] [ text (item.maxOnHand |> String.fromInt) ]
         , span [] [ text item.unit ]
         ]

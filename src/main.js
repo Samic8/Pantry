@@ -4400,11 +4400,13 @@ var author$project$Main$init = {
 		]),
 	title: 'Sam\'s Kitchen Pantry'
 };
+var author$project$Main$EstimateOnHand = {$: 'EstimateOnHand'};
+var author$project$Main$MaxOnHand = {$: 'MaxOnHand'};
+var author$project$Main$Name = {$: 'Name'};
 var elm$core$Basics$apR = F2(
 	function (x, f) {
 		return f(x);
 	});
-var elm$core$Basics$eq = _Utils_equal;
 var elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
 		if (maybe.$ === 'Just') {
@@ -4419,16 +4421,37 @@ var elm$core$Maybe$Just = function (a) {
 };
 var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var elm$core$String$toInt = _String_toInt;
-var author$project$Main$updateItem = F3(
-	function (id, newEstimate, item) {
-		return _Utils_eq(item.id, id) ? _Utils_update(
-			item,
-			{
-				estimateOnHand: A2(
-					elm$core$Maybe$withDefault,
-					0,
-					elm$core$String$toInt(newEstimate))
-			}) : item;
+var author$project$Main$parseOnHand = function (stringVal) {
+	return A2(
+		elm$core$Maybe$withDefault,
+		0,
+		elm$core$String$toInt(stringVal));
+};
+var elm$core$Basics$eq = _Utils_equal;
+var author$project$Main$updateItem = F4(
+	function (item, newVal, id, prop) {
+		if (_Utils_eq(item.id, id)) {
+			switch (prop.$) {
+				case 'EstimateOnHand':
+					return _Utils_update(
+						item,
+						{
+							estimateOnHand: author$project$Main$parseOnHand(newVal)
+						});
+				case 'MaxOnHand':
+					return _Utils_update(
+						item,
+						{
+							maxOnHand: author$project$Main$parseOnHand(newVal)
+						});
+				default:
+					return _Utils_update(
+						item,
+						{name: newVal});
+			}
+		} else {
+			return item;
+		}
 	});
 var elm$core$Basics$add = _Basics_add;
 var elm$core$Basics$gt = _Utils_gt;
@@ -4523,34 +4546,55 @@ var elm$core$List$map = F2(
 			_List_Nil,
 			xs);
 	});
+var author$project$Main$updateModel = F4(
+	function (model, id, newVal, prop) {
+		return _Utils_update(
+			model,
+			{
+				items: A2(
+					elm$core$List$map,
+					function (item) {
+						return A4(author$project$Main$updateItem, item, newVal, id, prop);
+					},
+					model.items)
+			});
+	});
 var author$project$Main$update = F2(
 	function (msg, model) {
-		if (msg.$ === 'ModifyName') {
-			var newTitle = msg.a;
-			return _Utils_update(
-				model,
-				{title: newTitle});
-		} else {
-			var id = msg.a;
-			var newEstimate = msg.b;
-			return _Utils_update(
-				model,
-				{
-					items: A2(
-						elm$core$List$map,
-						function (item) {
-							return A3(author$project$Main$updateItem, id, newEstimate, item);
-						},
-						model.items)
-				});
+		switch (msg.$) {
+			case 'ModifyTitle':
+				var newTitle = msg.a;
+				return _Utils_update(
+					model,
+					{title: newTitle});
+			case 'ModifyName':
+				var id = msg.a;
+				var newName = msg.b;
+				return A4(author$project$Main$updateModel, model, id, newName, author$project$Main$Name);
+			case 'ModifyEstimateOnHand':
+				var id = msg.a;
+				var newEstimate = msg.b;
+				return A4(author$project$Main$updateModel, model, id, newEstimate, author$project$Main$EstimateOnHand);
+			default:
+				var id = msg.a;
+				var newMax = msg.b;
+				return A4(author$project$Main$updateModel, model, id, newMax, author$project$Main$MaxOnHand);
 		}
 	});
-var author$project$Main$ModifyName = function (a) {
-	return {$: 'ModifyName', a: a};
+var author$project$Main$ModifyTitle = function (a) {
+	return {$: 'ModifyTitle', a: a};
 };
 var author$project$Main$ModifyEstimateOnHand = F2(
 	function (a, b) {
 		return {$: 'ModifyEstimateOnHand', a: a, b: b};
+	});
+var author$project$Main$ModifyMaxOnHand = F2(
+	function (a, b) {
+		return {$: 'ModifyMaxOnHand', a: a, b: b};
+	});
+var author$project$Main$ModifyName = F2(
+	function (a, b) {
+		return {$: 'ModifyName', a: a, b: b};
 	});
 var elm$core$String$fromInt = _String_fromNumber;
 var elm$core$Basics$identity = function (x) {
@@ -4990,6 +5034,8 @@ var author$project$Main$toRow = function (item) {
 				elm$html$Html$input,
 				_List_fromArray(
 					[
+						elm$html$Html$Events$onInput(
+						author$project$Main$ModifyName(item.id)),
 						elm$html$Html$Attributes$value(item.name)
 					]),
 				_List_Nil),
@@ -5005,7 +5051,11 @@ var author$project$Main$toRow = function (item) {
 				_List_Nil),
 				A2(
 				elm$html$Html$input,
-				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$Events$onInput(
+						author$project$Main$ModifyMaxOnHand(item.id))
+					]),
 				_List_fromArray(
 					[
 						elm$html$Html$text(
@@ -5074,7 +5124,7 @@ var author$project$Main$view = function (model) {
 						elm$html$Html$input,
 						_List_fromArray(
 							[
-								elm$html$Html$Events$onInput(author$project$Main$ModifyName),
+								elm$html$Html$Events$onInput(author$project$Main$ModifyTitle),
 								elm$html$Html$Attributes$value(model.title),
 								elm$html$Html$Attributes$class('header__title')
 							]),

@@ -1,7 +1,7 @@
 import Browser
-import Html exposing (Html, button, div, text, input)
+import Html exposing (Html, button, div, text, input, header, h1, span)
 import Html.Events exposing (onClick, onInput)
-import Html.Attributes exposing (value)
+import Html.Attributes exposing (value, class)
 
 
 main =
@@ -31,5 +31,12 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-  div []
-    [ input [ onInput ModifyName, value model ] [], div [] [ text model ] ]
+  header [ class "header"]
+    [
+      h1 [ class "header__logo"] [
+        span [] [ text "Pan"],
+        span [ class "header__logo__line"] [],
+        span [] [ text "Try"]
+      ],
+      input [ onInput ModifyName, value model, class "header__title" ] []
+    ]

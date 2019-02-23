@@ -4310,7 +4310,7 @@ function _Browser_load(url)
 		}
 	}));
 }
-var author$project$Main$init = 'start';
+var author$project$Main$init = '';
 var author$project$Main$update = F2(
 	function (msg, model) {
 		var newContent = msg.a;
@@ -4812,8 +4812,10 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 			return 3;
 	}
 };
-var elm$html$Html$div = _VirtualDom_node('div');
+var elm$html$Html$h1 = _VirtualDom_node('h1');
+var elm$html$Html$header = _VirtualDom_node('header');
 var elm$html$Html$input = _VirtualDom_node('input');
+var elm$html$Html$span = _VirtualDom_node('span');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
 var elm$json$Json$Encode$string = _Json_wrap;
@@ -4824,6 +4826,7 @@ var elm$html$Html$Attributes$stringProperty = F2(
 			key,
 			elm$json$Json$Encode$string(string));
 	});
+var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
 var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
 var elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
@@ -4916,25 +4919,52 @@ var elm$html$Html$Events$onInput = function (tagger) {
 };
 var author$project$Main$view = function (model) {
 	return A2(
-		elm$html$Html$div,
-		_List_Nil,
+		elm$html$Html$header,
 		_List_fromArray(
 			[
+				elm$html$Html$Attributes$class('header')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$h1,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('header__logo')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$span,
+						_List_Nil,
+						_List_fromArray(
+							[
+								elm$html$Html$text('Pan')
+							])),
+						A2(
+						elm$html$Html$span,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('header__logo__line')
+							]),
+						_List_Nil),
+						A2(
+						elm$html$Html$span,
+						_List_Nil,
+						_List_fromArray(
+							[
+								elm$html$Html$text('Try')
+							]))
+					])),
 				A2(
 				elm$html$Html$input,
 				_List_fromArray(
 					[
 						elm$html$Html$Events$onInput(author$project$Main$ModifyName),
-						elm$html$Html$Attributes$value(model)
+						elm$html$Html$Attributes$value(model),
+						elm$html$Html$Attributes$class('header__title')
 					]),
-				_List_Nil),
-				A2(
-				elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text(model)
-					]))
+				_List_Nil)
 			]));
 };
 var elm$core$Platform$Cmd$batch = _Platform_batch;

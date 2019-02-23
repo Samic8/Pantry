@@ -1,0 +1,45 @@
+:root {
+    --color-black: #000;
+    --color-grey: #e5e5e5;
+
+    --color-alias-header-main: var(--color-grey);
+}
+
+body {
+    margin: 0px;
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-alias-header-main);
+    height: 63px;
+    padding: 0 52px;
+}
+
+.header__title {
+    justify-self: center;
+    height: 40px;
+    width: 202px;
+    border: none;
+    font-size: 18px;
+    text-align: center;
+    margin-right: auto;
+}
+
+.header__logo {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    font-weight: normal;
+    margin-right: auto;
+}
+
+.header__logo__line {
+    width: 1.5px;
+    height: 40px;
+    margin: 0 5px;
+    background-color: var(--color-black);
+}

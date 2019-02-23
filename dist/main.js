@@ -4596,10 +4596,6 @@ var author$project$Main$ModifyName = F2(
 	function (a, b) {
 		return {$: 'ModifyName', a: a, b: b};
 	});
-var elm$core$Basics$fdiv = _Basics_fdiv;
-var elm$core$Basics$toFloat = _Basics_toFloat;
-var elm$core$String$fromFloat = _String_fromNumber;
-var elm$core$String$fromInt = _String_fromNumber;
 var elm$core$Basics$identity = function (x) {
 	return x;
 };
@@ -4618,10 +4614,12 @@ var elm$core$Array$Array_elm_builtin = F4(
 		return {$: 'Array_elm_builtin', a: a, b: b, c: c, d: d};
 	});
 var elm$core$Basics$ceiling = _Basics_ceiling;
+var elm$core$Basics$fdiv = _Basics_fdiv;
 var elm$core$Basics$logBase = F2(
 	function (base, number) {
 		return _Basics_log(number) / _Basics_log(base);
 	});
+var elm$core$Basics$toFloat = _Basics_toFloat;
 var elm$core$Array$shiftStep = elm$core$Basics$ceiling(
 	A2(elm$core$Basics$logBase, 2, elm$core$Array$branchFactor));
 var elm$core$Elm$JsArray$empty = _JsArray_empty;
@@ -4839,6 +4837,7 @@ var elm$core$List$indexedMap = F2(
 			xs);
 	});
 var elm$core$String$all = _String_all;
+var elm$core$String$fromInt = _String_fromNumber;
 var elm$core$String$join = F2(
 	function (sep, chunks) {
 		return A2(
@@ -4977,11 +4976,9 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 			return 3;
 	}
 };
+var elm$html$Html$div = _VirtualDom_node('div');
 var elm$html$Html$input = _VirtualDom_node('input');
-var elm$html$Html$li = _VirtualDom_node('li');
-var elm$html$Html$span = _VirtualDom_node('span');
-var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var elm$html$Html$label = _VirtualDom_node('label');
 var elm$json$Json$Encode$string = _Json_wrap;
 var elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
@@ -4990,6 +4987,13 @@ var elm$html$Html$Attributes$stringProperty = F2(
 			key,
 			elm$json$Json$Encode$string(string));
 	});
+var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
+var elm$html$Html$Attributes$tabindex = function (n) {
+	return A2(
+		_VirtualDom_attribute,
+		'tabIndex',
+		elm$core$String$fromInt(n));
+};
 var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
 var elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
@@ -5025,21 +5029,50 @@ var elm$html$Html$Events$onInput = function (tagger) {
 			elm$html$Html$Events$alwaysStop,
 			A2(elm$json$Json$Decode$map, tagger, elm$html$Html$Events$targetValue)));
 };
-var author$project$Main$toRow = function (item) {
+var author$project$Main$inputDropdownCombo = function (item) {
 	return A2(
-		elm$html$Html$li,
-		_List_Nil,
+		elm$html$Html$div,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$class('inputDropdownCombo')
+			]),
 		_List_fromArray(
 			[
 				A2(
 				elm$html$Html$input,
 				_List_fromArray(
 					[
+						elm$html$Html$Attributes$class('inputDropdownCombo__input'),
 						elm$html$Html$Events$onInput(
 						author$project$Main$ModifyName(item.id)),
 						elm$html$Html$Attributes$value(item.name)
 					]),
 				_List_Nil),
+				A2(
+				elm$html$Html$label,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('inputDropdownCombo__arrow'),
+						elm$html$Html$Attributes$tabindex(0)
+					]),
+				_List_Nil)
+			]));
+};
+var elm$core$String$fromFloat = _String_fromNumber;
+var elm$html$Html$li = _VirtualDom_node('li');
+var elm$html$Html$span = _VirtualDom_node('span');
+var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var author$project$Main$toRow = function (item) {
+	return A2(
+		elm$html$Html$li,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$class('row')
+			]),
+		_List_fromArray(
+			[
+				author$project$Main$inputDropdownCombo(item),
 				A2(
 				elm$html$Html$input,
 				_List_fromArray(
@@ -5081,12 +5114,10 @@ var author$project$Main$toRow = function (item) {
 					]))
 			]));
 };
-var elm$html$Html$div = _VirtualDom_node('div');
 var elm$html$Html$h1 = _VirtualDom_node('h1');
 var elm$html$Html$header = _VirtualDom_node('header');
 var elm$html$Html$section = _VirtualDom_node('section');
 var elm$html$Html$ul = _VirtualDom_node('ul');
-var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
 var author$project$Main$view = function (model) {
 	return A2(
 		elm$html$Html$div,

@@ -1,8 +1,8 @@
 module Main exposing (Item, Model, Msg(..), init, main, toRow, update, updateItem, view)
 
 import Browser
-import Html exposing (Html, button, div, h1, header, input, li, section, span, text, ul)
-import Html.Attributes exposing (class, value)
+import Html exposing (Html, button, div, h1, header, input, label, li, section, span, text, ul)
+import Html.Attributes exposing (class, tabindex, value)
 import Html.Events exposing (onClick, onInput)
 
 
@@ -131,10 +131,18 @@ view model =
 
 toRow : Item -> Html Msg
 toRow item =
-    li []
-        [ input [ onInput (ModifyName item.id), value item.name ] []
+    li [ class "row" ]
+        [ inputDropdownCombo item
         , input [ onInput (ModifyEstimateOnHand item.id), value (item.estimateOnHand |> String.fromInt) ] []
         , input [ onInput (ModifyMaxOnHand item.id), value (item.maxOnHand |> String.fromInt) ] [ text (item.maxOnHand |> String.fromInt) ]
         , span [] [ text item.unit ]
         , span [] [ text ((toFloat item.estimateOnHand / toFloat item.maxOnHand) |> String.fromFloat) ]
+        ]
+
+
+inputDropdownCombo : Item -> Html Msg
+inputDropdownCombo item =
+    div [ class "inputDropdownCombo" ]
+        [ input [ class "inputDropdownCombo__input", onInput (ModifyName item.id), value item.name ] []
+        , label [ class "inputDropdownCombo__arrow", tabindex 0 ] []
         ]

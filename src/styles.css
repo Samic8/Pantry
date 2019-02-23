@@ -1,8 +1,9 @@
 :root {
     --color-black: #000;
-    --color-grey: #e5e5e5;
+    --color-grey: #f6f6f6;
 
     --color-alias-header-main: var(--color-grey);
+    --color-alias-list-container: var(--color-grey);
 }
 
 body {
@@ -42,4 +43,18 @@ body {
     height: 40px;
     margin: 0 5px;
     background-color: var(--color-black);
+}
+
+.mainContent {
+    display: flex;
+    justify-content: center;
+}
+
+.listContainer {
+    background-color: var(--color-alias-list-container);
+    width: 740px;
+    padding: 32px 42px;
+    border-radius: 5px;
+    margin-top: 70px;
+    list-style-type: none;
 }

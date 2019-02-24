@@ -77,18 +77,9 @@ body {
     grid-gap: var(--column-gap);
 }
 
-.inputDropdownCombo {
-    display: grid;
-    grid-template-columns: 1fr 30px;
-}
-
-.inputDropdownCombo__input {
+.inputBox {
     height: 48px;
     padding-left: var(--input-padding-left);
     font-size: var(--primary-font-size);
     border: none;
-}
-
-.inputDropdownCombo__arrow {
-    background-color: var(--color-alias-input-background);
 }

@@ -132,17 +132,9 @@ view model =
 toRow : Item -> Html Msg
 toRow item =
     li [ class "row" ]
-        [ inputDropdownCombo item
+        [ input [ class "inputBox", onInput (ModifyName item.id), value item.name ] []
         , input [ onInput (ModifyEstimateOnHand item.id), value (item.estimateOnHand |> String.fromInt) ] []
         , input [ onInput (ModifyMaxOnHand item.id), value (item.maxOnHand |> String.fromInt) ] [ text (item.maxOnHand |> String.fromInt) ]
         , span [] [ text item.unit ]
         , span [] [ text ((toFloat item.estimateOnHand / toFloat item.maxOnHand) |> String.fromFloat) ]
-        ]
-
-
-inputDropdownCombo : Item -> Html Msg
-inputDropdownCombo item =
-    div [ class "inputDropdownCombo" ]
-        [ input [ class "inputDropdownCombo__input", onInput (ModifyName item.id), value item.name ] []
-        , label [ class "inputDropdownCombo__arrow", tabindex 0 ] []
         ]

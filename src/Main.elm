@@ -46,10 +46,10 @@ init : Model
 init =
     { title = "Sam's Kitchen Pantry"
     , items =
-        [ { id = 1, name = "Chickpeas", estimateOnHand = 400, maxOnHand = 500, unit = "grams" }
-        , { id = 2, name = "Red Lentils", estimateOnHand = 200, maxOnHand = 700, unit = "grams" }
-        , { id = 3, name = "Cinnamon", estimateOnHand = 10, maxOnHand = 100, unit = "grams" }
-        , { id = 4, name = "Chocolate", estimateOnHand = 40, maxOnHand = 150, unit = "grams" }
+        [ { id = 1, name = "Chickpeas", estimateOnHand = 400, maxOnHand = 500, unit = "g" }
+        , { id = 2, name = "Red Lentils", estimateOnHand = 200, maxOnHand = 700, unit = "g" }
+        , { id = 3, name = "Cinnamon", estimateOnHand = 10, maxOnHand = 100, unit = "g" }
+        , { id = 4, name = "Chocolate", estimateOnHand = 40, maxOnHand = 150, unit = "g" }
         ]
     }
 
@@ -133,8 +133,11 @@ toRow : Item -> Html Msg
 toRow item =
     li [ class "row" ]
         [ input [ class "inputBox", onInput (ModifyName item.id), value item.name ] []
-        , input [ onInput (ModifyEstimateOnHand item.id), value (item.estimateOnHand |> String.fromInt) ] []
-        , input [ onInput (ModifyMaxOnHand item.id), value (item.maxOnHand |> String.fromInt) ] [ text (item.maxOnHand |> String.fromInt) ]
-        , span [] [ text item.unit ]
+        , div [ class "quantity inputBox" ]
+            [ input [ class "quantity__edit", onInput (ModifyEstimateOnHand item.id), value (item.estimateOnHand |> String.fromInt) ] []
+            , span [] [ text "/" ]
+            , input [ class "quantity__edit", onInput (ModifyMaxOnHand item.id), value (item.maxOnHand |> String.fromInt) ] [ text (item.maxOnHand |> String.fromInt) ]
+            , span [ class "quantity__unit" ] [ text item.unit ]
+            ]
         , span [] [ text ((toFloat item.estimateOnHand / toFloat item.maxOnHand) |> String.fromFloat) ]
         ]

@@ -4393,10 +4393,10 @@ var elm$core$Set$toList = function (_n0) {
 var author$project$Main$init = {
 	items: _List_fromArray(
 		[
-			{estimateOnHand: 400, id: 1, maxOnHand: 500, name: 'Chickpeas', unit: 'grams'},
-			{estimateOnHand: 200, id: 2, maxOnHand: 700, name: 'Red Lentils', unit: 'grams'},
-			{estimateOnHand: 10, id: 3, maxOnHand: 100, name: 'Cinnamon', unit: 'grams'},
-			{estimateOnHand: 40, id: 4, maxOnHand: 150, name: 'Chocolate', unit: 'grams'}
+			{estimateOnHand: 400, id: 1, maxOnHand: 500, name: 'Chickpeas', unit: 'g'},
+			{estimateOnHand: 200, id: 2, maxOnHand: 700, name: 'Red Lentils', unit: 'g'},
+			{estimateOnHand: 10, id: 3, maxOnHand: 100, name: 'Cinnamon', unit: 'g'},
+			{estimateOnHand: 40, id: 4, maxOnHand: 150, name: 'Chocolate', unit: 'g'}
 		]),
 	title: 'Sam\'s Kitchen Pantry'
 };
@@ -4977,6 +4977,7 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 			return 3;
 	}
 };
+var elm$html$Html$div = _VirtualDom_node('div');
 var elm$html$Html$input = _VirtualDom_node('input');
 var elm$html$Html$li = _VirtualDom_node('li');
 var elm$html$Html$span = _VirtualDom_node('span');
@@ -5046,35 +5047,56 @@ var author$project$Main$toRow = function (item) {
 					]),
 				_List_Nil),
 				A2(
-				elm$html$Html$input,
+				elm$html$Html$div,
 				_List_fromArray(
 					[
-						elm$html$Html$Events$onInput(
-						author$project$Main$ModifyEstimateOnHand(item.id)),
-						elm$html$Html$Attributes$value(
-						elm$core$String$fromInt(item.estimateOnHand))
-					]),
-				_List_Nil),
-				A2(
-				elm$html$Html$input,
-				_List_fromArray(
-					[
-						elm$html$Html$Events$onInput(
-						author$project$Main$ModifyMaxOnHand(item.id)),
-						elm$html$Html$Attributes$value(
-						elm$core$String$fromInt(item.maxOnHand))
+						elm$html$Html$Attributes$class('quantity inputBox')
 					]),
 				_List_fromArray(
 					[
-						elm$html$Html$text(
-						elm$core$String$fromInt(item.maxOnHand))
-					])),
-				A2(
-				elm$html$Html$span,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text(item.unit)
+						A2(
+						elm$html$Html$input,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('quantity__edit'),
+								elm$html$Html$Events$onInput(
+								author$project$Main$ModifyEstimateOnHand(item.id)),
+								elm$html$Html$Attributes$value(
+								elm$core$String$fromInt(item.estimateOnHand))
+							]),
+						_List_Nil),
+						A2(
+						elm$html$Html$span,
+						_List_Nil,
+						_List_fromArray(
+							[
+								elm$html$Html$text('/')
+							])),
+						A2(
+						elm$html$Html$input,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('quantity__edit'),
+								elm$html$Html$Events$onInput(
+								author$project$Main$ModifyMaxOnHand(item.id)),
+								elm$html$Html$Attributes$value(
+								elm$core$String$fromInt(item.maxOnHand))
+							]),
+						_List_fromArray(
+							[
+								elm$html$Html$text(
+								elm$core$String$fromInt(item.maxOnHand))
+							])),
+						A2(
+						elm$html$Html$span,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('quantity__unit')
+							]),
+						_List_fromArray(
+							[
+								elm$html$Html$text(item.unit)
+							]))
 					])),
 				A2(
 				elm$html$Html$span,
@@ -5086,7 +5108,6 @@ var author$project$Main$toRow = function (item) {
 					]))
 			]));
 };
-var elm$html$Html$div = _VirtualDom_node('div');
 var elm$html$Html$h1 = _VirtualDom_node('h1');
 var elm$html$Html$header = _VirtualDom_node('header');
 var elm$html$Html$section = _VirtualDom_node('section');

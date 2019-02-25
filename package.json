@@ -11,7 +11,8 @@
   },
   "devDependencies": {},
   "scripts": {
-    "format": "$(npm bin)/prettier --write '**/*.elm'"
+    "format": "$(npm bin)/prettier --write '**/*.elm'",
+    "make": "elm make src/Main.elm --output=dist/main.js"
   },
   "repository": {
     "type": "git",

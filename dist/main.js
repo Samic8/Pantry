@@ -4596,9 +4596,14 @@ var author$project$Main$ModifyName = F2(
 	function (a, b) {
 		return {$: 'ModifyName', a: a, b: b};
 	});
+var elm$core$Basics$append = _Utils_append;
 var elm$core$Basics$fdiv = _Basics_fdiv;
+var elm$core$Basics$mul = _Basics_mul;
 var elm$core$Basics$toFloat = _Basics_toFloat;
 var elm$core$String$fromFloat = _String_fromNumber;
+var author$project$Main$buildWidthStyle = function (item) {
+	return elm$core$String$fromFloat((item.estimateOnHand / item.maxOnHand) * 100) + '%';
+};
 var elm$core$String$fromInt = _String_fromNumber;
 var elm$core$Basics$identity = function (x) {
 	return x;
@@ -4684,7 +4689,6 @@ var elm$core$Basics$max = F2(
 	function (x, y) {
 		return (_Utils_cmp(x, y) > 0) ? x : y;
 	});
-var elm$core$Basics$mul = _Basics_mul;
 var elm$core$Basics$sub = _Basics_sub;
 var elm$core$Elm$JsArray$length = _JsArray_length;
 var elm$core$Array$builderToArray = F2(
@@ -4774,7 +4778,6 @@ var elm$json$Json$Decode$OneOf = function (a) {
 	return {$: 'OneOf', a: a};
 };
 var elm$core$Basics$and = _Basics_and;
-var elm$core$Basics$append = _Utils_append;
 var elm$core$Basics$or = _Basics_or;
 var elm$core$Char$toCode = _Char_toCode;
 var elm$core$Char$isLower = function (_char) {
@@ -4992,6 +4995,8 @@ var elm$html$Html$Attributes$stringProperty = F2(
 			elm$json$Json$Encode$string(string));
 	});
 var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
+var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
 var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
 var elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
@@ -5099,12 +5104,24 @@ var author$project$Main$toRow = function (item) {
 							]))
 					])),
 				A2(
-				elm$html$Html$span,
-				_List_Nil,
+				elm$html$Html$div,
 				_List_fromArray(
 					[
-						elm$html$Html$text(
-						elm$core$String$fromFloat(item.estimateOnHand / item.maxOnHand))
+						elm$html$Html$Attributes$class('bar')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('bar__quantityLeft'),
+								A2(
+								elm$html$Html$Attributes$style,
+								'width',
+								author$project$Main$buildWidthStyle(item))
+							]),
+						_List_Nil)
 					]))
 			]));
 };

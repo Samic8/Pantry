@@ -2,7 +2,7 @@ module Main exposing (Item, Model, Msg(..), init, main, toRow, update, updateIte
 
 import Browser
 import Html exposing (Html, button, div, h1, header, input, label, li, section, span, text, ul)
-import Html.Attributes exposing (class, tabindex, value)
+import Html.Attributes exposing (class, tabindex, value, style)
 import Html.Events exposing (onClick, onInput)
 
 
@@ -139,5 +139,12 @@ toRow item =
             , input [ class "quantity__edit", onInput (ModifyMaxOnHand item.id), value (item.maxOnHand |> String.fromInt) ] [ text (item.maxOnHand |> String.fromInt) ]
             , span [ class "quantity__unit" ] [ text item.unit ]
             ]
-        , span [] [ text ((toFloat item.estimateOnHand / toFloat item.maxOnHand) |> String.fromFloat) ]
+        , div [ class "bar"] 
+            [ div [ class "bar__quantityLeft", style "width" (buildWidthStyle item) ] []
+
+            ]
         ]
+
+buildWidthStyle : Item -> String
+buildWidthStyle item =
+    (((toFloat item.estimateOnHand / toFloat item.maxOnHand) * 100) |> String.fromFloat) ++ "%"

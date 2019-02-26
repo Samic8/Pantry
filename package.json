@@ -30,6 +30,9 @@
     }
   },
   "lint-staged": {
-    "*.{elm, css}": ["npm run format", "git add"]
+    "*.{elm, css}": [
+      "npm run format",
+      "git add"
+    ]
   }
 }

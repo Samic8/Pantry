@@ -4608,12 +4608,13 @@ var author$project$Main$buildQuantityLeftWidth = function (item) {
 	return elm$core$String$fromFloat(
 		author$project$Main$calcEstimateRemainingPercentage(item)) + '%';
 };
+var elm$core$Basics$True = {$: 'True'};
+var elm$core$Basics$le = _Utils_le;
 var elm$core$String$fromInt = _String_fromNumber;
 var elm$core$Basics$identity = function (x) {
 	return x;
 };
 var elm$core$Basics$False = {$: 'False'};
-var elm$core$Basics$True = {$: 'True'};
 var elm$core$Result$isOk = function (result) {
 	if (result.$ === 'Ok') {
 		return true;
@@ -4747,7 +4748,6 @@ var elm$core$Array$initializeHelp = F5(
 			}
 		}
 	});
-var elm$core$Basics$le = _Utils_le;
 var elm$core$Basics$remainderBy = _Basics_remainderBy;
 var elm$core$Array$initialize = F2(
 	function (len, fn) {
@@ -4999,6 +4999,31 @@ var elm$html$Html$Attributes$stringProperty = F2(
 			elm$json$Json$Encode$string(string));
 	});
 var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
+var elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var elm$core$Tuple$second = function (_n0) {
+	var y = _n0.b;
+	return y;
+};
+var elm$html$Html$Attributes$classList = function (classes) {
+	return elm$html$Html$Attributes$class(
+		A2(
+			elm$core$String$join,
+			' ',
+			A2(
+				elm$core$List$map,
+				elm$core$Tuple$first,
+				A2(elm$core$List$filter, elm$core$Tuple$second, classes))));
+};
 var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
 var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
@@ -5147,7 +5172,14 @@ var author$project$Main$toRow = function (item) {
 						elm$html$Html$div,
 						_List_fromArray(
 							[
-								elm$html$Html$Attributes$class('bar__quantityLeft'),
+								elm$html$Html$Attributes$classList(
+								_List_fromArray(
+									[
+										_Utils_Tuple2('bar__quantityLeft', true),
+										_Utils_Tuple2(
+										'bar__quantityLeft--low',
+										author$project$Main$calcEstimateRemainingPercentage(item) <= 20)
+									])),
 								A2(
 								elm$html$Html$Attributes$style,
 								'width',

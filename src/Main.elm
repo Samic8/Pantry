@@ -2,7 +2,7 @@ module Main exposing (Item, Model, Msg(..), init, main, toRow, update, updateIte
 
 import Browser
 import Html exposing (Html, button, div, h1, header, input, label, li, section, span, text, ul)
-import Html.Attributes exposing (class, style, tabindex, value)
+import Html.Attributes exposing (class, classList, style, tabindex, value)
 import Html.Events exposing (onClick, onInput)
 
 
@@ -141,7 +141,7 @@ toRow item =
             ]
         , div [ class "bar" ]
             [ div [ class "bar__quantityUsed", onClick (ModifyEstimateOnHand item.id (item.maxOnHand |> String.fromInt)) ] []
-            , div [ class "bar__quantityLeft", style "width" (buildQuantityLeftWidth item) ] []
+            , div [ classList [ ( "bar__quantityLeft", True ), ( "bar__quantityLeft--low", calcEstimateRemainingPercentage item <= 20 ) ], style "width" (buildQuantityLeftWidth item) ] []
             ]
         ]
 

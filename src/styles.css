@@ -4,6 +4,8 @@
     --color-grey: #f6f6f6;
     --color-white: #fff;
     --color-purple: #9B4CEA;
+    --color-blue-dark: #7097F9;
+    --color-blue-light: #E3E9F6;
 
     --color-alias-header-main: var(--color-grey);
     --color-alias-list-container: var(--color-grey);
@@ -16,6 +18,9 @@
     --column-gap: 13px;
     --input-padding-left: 16px;
     --input-height: 48px;
+    --input-border-size: 1px;
+
+    --edit-transition: .2s background-color ease;
 }
 
 body {
@@ -111,9 +116,9 @@ body {
 }
 
 .quantity__edit:hover {
-    transition: .3s border ease, .3s background-color ease;
-    border: 1px dashed #7097F9;
-    background-color: #E3E9F6;
+    transition: var(--edit-transition);
+    border: var(--input-border-size) dashed var(--color-blue-dark);
+    background-color: var(--color-blue-light);
 }
 
 .quantity__unit {
@@ -126,13 +131,38 @@ body {
     margin-left: auto;
 }
 
+:root {
+    --quanitiy-used-index: 0;
+    --qaunitiy-left-index: calc(var(--quanitiy-used-index) + 1);
+}
+
 .bar {
     display: flex;
+    position: relative;
     background-color: var(--color-white);
     height: var(--input-height);
+}
+
+.bar__quantityUsed {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+}
+
+.bar__quantityUsed:hover {
+    transition: var(--edit-transition);
+    border: var(--input-border-size) dashed var(--color-blue-dark);
+    background-color: var(--color-blue-light);
+    cursor: pointer;
+    z-index: var(--quanitiy-used-index);
 }
 
 .bar__quantityLeft {
     margin-left: auto;
     background-color: var(--color-alias-quantity-left);
+    border-radius: 5px 0 5px 0;
+    z-index: var(--qaunitiy-left-index);
 }

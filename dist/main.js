@@ -4596,13 +4596,17 @@ var author$project$Main$ModifyName = F2(
 	function (a, b) {
 		return {$: 'ModifyName', a: a, b: b};
 	});
-var elm$core$Basics$append = _Utils_append;
 var elm$core$Basics$fdiv = _Basics_fdiv;
 var elm$core$Basics$mul = _Basics_mul;
 var elm$core$Basics$toFloat = _Basics_toFloat;
+var author$project$Main$calcEstimateRemainingPercentage = function (item) {
+	return (item.estimateOnHand / item.maxOnHand) * 100;
+};
+var elm$core$Basics$append = _Utils_append;
 var elm$core$String$fromFloat = _String_fromNumber;
-var author$project$Main$buildWidthStyle = function (item) {
-	return elm$core$String$fromFloat((item.estimateOnHand / item.maxOnHand) * 100) + '%';
+var author$project$Main$buildQuantityLeftWidth = function (item) {
+	return elm$core$String$fromFloat(
+		author$project$Main$calcEstimateRemainingPercentage(item)) + '%';
 };
 var elm$core$String$fromInt = _String_fromNumber;
 var elm$core$Basics$identity = function (x) {
@@ -4998,13 +5002,29 @@ var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('cl
 var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
 var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
+var elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'click',
+		elm$json$Json$Decode$succeed(msg));
+};
 var elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
 var elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
 	return {$: 'MayStopPropagation', a: a};
 };
-var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
 var elm$html$Html$Events$stopPropagationOn = F2(
 	function (event, decoder) {
 		return A2(
@@ -5115,11 +5135,23 @@ var author$project$Main$toRow = function (item) {
 						elm$html$Html$div,
 						_List_fromArray(
 							[
+								elm$html$Html$Attributes$class('bar__quantityUsed'),
+								elm$html$Html$Events$onClick(
+								A2(
+									author$project$Main$ModifyEstimateOnHand,
+									item.id,
+									elm$core$String$fromInt(item.maxOnHand)))
+							]),
+						_List_Nil),
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
 								elm$html$Html$Attributes$class('bar__quantityLeft'),
 								A2(
 								elm$html$Html$Attributes$style,
 								'width',
-								author$project$Main$buildWidthStyle(item))
+								author$project$Main$buildQuantityLeftWidth(item))
 							]),
 						_List_Nil)
 					]))

@@ -2,7 +2,7 @@ module Main exposing (Item, Model, Msg(..), init, main, toRow, update, updateIte
 
 import Browser
 import Html exposing (Html, button, div, h1, header, input, label, li, section, span, text, ul)
-import Html.Attributes exposing (class, tabindex, value, style)
+import Html.Attributes exposing (class, style, tabindex, value)
 import Html.Events exposing (onClick, onInput)
 
 
@@ -139,12 +139,18 @@ toRow item =
             , input [ class "quantity__edit", onInput (ModifyMaxOnHand item.id), value (item.maxOnHand |> String.fromInt) ] [ text (item.maxOnHand |> String.fromInt) ]
             , span [ class "quantity__unit" ] [ text item.unit ]
             ]
-        , div [ class "bar"] 
-            [ div [ class "bar__quantityLeft", style "width" (buildWidthStyle item) ] []
-
+        , div [ class "bar" ]
+            [ div [ class "bar__quantityUsed", onClick (ModifyEstimateOnHand item.id (item.maxOnHand |> String.fromInt)) ] []
+            , div [ class "bar__quantityLeft", style "width" (buildQuantityLeftWidth item) ] []
             ]
         ]
 
-buildWidthStyle : Item -> String
-buildWidthStyle item =
-    (((toFloat item.estimateOnHand / toFloat item.maxOnHand) * 100) |> String.fromFloat) ++ "%"
+
+buildQuantityLeftWidth : Item -> String
+buildQuantityLeftWidth item =
+    (calcEstimateRemainingPercentage item |> String.fromFloat) ++ "%"
+
+
+calcEstimateRemainingPercentage : Item -> Float
+calcEstimateRemainingPercentage item =
+    toFloat item.estimateOnHand / toFloat item.maxOnHand * 100

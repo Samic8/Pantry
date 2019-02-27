@@ -82,7 +82,7 @@ body {
 
 .row {
     display: grid;
-    grid-template-columns: 240px repeat( auto-fit, minmax(20px, 1fr) );
+    grid-template-columns: 240px 210px 1fr;
     grid-gap: var(--column-gap);
 }
 
@@ -101,7 +101,6 @@ body {
 .quantity {
     display: flex;
     align-items: center;
-    width: 163px;
 }
 
 .quantity__edit {

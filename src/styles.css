@@ -7,10 +7,12 @@
     --color-blue-dark: #7097F9;
     --color-blue-light: #E3E9F6;
     --color-red: #EA4C68;
+    --color-green: #25BE6B;
 
     --color-alias-header-main: var(--color-grey);
     --color-alias-list-container: var(--color-grey);
     --color-alias-input-background: var(--color-white);
+    --color-alias-quantity-excessive: var(--color-green);
     --color-alias-quantity-left: var(--color-purple);
     --color-alias-quantity-left-low: var(--color-red);
 
@@ -134,7 +136,8 @@ body {
 
 :root {
     --quanitiy-used-index: 0;
-    --qaunitiy-left-index: calc(var(--quanitiy-used-index) + 1);
+    --qaunitiy-bar-index: calc(var(--quanitiy-used-index) + 1);
+    --bar-border-radius: 5px;
 }
 
 .bar {
@@ -161,11 +164,17 @@ body {
     z-index: var(--quanitiy-used-index);
 }
 
+.bar__quantityExcessive {
+    background-color: var(--color-alias-quantity-excessive);
+    z-index: var(--qaunitiy-bar-index);
+    border-top-left-radius: var(--bar-border-radius);
+}
+
 .bar__quantityLeft {
     margin-left: auto;
     background-color: var(--color-alias-quantity-left);
-    border-radius: 5px 0 5px 0;
-    z-index: var(--qaunitiy-left-index);
+    border-radius: var(--bar-border-radius) 0 var(--bar-border-radius) 0;
+    z-index: var(--qaunitiy-bar-index);
 }
 
 .bar__quantityLeft--low {

@@ -141,9 +141,16 @@ toRow item =
             ]
         , div [ class "bar" ]
             [ div [ class "bar__quantityUsed", onClick (ModifyEstimateOnHand item.id (item.maxOnHand |> String.fromInt)) ] []
+            , div [ class "bar__quantityExcessive", style "width" (buildQuantityExcessiveWidth item) ] []
             , div [ classList [ ( "bar__quantityLeft", True ), ( "bar__quantityLeft--low", calcEstimateRemainingPercentage item <= 20 ) ], style "width" (buildQuantityLeftWidth item) ] []
             ]
         ]
+
+
+buildQuantityExcessiveWidth : Item -> String
+buildQuantityExcessiveWidth item =
+    -- TODO left percentage is not right in this case, its double what it should be
+    (calcEstimateRemainingPercentage item - 100 |> String.fromFloat) ++ "%"
 
 
 buildQuantityLeftWidth : Item -> String

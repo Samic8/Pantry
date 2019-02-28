@@ -4603,7 +4603,12 @@ var author$project$Main$calcEstimateRemainingPercentage = function (item) {
 	return (item.estimateOnHand / item.maxOnHand) * 100;
 };
 var elm$core$Basics$append = _Utils_append;
+var elm$core$Basics$sub = _Basics_sub;
 var elm$core$String$fromFloat = _String_fromNumber;
+var author$project$Main$buildQuantityExcessiveWidth = function (item) {
+	return elm$core$String$fromFloat(
+		author$project$Main$calcEstimateRemainingPercentage(item) - 100) + '%';
+};
 var author$project$Main$buildQuantityLeftWidth = function (item) {
 	return elm$core$String$fromFloat(
 		author$project$Main$calcEstimateRemainingPercentage(item)) + '%';
@@ -4694,7 +4699,6 @@ var elm$core$Basics$max = F2(
 	function (x, y) {
 		return (_Utils_cmp(x, y) > 0) ? x : y;
 	});
-var elm$core$Basics$sub = _Basics_sub;
 var elm$core$Elm$JsArray$length = _JsArray_length;
 var elm$core$Array$builderToArray = F2(
 	function (reverseNodeList, builder) {
@@ -5166,6 +5170,17 @@ var author$project$Main$toRow = function (item) {
 									author$project$Main$ModifyEstimateOnHand,
 									item.id,
 									elm$core$String$fromInt(item.maxOnHand)))
+							]),
+						_List_Nil),
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('bar__quantityExcessive'),
+								A2(
+								elm$html$Html$Attributes$style,
+								'width',
+								author$project$Main$buildQuantityExcessiveWidth(item))
 							]),
 						_List_Nil),
 						A2(

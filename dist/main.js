@@ -4597,18 +4597,18 @@ var author$project$Main$ModifyName = F2(
 		return {$: 'ModifyName', a: a, b: b};
 	});
 var elm$core$Basics$fdiv = _Basics_fdiv;
+var elm$core$Basics$lt = _Utils_lt;
+var elm$core$Basics$min = F2(
+	function (x, y) {
+		return (_Utils_cmp(x, y) < 0) ? x : y;
+	});
 var elm$core$Basics$mul = _Basics_mul;
 var elm$core$Basics$toFloat = _Basics_toFloat;
 var author$project$Main$calcEstimateRemainingPercentage = function (item) {
-	return (item.estimateOnHand / item.maxOnHand) * 100;
+	return A2(elm$core$Basics$min, (item.estimateOnHand / item.maxOnHand) * 100, 100);
 };
 var elm$core$Basics$append = _Utils_append;
-var elm$core$Basics$sub = _Basics_sub;
 var elm$core$String$fromFloat = _String_fromNumber;
-var author$project$Main$buildQuantityExcessiveWidth = function (item) {
-	return elm$core$String$fromFloat(
-		author$project$Main$calcEstimateRemainingPercentage(item) - 100) + '%';
-};
 var author$project$Main$buildQuantityLeftWidth = function (item) {
 	return elm$core$String$fromFloat(
 		author$project$Main$calcEstimateRemainingPercentage(item)) + '%';
@@ -4699,6 +4699,7 @@ var elm$core$Basics$max = F2(
 	function (x, y) {
 		return (_Utils_cmp(x, y) > 0) ? x : y;
 	});
+var elm$core$Basics$sub = _Basics_sub;
 var elm$core$Elm$JsArray$length = _JsArray_length;
 var elm$core$Array$builderToArray = F2(
 	function (reverseNodeList, builder) {
@@ -4724,7 +4725,6 @@ var elm$core$Array$builderToArray = F2(
 		}
 	});
 var elm$core$Basics$idiv = _Basics_idiv;
-var elm$core$Basics$lt = _Utils_lt;
 var elm$core$Elm$JsArray$initialize = _JsArray_initialize;
 var elm$core$Array$initializeHelp = F5(
 	function (fn, fromIndex, len, nodeList, tail) {
@@ -5176,11 +5176,7 @@ var author$project$Main$toRow = function (item) {
 						elm$html$Html$div,
 						_List_fromArray(
 							[
-								elm$html$Html$Attributes$class('bar__quantityExcessive'),
-								A2(
-								elm$html$Html$Attributes$style,
-								'width',
-								author$project$Main$buildQuantityExcessiveWidth(item))
+								elm$html$Html$Attributes$class('bar__quantityExcessive')
 							]),
 						_List_Nil),
 						A2(

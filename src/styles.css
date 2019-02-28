@@ -118,6 +118,10 @@ body {
     margin: 0 4px;
 }
 
+.quantity__edit--excessive {
+    color: var(--color-alias-quantity-excessive);
+}
+
 .quantity__edit:hover {
     transition: var(--edit-transition);
     border: var(--input-border-size) dashed var(--color-blue-dark);

@@ -4597,21 +4597,27 @@ var author$project$Main$ModifyName = F2(
 		return {$: 'ModifyName', a: a, b: b};
 	});
 var elm$core$Basics$fdiv = _Basics_fdiv;
+var elm$core$Basics$mul = _Basics_mul;
+var elm$core$Basics$toFloat = _Basics_toFloat;
+var author$project$Main$calcEstimateRemainingPercentage = function (item) {
+	return (item.estimateOnHand / item.maxOnHand) * 100;
+};
+var elm$core$Basics$append = _Utils_append;
 var elm$core$Basics$lt = _Utils_lt;
 var elm$core$Basics$min = F2(
 	function (x, y) {
 		return (_Utils_cmp(x, y) < 0) ? x : y;
 	});
-var elm$core$Basics$mul = _Basics_mul;
-var elm$core$Basics$toFloat = _Basics_toFloat;
-var author$project$Main$calcEstimateRemainingPercentage = function (item) {
-	return A2(elm$core$Basics$min, (item.estimateOnHand / item.maxOnHand) * 100, 100);
-};
-var elm$core$Basics$append = _Utils_append;
 var elm$core$String$fromFloat = _String_fromNumber;
 var author$project$Main$buildQuantityLeftWidth = function (item) {
 	return elm$core$String$fromFloat(
-		author$project$Main$calcEstimateRemainingPercentage(item)) + '%';
+		A2(
+			elm$core$Basics$min,
+			author$project$Main$calcEstimateRemainingPercentage(item),
+			100)) + '%';
+};
+var author$project$Main$isOverstocked = function (item) {
+	return author$project$Main$calcEstimateRemainingPercentage(item) > 100;
 };
 var elm$core$Basics$True = {$: 'True'};
 var elm$core$Basics$le = _Utils_le;
@@ -5113,6 +5119,13 @@ var author$project$Main$toRow = function (item) {
 						_List_fromArray(
 							[
 								elm$html$Html$Attributes$class('quantity__edit'),
+								elm$html$Html$Attributes$classList(
+								_List_fromArray(
+									[
+										_Utils_Tuple2(
+										'quantity__edit--excessive',
+										author$project$Main$isOverstocked(item))
+									])),
 								elm$html$Html$Events$onInput(
 								author$project$Main$ModifyEstimateOnHand(item.id)),
 								elm$html$Html$Attributes$value(

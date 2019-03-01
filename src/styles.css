@@ -147,6 +147,7 @@ body {
     flex: 1 1 0;
     width: 0;
     margin: 0 4px;
+    background-color: var(--color-grey-light);
 }
 
 :root {

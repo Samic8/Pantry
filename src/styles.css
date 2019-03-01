@@ -90,6 +90,7 @@ body {
     grid-gap: var(--column-gap);
 }
 
+/* InputBox */
 .inputBox {
     height: var(--input-height);
     padding-left: var(--input-padding-left);
@@ -98,6 +99,22 @@ body {
     background-color: var(--color-white);
 }
 
+.inputBox__innerEdit {
+    height: var(--quantity-edit-height);
+    font-size: var(--primary-font-size);
+    box-sizing: border-box;
+    text-align: center;
+    border: 1px solid transparent;
+    min-width: 0;
+}
+
+.inputBox__innerEdit:hover {
+    transition: var(--edit-transition);
+    border: var(--input-border-size) dashed var(--color-blue-dark);
+    background-color: var(--color-blue-light);
+}
+
+/* Quanitiy */
 :root {
     --quantity-edit-height: 31px;
 }
@@ -109,23 +126,11 @@ body {
 
 .quantity__edit {
     flex: 1 1 0;
-    min-width: 0;
-    height: var(--quantity-edit-height);
-    font-size: var(--primary-font-size);
-    box-sizing: border-box;
-    text-align: center;
-    border: 1px solid transparent;
     margin: 0 4px;
 }
 
 .quantity__edit--excessive {
     color: var(--color-alias-quantity-excessive);
-}
-
-.quantity__edit:hover {
-    transition: var(--edit-transition);
-    border: var(--input-border-size) dashed var(--color-blue-dark);
-    background-color: var(--color-blue-light);
 }
 
 .quantity__unit {
@@ -138,12 +143,19 @@ body {
     margin-left: auto;
 }
 
+.quantity__unit__innerEdit {
+    flex: 1 1 0;
+    width: 0;
+    margin: 0 4px;
+}
+
 :root {
     --quanitiy-used-index: 0;
     --qaunitiy-bar-index: calc(var(--quanitiy-used-index) + 1);
     --bar-border-radius: 5px;
 }
 
+/* Bar */
 .bar {
     display: flex;
     position: relative;

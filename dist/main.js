@@ -4396,7 +4396,8 @@ var author$project$Main$init = {
 			{estimateOnHand: 400, id: 1, maxOnHand: 500, name: 'Chickpeas', unit: 'g'},
 			{estimateOnHand: 200, id: 2, maxOnHand: 700, name: 'Red Lentils', unit: 'g'},
 			{estimateOnHand: 10, id: 3, maxOnHand: 100, name: 'Cinnamon', unit: 'g'},
-			{estimateOnHand: 40, id: 4, maxOnHand: 150, name: 'Chocolate', unit: 'g'}
+			{estimateOnHand: 40, id: 4, maxOnHand: 150, name: 'Chocolate', unit: 'g'},
+			{estimateOnHand: 0, id: 0, maxOnHand: 500, name: '', unit: 'g'}
 		]),
 	title: 'Sam\'s Kitchen Pantry'
 };
@@ -5136,7 +5137,7 @@ var author$project$Main$toRow = function (item) {
 						elm$html$Html$input,
 						_List_fromArray(
 							[
-								elm$html$Html$Attributes$class('quantity__edit'),
+								elm$html$Html$Attributes$class('quantity__edit inputBox__innerEdit'),
 								elm$html$Html$Attributes$classList(
 								_List_fromArray(
 									[
@@ -5161,7 +5162,7 @@ var author$project$Main$toRow = function (item) {
 						elm$html$Html$input,
 						_List_fromArray(
 							[
-								elm$html$Html$Attributes$class('quantity__edit'),
+								elm$html$Html$Attributes$class('quantity__edit inputBox__innerEdit'),
 								elm$html$Html$Events$onInput(
 								author$project$Main$ModifyMaxOnHand(item.id)),
 								elm$html$Html$Attributes$value(
@@ -5180,7 +5181,14 @@ var author$project$Main$toRow = function (item) {
 							]),
 						_List_fromArray(
 							[
-								elm$html$Html$text(item.unit)
+								A2(
+								elm$html$Html$input,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('quantity__unit__innerEdit inputBox__innerEdit'),
+										elm$html$Html$Attributes$value(item.unit)
+									]),
+								_List_Nil)
 							]))
 					])),
 				A2(

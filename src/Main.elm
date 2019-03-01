@@ -50,6 +50,7 @@ init =
         , { id = 2, name = "Red Lentils", estimateOnHand = 200, maxOnHand = 700, unit = "g" }
         , { id = 3, name = "Cinnamon", estimateOnHand = 10, maxOnHand = 100, unit = "g" }
         , { id = 4, name = "Chocolate", estimateOnHand = 40, maxOnHand = 150, unit = "g" }
+        , { id = 0, name = "", estimateOnHand = 0, maxOnHand = 500, unit = "g" }
         ]
     }
 
@@ -134,10 +135,10 @@ toRow item =
     li [ class "row" ]
         [ input [ class "inputBox", onInput (ModifyName item.id), value item.name ] []
         , div [ class "quantity inputBox" ]
-            [ input [ class "quantity__edit", classList [ ( "quantity__edit--excessive", isOverstocked item ) ], onInput (ModifyEstimateOnHand item.id), value (item.estimateOnHand |> String.fromInt) ] []
+            [ input [ class "quantity__edit inputBox__innerEdit", classList [ ( "quantity__edit--excessive", isOverstocked item ) ], onInput (ModifyEstimateOnHand item.id), value (item.estimateOnHand |> String.fromInt) ] []
             , span [] [ text "/" ]
-            , input [ class "quantity__edit", onInput (ModifyMaxOnHand item.id), value (item.maxOnHand |> String.fromInt) ] [ text (item.maxOnHand |> String.fromInt) ]
-            , span [ class "quantity__unit" ] [ text item.unit ]
+            , input [ class "quantity__edit inputBox__innerEdit", onInput (ModifyMaxOnHand item.id), value (item.maxOnHand |> String.fromInt) ] [ text (item.maxOnHand |> String.fromInt) ]
+            , span [ class "quantity__unit" ] [ input [ class "quantity__unit__innerEdit inputBox__innerEdit", value item.unit ] [] ]
             ]
         , div [ class "bar" ]
             [ div [ class "bar__quantityUsed", onClick (ModifyEstimateOnHand item.id (item.maxOnHand |> String.fromInt)) ] []

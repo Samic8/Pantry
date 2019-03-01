@@ -4629,6 +4629,18 @@ var author$project$Main$isOverstocked = function (item) {
 };
 var elm$core$Basics$True = {$: 'True'};
 var elm$core$Basics$le = _Utils_le;
+var author$project$Main$quanitiyLeftClassList = function (item) {
+	return _List_fromArray(
+		[
+			_Utils_Tuple2('bar__quantityLeft', true),
+			_Utils_Tuple2(
+			'bar__quantityLeft--low',
+			author$project$Main$calcEstimateRemainingPercentage(item) <= 20),
+			_Utils_Tuple2(
+			'bar__quantityLeft--excessive',
+			author$project$Main$isQuantityExcessive(item))
+		]);
+};
 var elm$core$String$fromInt = _String_fromNumber;
 var elm$core$Basics$identity = function (x) {
 	return x;
@@ -5208,16 +5220,7 @@ var author$project$Main$toRow = function (item) {
 						_List_fromArray(
 							[
 								elm$html$Html$Attributes$classList(
-								_List_fromArray(
-									[
-										_Utils_Tuple2('bar__quantityLeft', true),
-										_Utils_Tuple2(
-										'bar__quantityLeft--low',
-										author$project$Main$calcEstimateRemainingPercentage(item) <= 20),
-										_Utils_Tuple2(
-										'bar__quantityLeft--excessive',
-										author$project$Main$isQuantityExcessive(item))
-									])),
+								author$project$Main$quanitiyLeftClassList(item)),
 								A2(
 								elm$html$Html$Attributes$style,
 								'width',

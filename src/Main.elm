@@ -142,9 +142,17 @@ toRow item =
         , div [ class "bar" ]
             [ div [ class "bar__quantityUsed", onClick (ModifyEstimateOnHand item.id (item.maxOnHand |> String.fromInt)) ] []
             , div [ class "bar__quantityExcessive", style "width" (buildQuantityExcessiveWidth item) ] []
-            , div [ classList [ ( "bar__quantityLeft", True ), ( "bar__quantityLeft--low", calcEstimateRemainingPercentage item <= 20 ), ( "bar__quantityLeft--excessive", isQuantityExcessive item ) ], style "width" (buildQuantityLeftWidth item) ] []
+            , div [ classList (quanitiyLeftClassList item), style "width" (buildQuantityLeftWidth item) ] []
             ]
         ]
+
+
+quanitiyLeftClassList : Item -> List ( String, Bool )
+quanitiyLeftClassList item =
+    [ ( "bar__quantityLeft", True )
+    , ( "bar__quantityLeft--low", calcEstimateRemainingPercentage item <= 20 )
+    , ( "bar__quantityLeft--excessive", isQuantityExcessive item )
+    ]
 
 
 buildQuantityExcessiveWidth : Item -> String

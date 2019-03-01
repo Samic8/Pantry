@@ -134,7 +134,7 @@ toRow item =
     li [ class "row" ]
         [ input [ class "inputBox", onInput (ModifyName item.id), value item.name ] []
         , div [ class "quantity inputBox" ]
-            [ input [ class "quantity__edit", classList [("quantity__edit--excessive", isOverstocked item)], onInput (ModifyEstimateOnHand item.id), value (item.estimateOnHand |> String.fromInt) ] []
+            [ input [ class "quantity__edit", classList [ ( "quantity__edit--excessive", isOverstocked item ) ], onInput (ModifyEstimateOnHand item.id), value (item.estimateOnHand |> String.fromInt) ] []
             , span [] [ text "/" ]
             , input [ class "quantity__edit", onInput (ModifyMaxOnHand item.id), value (item.maxOnHand |> String.fromInt) ] [ text (item.maxOnHand |> String.fromInt) ]
             , span [ class "quantity__unit" ] [ text item.unit ]
@@ -147,18 +147,20 @@ toRow item =
         ]
 
 
-
 buildQuantityExcessiveWidth : Item -> String
 buildQuantityExcessiveWidth item =
-    if (calcEstimateRemainingPercentage item >= 100) then
+    if calcEstimateRemainingPercentage item >= 100 then
         ((100 - (toFloat item.maxOnHand / toFloat item.estimateOnHand) * 100) |> String.fromFloat) ++ "%"
+
     else
         "0%"
 
+
 buildQuantityLeftWidth : Item -> String
 buildQuantityLeftWidth item =
-    if (calcEstimateRemainingPercentage item <= 100) then
-        ((min (calcEstimateRemainingPercentage item) 100) |> String.fromFloat) ++ "%"
+    if calcEstimateRemainingPercentage item <= 100 then
+        (min (calcEstimateRemainingPercentage item) 100 |> String.fromFloat) ++ "%"
+
     else
         (((toFloat item.maxOnHand / toFloat item.estimateOnHand) * 100) |> String.fromFloat) ++ "%"
 
@@ -167,8 +169,7 @@ calcEstimateRemainingPercentage : Item -> Float
 calcEstimateRemainingPercentage item =
     toFloat item.estimateOnHand / toFloat item.maxOnHand * 100
 
+
 isOverstocked : Item -> Bool
 isOverstocked item =
     calcEstimateRemainingPercentage item > 100
-
-

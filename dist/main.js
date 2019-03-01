@@ -4602,9 +4602,8 @@ var elm$core$Basics$toFloat = _Basics_toFloat;
 var author$project$Main$calcEstimateRemainingPercentage = function (item) {
 	return (item.estimateOnHand / item.maxOnHand) * 100;
 };
-var elm$core$Basics$ge = _Utils_ge;
 var author$project$Main$isQuantityExcessive = function (item) {
-	return author$project$Main$calcEstimateRemainingPercentage(item) >= 100;
+	return author$project$Main$calcEstimateRemainingPercentage(item) > 100;
 };
 var elm$core$Basics$append = _Utils_append;
 var elm$core$Basics$sub = _Basics_sub;

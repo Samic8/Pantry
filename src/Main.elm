@@ -166,7 +166,7 @@ buildQuantityExcessiveWidth item =
 
 isQuantityExcessive : Item -> Bool
 isQuantityExcessive item =
-    calcEstimateRemainingPercentage item >= 100
+    calcEstimateRemainingPercentage item > 100
 
 
 buildQuantityLeftWidth : Item -> String

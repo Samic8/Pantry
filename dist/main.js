@@ -4602,30 +4602,33 @@ var elm$core$Basics$toFloat = _Basics_toFloat;
 var author$project$Main$calcEstimateRemainingPercentage = function (item) {
 	return (item.estimateOnHand / item.maxOnHand) * 100;
 };
-var elm$core$Basics$append = _Utils_append;
 var elm$core$Basics$ge = _Utils_ge;
+var author$project$Main$isQuantityExcessive = function (item) {
+	return author$project$Main$calcEstimateRemainingPercentage(item) >= 100;
+};
+var elm$core$Basics$append = _Utils_append;
 var elm$core$Basics$sub = _Basics_sub;
 var elm$core$String$fromFloat = _String_fromNumber;
 var author$project$Main$buildQuantityExcessiveWidth = function (item) {
-	return (author$project$Main$calcEstimateRemainingPercentage(item) >= 100) ? (elm$core$String$fromFloat(100 - ((item.maxOnHand / item.estimateOnHand) * 100)) + '%') : '0%';
+	return author$project$Main$isQuantityExcessive(item) ? (elm$core$String$fromFloat(100 - ((item.maxOnHand / item.estimateOnHand) * 100)) + '%') : '0%';
 };
-var elm$core$Basics$le = _Utils_le;
 var elm$core$Basics$lt = _Utils_lt;
 var elm$core$Basics$min = F2(
 	function (x, y) {
 		return (_Utils_cmp(x, y) < 0) ? x : y;
 	});
 var author$project$Main$buildQuantityLeftWidth = function (item) {
-	return (author$project$Main$calcEstimateRemainingPercentage(item) <= 100) ? (elm$core$String$fromFloat(
+	return author$project$Main$isQuantityExcessive(item) ? (elm$core$String$fromFloat((item.maxOnHand / item.estimateOnHand) * 100) + '%') : (elm$core$String$fromFloat(
 		A2(
 			elm$core$Basics$min,
 			author$project$Main$calcEstimateRemainingPercentage(item),
-			100)) + '%') : (elm$core$String$fromFloat((item.maxOnHand / item.estimateOnHand) * 100) + '%');
+			100)) + '%');
 };
 var author$project$Main$isOverstocked = function (item) {
 	return author$project$Main$calcEstimateRemainingPercentage(item) > 100;
 };
 var elm$core$Basics$True = {$: 'True'};
+var elm$core$Basics$le = _Utils_le;
 var elm$core$String$fromInt = _String_fromNumber;
 var elm$core$Basics$identity = function (x) {
 	return x;
@@ -5210,7 +5213,10 @@ var author$project$Main$toRow = function (item) {
 										_Utils_Tuple2('bar__quantityLeft', true),
 										_Utils_Tuple2(
 										'bar__quantityLeft--low',
-										author$project$Main$calcEstimateRemainingPercentage(item) <= 20)
+										author$project$Main$calcEstimateRemainingPercentage(item) <= 20),
+										_Utils_Tuple2(
+										'bar__quantityLeft--excessive',
+										author$project$Main$isQuantityExcessive(item))
 									])),
 								A2(
 								elm$html$Html$Attributes$style,

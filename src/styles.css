@@ -181,6 +181,10 @@ body {
     z-index: var(--qaunitiy-bar-index);
 }
 
+.bar__quantityLeft--excessive {
+    border-top-left-radius: 0;
+}
+
 .bar__quantityLeft--low {
     background-color: var(--color-alias-quantity-left-low);
 }

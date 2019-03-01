@@ -142,27 +142,32 @@ toRow item =
         , div [ class "bar" ]
             [ div [ class "bar__quantityUsed", onClick (ModifyEstimateOnHand item.id (item.maxOnHand |> String.fromInt)) ] []
             , div [ class "bar__quantityExcessive", style "width" (buildQuantityExcessiveWidth item) ] []
-            , div [ classList [ ( "bar__quantityLeft", True ), ( "bar__quantityLeft--low", calcEstimateRemainingPercentage item <= 20 ) ], style "width" (buildQuantityLeftWidth item) ] []
+            , div [ classList [ ( "bar__quantityLeft", True ), ( "bar__quantityLeft--low", calcEstimateRemainingPercentage item <= 20 ), ( "bar__quantityLeft--excessive", isQuantityExcessive item ) ], style "width" (buildQuantityLeftWidth item) ] []
             ]
         ]
 
 
 buildQuantityExcessiveWidth : Item -> String
 buildQuantityExcessiveWidth item =
-    if calcEstimateRemainingPercentage item >= 100 then
+    if isQuantityExcessive item then
         ((100 - (toFloat item.maxOnHand / toFloat item.estimateOnHand) * 100) |> String.fromFloat) ++ "%"
 
     else
         "0%"
 
 
+isQuantityExcessive : Item -> Bool
+isQuantityExcessive item =
+    calcEstimateRemainingPercentage item >= 100
+
+
 buildQuantityLeftWidth : Item -> String
 buildQuantityLeftWidth item =
-    if calcEstimateRemainingPercentage item <= 100 then
-        (min (calcEstimateRemainingPercentage item) 100 |> String.fromFloat) ++ "%"
+    if isQuantityExcessive item then
+        (((toFloat item.maxOnHand / toFloat item.estimateOnHand) * 100) |> String.fromFloat) ++ "%"
 
     else
-        (((toFloat item.maxOnHand / toFloat item.estimateOnHand) * 100) |> String.fromFloat) ++ "%"
+        (min (calcEstimateRemainingPercentage item) 100 |> String.fromFloat) ++ "%"
 
 
 calcEstimateRemainingPercentage : Item -> Float

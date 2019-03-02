@@ -4,6 +4,7 @@
     --color-grey: #f6f6f6;
     --color-white: #fff;
     --color-purple: #9B4CEA;
+    --color-blue-darkest: #0441B8;
     --color-blue-dark: #7097F9;
     --color-blue-light: #E3E9F6;
     --color-red: #EA4C68;
@@ -23,6 +24,7 @@
     --input-padding-left: 16px;
     --input-height: 48px;
     --input-border-size: 1px;
+    --list-container-side-padding: 42px;
 
     --edit-transition: .2s background-color ease;
 }
@@ -76,7 +78,7 @@ body {
 .listContainer {
     background-color: var(--color-alias-list-container);
     width: 740px;
-    padding: 32px 42px;
+    padding: 32px var(--list-container-side-padding);
     border-radius: 5px;
     margin-top: 70px;
     list-style-type: none;
@@ -86,8 +88,21 @@ body {
 
 .row {
     display: grid;
+    position: relative;
     grid-template-columns: 240px 210px 1fr;
     grid-gap: var(--column-gap);
+}
+
+.row__confirmTick {
+    position: absolute;
+    right: calc((var(--list-container-side-padding) + 9px) * -1);
+    top: 50%;
+    transform: translate(100%, -50%);
+    cursor: pointer;
+}
+
+.row__confirmTick--hidden {
+    display: none;
 }
 
 /* InputBox */
@@ -97,6 +112,10 @@ body {
     font-size: var(--primary-font-size);
     border: none;
     background-color: var(--color-white);
+}
+
+.inputBox::placeholder {
+    color: var(--color-blue-darkest);
 }
 
 .inputBox__innerEdit {

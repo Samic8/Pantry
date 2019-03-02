@@ -4310,6 +4310,8 @@ function _Browser_load(url)
 		}
 	}));
 }
+var elm$core$Basics$False = {$: 'False'};
+var elm$core$Basics$True = {$: 'True'};
 var elm$core$Basics$EQ = {$: 'EQ'};
 var elm$core$Basics$LT = {$: 'LT'};
 var elm$core$Elm$JsArray$foldr = _JsArray_foldr;
@@ -4393,11 +4395,11 @@ var elm$core$Set$toList = function (_n0) {
 var author$project$Main$init = {
 	items: _List_fromArray(
 		[
-			{estimateOnHand: 400, id: 1, maxOnHand: 500, name: 'Chickpeas', unit: 'g'},
-			{estimateOnHand: 200, id: 2, maxOnHand: 700, name: 'Red Lentils', unit: 'g'},
-			{estimateOnHand: 10, id: 3, maxOnHand: 100, name: 'Cinnamon', unit: 'g'},
-			{estimateOnHand: 40, id: 4, maxOnHand: 150, name: 'Chocolate', unit: 'g'},
-			{estimateOnHand: 0, id: 0, maxOnHand: 500, name: '', unit: 'g'}
+			{estimateOnHand: 400, id: 1, isNew: false, maxOnHand: 500, name: 'Chickpeas', unit: 'g'},
+			{estimateOnHand: 200, id: 2, isNew: false, maxOnHand: 700, name: 'Red Lentils', unit: 'g'},
+			{estimateOnHand: 10, id: 3, isNew: false, maxOnHand: 100, name: 'Cinnamon', unit: 'g'},
+			{estimateOnHand: 40, id: 4, isNew: false, maxOnHand: 150, name: 'Chocolate', unit: 'g'},
+			{estimateOnHand: 0, id: 0, isNew: true, maxOnHand: 500, name: '', unit: 'g'}
 		]),
 	title: 'Sam\'s Kitchen Pantry'
 };
@@ -4624,10 +4626,12 @@ var author$project$Main$buildQuantityLeftWidth = function (item) {
 			author$project$Main$calcEstimateRemainingPercentage(item),
 			100)) + '%');
 };
+var author$project$Main$getPlaceholderText = function (item) {
+	return item.isNew ? 'Add new item.....' : '';
+};
 var author$project$Main$isOverstocked = function (item) {
 	return author$project$Main$calcEstimateRemainingPercentage(item) > 100;
 };
-var elm$core$Basics$True = {$: 'True'};
 var elm$core$Basics$le = _Utils_le;
 var author$project$Main$quanitiyLeftClassList = function (item) {
 	return _List_fromArray(
@@ -4645,7 +4649,6 @@ var elm$core$String$fromInt = _String_fromNumber;
 var elm$core$Basics$identity = function (x) {
 	return x;
 };
-var elm$core$Basics$False = {$: 'False'};
 var elm$core$Result$isOk = function (result) {
 	if (result.$ === 'Ok') {
 		return true;
@@ -5014,6 +5017,7 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 	}
 };
 var elm$html$Html$div = _VirtualDom_node('div');
+var elm$html$Html$img = _VirtualDom_node('img');
 var elm$html$Html$input = _VirtualDom_node('input');
 var elm$html$Html$li = _VirtualDom_node('li');
 var elm$html$Html$span = _VirtualDom_node('span');
@@ -5052,6 +5056,13 @@ var elm$html$Html$Attributes$classList = function (classes) {
 				elm$core$List$map,
 				elm$core$Tuple$first,
 				A2(elm$core$List$filter, elm$core$Tuple$second, classes))));
+};
+var elm$html$Html$Attributes$placeholder = elm$html$Html$Attributes$stringProperty('placeholder');
+var elm$html$Html$Attributes$src = function (url) {
+	return A2(
+		elm$html$Html$Attributes$stringProperty,
+		'src',
+		_VirtualDom_noJavaScriptOrHtmlUri(url));
 };
 var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
@@ -5122,7 +5133,9 @@ var author$project$Main$toRow = function (item) {
 						elm$html$Html$Attributes$class('inputBox'),
 						elm$html$Html$Events$onInput(
 						author$project$Main$ModifyName(item.id)),
-						elm$html$Html$Attributes$value(item.name)
+						elm$html$Html$Attributes$value(item.name),
+						elm$html$Html$Attributes$placeholder(
+						author$project$Main$getPlaceholderText(item))
 					]),
 				_List_Nil),
 				A2(
@@ -5232,6 +5245,27 @@ var author$project$Main$toRow = function (item) {
 								elm$html$Html$Attributes$style,
 								'width',
 								author$project$Main$buildQuantityLeftWidth(item))
+							]),
+						_List_Nil)
+					])),
+				A2(
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$classList(
+						_List_fromArray(
+							[
+								_Utils_Tuple2('row__confirmTick', true),
+								_Utils_Tuple2('row__confirmTick--hidden', !item.isNew)
+							]))
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$img,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$src('./src/svg/tick.svg')
 							]),
 						_List_Nil)
 					]))

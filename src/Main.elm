@@ -1,8 +1,8 @@
 module Main exposing (Item, Model, Msg(..), init, main, toRow, update, updateItem, view)
 
 import Browser
-import Html exposing (Html, button, div, h1, header, input, label, li, section, span, text, ul)
-import Html.Attributes exposing (class, classList, style, tabindex, value)
+import Html exposing (Html, button, div, h1, header, img, input, label, li, section, span, text, ul)
+import Html.Attributes exposing (class, classList, placeholder, src, style, tabindex, value)
 import Html.Events exposing (onClick, onInput)
 
 
@@ -27,7 +27,7 @@ type alias MaxOnHand =
 
 
 type alias Item =
-    { id : Id, name : String, estimateOnHand : EstimateOnHand, maxOnHand : MaxOnHand, unit : String }
+    { id : Id, name : String, estimateOnHand : EstimateOnHand, maxOnHand : MaxOnHand, unit : String, isNew : Bool }
 
 
 type Prop
@@ -46,11 +46,11 @@ init : Model
 init =
     { title = "Sam's Kitchen Pantry"
     , items =
-        [ { id = 1, name = "Chickpeas", estimateOnHand = 400, maxOnHand = 500, unit = "g" }
-        , { id = 2, name = "Red Lentils", estimateOnHand = 200, maxOnHand = 700, unit = "g" }
-        , { id = 3, name = "Cinnamon", estimateOnHand = 10, maxOnHand = 100, unit = "g" }
-        , { id = 4, name = "Chocolate", estimateOnHand = 40, maxOnHand = 150, unit = "g" }
-        , { id = 0, name = "", estimateOnHand = 0, maxOnHand = 500, unit = "g" }
+        [ { id = 1, name = "Chickpeas", estimateOnHand = 400, maxOnHand = 500, unit = "g", isNew = False }
+        , { id = 2, name = "Red Lentils", estimateOnHand = 200, maxOnHand = 700, unit = "g", isNew = False }
+        , { id = 3, name = "Cinnamon", estimateOnHand = 10, maxOnHand = 100, unit = "g", isNew = False }
+        , { id = 4, name = "Chocolate", estimateOnHand = 40, maxOnHand = 150, unit = "g", isNew = False }
+        , { id = 0, name = "", estimateOnHand = 0, maxOnHand = 500, unit = "g", isNew = True }
         ]
     }
 
@@ -133,7 +133,7 @@ view model =
 toRow : Item -> Html Msg
 toRow item =
     li [ class "row" ]
-        [ input [ class "inputBox", onInput (ModifyName item.id), value item.name ] []
+        [ input [ class "inputBox", onInput (ModifyName item.id), value item.name, placeholder (getPlaceholderText item) ] []
         , div [ class "quantity inputBox" ]
             [ input [ class "quantity__edit inputBox__innerEdit", classList [ ( "quantity__edit--excessive", isOverstocked item ) ], onInput (ModifyEstimateOnHand item.id), value (item.estimateOnHand |> String.fromInt) ] []
             , span [] [ text "/" ]
@@ -145,7 +145,19 @@ toRow item =
             , div [ class "bar__quantityExcessive", style "width" (buildQuantityExcessiveWidth item) ] []
             , div [ classList (quanitiyLeftClassList item), style "width" (buildQuantityLeftWidth item) ] []
             ]
+        , div [ classList [ ( "row__confirmTick", True ), ( "row__confirmTick--hidden", item.isNew == False ) ] ]
+            [ img [ src "./src/svg/tick.svg" ] []
+            ]
         ]
+
+
+getPlaceholderText : Item -> String
+getPlaceholderText item =
+    if item.isNew then
+        "Add new item....."
+
+    else
+        ""
 
 
 quanitiyLeftClassList : Item -> List ( String, Bool )

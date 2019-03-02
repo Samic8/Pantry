@@ -5066,6 +5066,12 @@ var elm$html$Html$Attributes$src = function (url) {
 };
 var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
+var elm$html$Html$Attributes$tabindex = function (n) {
+	return A2(
+		_VirtualDom_attribute,
+		'tabIndex',
+		elm$core$String$fromInt(n));
+};
 var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
 var elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
@@ -5257,7 +5263,8 @@ var author$project$Main$toRow = function (item) {
 							[
 								_Utils_Tuple2('row__confirmTick', true),
 								_Utils_Tuple2('row__confirmTick--hidden', !item.isNew)
-							]))
+							])),
+						elm$html$Html$Attributes$tabindex(0)
 					]),
 				_List_fromArray(
 					[

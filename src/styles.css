@@ -99,6 +99,20 @@ body {
     top: 50%;
     transform: translate(100%, -50%);
     cursor: pointer;
+    border-radius: 50%;
+    width: 55px;
+    height: 48px;
+    border: var(--input-border-size) dashed transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.row__confirmTick:hover, .row__confirmTick:focus {
+    border: var(--input-border-size) dashed var(--color-blue-dark);
+    background-color: var(--color-alias-list-container);
+    transition: var(--edit-transition);
+    outline: none;
 }
 
 .row__confirmTick--hidden {

@@ -145,7 +145,7 @@ toRow item =
             , div [ class "bar__quantityExcessive", style "width" (buildQuantityExcessiveWidth item) ] []
             , div [ classList (quanitiyLeftClassList item), style "width" (buildQuantityLeftWidth item) ] []
             ]
-        , div [ classList [ ( "row__confirmTick", True ), ( "row__confirmTick--hidden", item.isNew == False ) ] ]
+        , div [ classList [ ( "row__confirmTick", True ), ( "row__confirmTick--hidden", item.isNew == False ) ], tabindex 0 ]
             [ img [ src "./src/svg/tick.svg" ] []
             ]
         ]

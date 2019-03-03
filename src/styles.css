@@ -141,10 +141,11 @@ body {
     min-width: 0;
 }
 
-.inputBox__innerEdit:hover {
+.inputBox__innerEdit:hover, .inputBox__innerEdit:focus {
     transition: var(--edit-transition);
     border: var(--input-border-size) dashed var(--color-blue-dark);
     background-color: var(--color-blue-light);
+    outline: 0;
 }
 
 /* Quanitiy */

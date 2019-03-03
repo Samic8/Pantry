@@ -94,14 +94,15 @@ body {
 }
 
 .row__confirmTick {
+    --height: 48px;
+    --width: 55px;
+    --extra-offset: 10px;
     position: absolute;
-    right: calc((var(--list-container-side-padding) + 9px) * -1);
-    top: 50%;
-    transform: translate(100%, -50%);
+    right: calc((var(--list-container-side-padding) + var(--width) + var(--extra-offset)) * -1);
     cursor: pointer;
     border-radius: 50%;
-    width: 55px;
-    height: 48px;
+    width: var(--width);
+    height: var(--height);
     border: var(--input-border-size) dashed transparent;
     display: flex;
     align-items: center;
@@ -115,7 +116,37 @@ body {
     outline: none;
 }
 
+@keyframes pushed {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    40% {
+        opacity: 1;
+        transform: scale(.9);
+    }
+
+    80% {
+        opacity: .8;
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.1);
+    }
+}
+
+.row__confirmTick--doesNotHaveName {
+    display: none;
+}
+
 .row__confirmTick--hidden {
+    opacity: 0; 
+    animation: .2s pushed;
+}
+
+.row__confirmTick--allwaysHidden {
     display: none;
 }
 

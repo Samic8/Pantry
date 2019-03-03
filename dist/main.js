@@ -4310,8 +4310,11 @@ function _Browser_load(url)
 		}
 	}));
 }
-var elm$core$Basics$False = {$: 'False'};
 var elm$core$Basics$True = {$: 'True'};
+var elm$core$Maybe$Just = function (a) {
+	return {$: 'Just', a: a};
+};
+var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var elm$core$Basics$EQ = {$: 'EQ'};
 var elm$core$Basics$LT = {$: 'LT'};
 var elm$core$Elm$JsArray$foldr = _JsArray_foldr;
@@ -4395,11 +4398,18 @@ var elm$core$Set$toList = function (_n0) {
 var author$project$Main$init = {
 	items: _List_fromArray(
 		[
-			{estimateOnHand: 400, id: 1, isNew: false, maxOnHand: 500, name: 'Chickpeas', unit: 'g'},
-			{estimateOnHand: 200, id: 2, isNew: false, maxOnHand: 700, name: 'Red Lentils', unit: 'g'},
-			{estimateOnHand: 10, id: 3, isNew: false, maxOnHand: 100, name: 'Cinnamon', unit: 'g'},
-			{estimateOnHand: 40, id: 4, isNew: false, maxOnHand: 150, name: 'Chocolate', unit: 'g'},
-			{estimateOnHand: 0, id: 0, isNew: true, maxOnHand: 500, name: '', unit: 'g'}
+			{estimateOnHand: 400, id: 1, isNew: elm$core$Maybe$Nothing, maxOnHand: 500, name: 'Chickpeas', unit: 'g'},
+			{estimateOnHand: 200, id: 2, isNew: elm$core$Maybe$Nothing, maxOnHand: 700, name: 'Red Lentils', unit: 'g'},
+			{estimateOnHand: 10, id: 3, isNew: elm$core$Maybe$Nothing, maxOnHand: 100, name: 'Cinnamon', unit: 'g'},
+			{estimateOnHand: 40, id: 4, isNew: elm$core$Maybe$Nothing, maxOnHand: 150, name: 'Chocolate', unit: 'g'},
+			{
+			estimateOnHand: 0,
+			id: 0,
+			isNew: elm$core$Maybe$Just(true),
+			maxOnHand: 500,
+			name: '',
+			unit: 'g'
+		}
 		]),
 	title: 'Sam\'s Kitchen Pantry'
 };
@@ -4419,10 +4429,6 @@ var elm$core$Maybe$withDefault = F2(
 			return _default;
 		}
 	});
-var elm$core$Maybe$Just = function (a) {
-	return {$: 'Just', a: a};
-};
-var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var elm$core$String$toInt = _String_toInt;
 var author$project$Main$parseOnHand = function (stringVal) {
 	return A2(
@@ -4447,10 +4453,16 @@ var author$project$Main$updateItem = F4(
 						{
 							maxOnHand: author$project$Main$parseOnHand(newVal)
 						});
-				default:
+				case 'Name':
 					return _Utils_update(
 						item,
 						{name: newVal});
+				default:
+					return _Utils_update(
+						item,
+						{
+							isNew: elm$core$Maybe$Just(true)
+						});
 			}
 		} else {
 			return item;
@@ -4562,6 +4574,28 @@ var author$project$Main$updateModel = F4(
 					model.items)
 			});
 	});
+var elm$core$Basics$False = {$: 'False'};
+var author$project$Main$updateSaveNewItem = F2(
+	function (item, id) {
+		return _Utils_eq(id, item.id) ? _Utils_update(
+			item,
+			{
+				isNew: elm$core$Maybe$Just(false)
+			}) : item;
+	});
+var author$project$Main$updateSaveNewModel = F2(
+	function (model, id) {
+		return _Utils_update(
+			model,
+			{
+				items: A2(
+					elm$core$List$map,
+					function (item) {
+						return A2(author$project$Main$updateSaveNewItem, item, id);
+					},
+					model.items)
+			});
+	});
 var author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -4578,10 +4612,13 @@ var author$project$Main$update = F2(
 				var id = msg.a;
 				var newEstimate = msg.b;
 				return A4(author$project$Main$updateModel, model, id, newEstimate, author$project$Main$EstimateOnHand);
-			default:
+			case 'ModifyMaxOnHand':
 				var id = msg.a;
 				var newMax = msg.b;
 				return A4(author$project$Main$updateModel, model, id, newMax, author$project$Main$MaxOnHand);
+			default:
+				var id = msg.a;
+				return A2(author$project$Main$updateSaveNewModel, model, id);
 		}
 	});
 var author$project$Main$ModifyTitle = function (a) {
@@ -4599,6 +4636,9 @@ var author$project$Main$ModifyName = F2(
 	function (a, b) {
 		return {$: 'ModifyName', a: a, b: b};
 	});
+var author$project$Main$SaveNewItem = function (a) {
+	return {$: 'SaveNewItem', a: a};
+};
 var elm$core$Basics$fdiv = _Basics_fdiv;
 var elm$core$Basics$mul = _Basics_mul;
 var elm$core$Basics$toFloat = _Basics_toFloat;
@@ -4626,35 +4666,48 @@ var author$project$Main$buildQuantityLeftWidth = function (item) {
 			author$project$Main$calcEstimateRemainingPercentage(item),
 			100)) + '%');
 };
-var author$project$Main$getPlaceholderText = function (item) {
-	return item.isNew ? 'Add new item.....' : '';
-};
-var author$project$Main$isOverstocked = function (item) {
-	return author$project$Main$calcEstimateRemainingPercentage(item) > 100;
-};
-var elm$core$Basics$le = _Utils_le;
-var author$project$Main$quanitiyLeftClassList = function (item) {
-	return _List_fromArray(
-		[
-			_Utils_Tuple2('bar__quantityLeft', true),
-			_Utils_Tuple2(
-			'bar__quantityLeft--low',
-			author$project$Main$calcEstimateRemainingPercentage(item) <= 20),
-			_Utils_Tuple2(
-			'bar__quantityLeft--excessive',
-			author$project$Main$isQuantityExcessive(item))
-		]);
-};
-var elm$core$String$fromInt = _String_fromNumber;
-var elm$core$Basics$identity = function (x) {
-	return x;
-};
-var elm$core$Result$isOk = function (result) {
-	if (result.$ === 'Ok') {
+var author$project$Main$shouldUseAlwaysHiddenClass = function (item) {
+	var _n0 = item.isNew;
+	if (_n0.$ === 'Just') {
+		var isNew = _n0.a;
+		return false;
+	} else {
 		return true;
+	}
+};
+var author$project$Main$shouldUseHiddenClass = function (item) {
+	var _n0 = item.isNew;
+	if (_n0.$ === 'Just') {
+		var isNew = _n0.a;
+		return isNew ? false : true;
 	} else {
 		return false;
 	}
+};
+var author$project$Main$getConfirmTickClassList = function (item) {
+	return _List_fromArray(
+		[
+			_Utils_Tuple2('row__confirmTick', true),
+			_Utils_Tuple2(
+			'row__confirmTick--hidden',
+			author$project$Main$shouldUseHiddenClass(item)),
+			_Utils_Tuple2('row__confirmTick--doesNotHaveName', item.name === ''),
+			_Utils_Tuple2(
+			'row__confirmTick--allwaysHidden',
+			author$project$Main$shouldUseAlwaysHiddenClass(item))
+		]);
+};
+var author$project$Main$getPlaceholderText = function (item) {
+	var _n0 = item.isNew;
+	if (_n0.$ === 'Just') {
+		var isNew = _n0.a;
+		return isNew ? 'Add new item.....' : '';
+	} else {
+		return '';
+	}
+};
+var author$project$Main$isOverstocked = function (item) {
+	return author$project$Main$calcEstimateRemainingPercentage(item) > 100;
 };
 var elm$core$Array$branchFactor = 32;
 var elm$core$Array$Array_elm_builtin = F4(
@@ -4780,6 +4833,7 @@ var elm$core$Array$initializeHelp = F5(
 			}
 		}
 	});
+var elm$core$Basics$le = _Utils_le;
 var elm$core$Basics$remainderBy = _Basics_remainderBy;
 var elm$core$Array$initialize = F2(
 	function (len, fn) {
@@ -4797,6 +4851,13 @@ var elm$core$Result$Err = function (a) {
 };
 var elm$core$Result$Ok = function (a) {
 	return {$: 'Ok', a: a};
+};
+var elm$core$Result$isOk = function (result) {
+	if (result.$ === 'Ok') {
+		return true;
+	} else {
+		return false;
+	}
 };
 var elm$json$Json$Decode$Failure = F2(
 	function (a, b) {
@@ -4878,6 +4939,7 @@ var elm$core$List$indexedMap = F2(
 			xs);
 	});
 var elm$core$String$all = _String_all;
+var elm$core$String$fromInt = _String_fromNumber;
 var elm$core$String$join = F2(
 	function (sep, chunks) {
 		return A2(
@@ -5001,6 +5063,15 @@ var elm$json$Json$Decode$errorToStringHelp = F2(
 			}
 		}
 	});
+var elm$json$Json$Decode$field = _Json_decodeField;
+var elm$json$Json$Decode$int = _Json_decodeInt;
+var elm$html$Html$Events$keyCode = A2(elm$json$Json$Decode$field, 'keyCode', elm$json$Json$Decode$int);
+var elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var elm$core$Basics$identity = function (x) {
+	return x;
+};
 var elm$json$Json$Decode$map = _Json_map1;
 var elm$json$Json$Decode$map2 = _Json_map2;
 var elm$json$Json$Decode$succeed = _Json_succeed;
@@ -5015,6 +5086,32 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 		default:
 			return 3;
 	}
+};
+var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var author$project$Main$onKeyDown = function (tagger) {
+	return A2(
+		elm$html$Html$Events$on,
+		'keydown',
+		A2(elm$json$Json$Decode$map, tagger, elm$html$Html$Events$keyCode));
+};
+var author$project$Main$quanitiyLeftClassList = function (item) {
+	return _List_fromArray(
+		[
+			_Utils_Tuple2('bar__quantityLeft', true),
+			_Utils_Tuple2(
+			'bar__quantityLeft--low',
+			author$project$Main$calcEstimateRemainingPercentage(item) <= 20),
+			_Utils_Tuple2(
+			'bar__quantityLeft--excessive',
+			author$project$Main$isQuantityExcessive(item))
+		]);
 };
 var elm$html$Html$div = _VirtualDom_node('div');
 var elm$html$Html$img = _VirtualDom_node('img');
@@ -5073,17 +5170,6 @@ var elm$html$Html$Attributes$tabindex = function (n) {
 		elm$core$String$fromInt(n));
 };
 var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
-var elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			elm$virtual_dom$VirtualDom$on,
-			event,
-			elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
 var elm$html$Html$Events$onClick = function (msg) {
 	return A2(
 		elm$html$Html$Events$on,
@@ -5103,7 +5189,6 @@ var elm$html$Html$Events$stopPropagationOn = F2(
 			event,
 			elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
 	});
-var elm$json$Json$Decode$field = _Json_decodeField;
 var elm$json$Json$Decode$at = F2(
 	function (fields, decoder) {
 		return A3(elm$core$List$foldr, elm$json$Json$Decode$field, decoder, fields);
@@ -5259,11 +5344,13 @@ var author$project$Main$toRow = function (item) {
 				_List_fromArray(
 					[
 						elm$html$Html$Attributes$classList(
-						_List_fromArray(
-							[
-								_Utils_Tuple2('row__confirmTick', true),
-								_Utils_Tuple2('row__confirmTick--hidden', !item.isNew)
-							])),
+						author$project$Main$getConfirmTickClassList(item)),
+						elm$html$Html$Events$onClick(
+						author$project$Main$SaveNewItem(item.id)),
+						author$project$Main$onKeyDown(
+						function (key) {
+							return author$project$Main$SaveNewItem(item.id);
+						}),
 						elm$html$Html$Attributes$tabindex(0)
 					]),
 				_List_fromArray(

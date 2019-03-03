@@ -1,9 +1,10 @@
 module Main exposing (Item, Model, Msg(..), init, main, toRow, update, updateItem, view)
 
 import Browser
-import Html exposing (Html, button, div, h1, header, img, input, label, li, section, span, text, ul)
+import Html exposing (Attribute, Html, button, div, h1, header, img, input, label, li, section, span, text, ul)
 import Html.Attributes exposing (class, classList, placeholder, src, style, tabindex, value)
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (keyCode, on, onClick, onInput)
+import Json.Decode as Json
 
 
 main =
@@ -27,13 +28,14 @@ type alias MaxOnHand =
 
 
 type alias Item =
-    { id : Id, name : String, estimateOnHand : EstimateOnHand, maxOnHand : MaxOnHand, unit : String, isNew : Bool }
+    { id : Id, name : String, estimateOnHand : EstimateOnHand, maxOnHand : MaxOnHand, unit : String, isNew : Maybe Bool }
 
 
 type Prop
     = EstimateOnHand
     | MaxOnHand
     | Name
+    | IsNew
 
 
 type alias Model =
@@ -46,11 +48,11 @@ init : Model
 init =
     { title = "Sam's Kitchen Pantry"
     , items =
-        [ { id = 1, name = "Chickpeas", estimateOnHand = 400, maxOnHand = 500, unit = "g", isNew = False }
-        , { id = 2, name = "Red Lentils", estimateOnHand = 200, maxOnHand = 700, unit = "g", isNew = False }
-        , { id = 3, name = "Cinnamon", estimateOnHand = 10, maxOnHand = 100, unit = "g", isNew = False }
-        , { id = 4, name = "Chocolate", estimateOnHand = 40, maxOnHand = 150, unit = "g", isNew = False }
-        , { id = 0, name = "", estimateOnHand = 0, maxOnHand = 500, unit = "g", isNew = True }
+        [ { id = 1, name = "Chickpeas", estimateOnHand = 400, maxOnHand = 500, unit = "g", isNew = Nothing }
+        , { id = 2, name = "Red Lentils", estimateOnHand = 200, maxOnHand = 700, unit = "g", isNew = Nothing }
+        , { id = 3, name = "Cinnamon", estimateOnHand = 10, maxOnHand = 100, unit = "g", isNew = Nothing }
+        , { id = 4, name = "Chocolate", estimateOnHand = 40, maxOnHand = 150, unit = "g", isNew = Nothing }
+        , { id = 0, name = "", estimateOnHand = 0, maxOnHand = 500, unit = "g", isNew = Just True }
         ]
     }
 
@@ -64,6 +66,7 @@ type Msg
     | ModifyEstimateOnHand Id String
     | ModifyMaxOnHand Id String
     | ModifyName Id String
+    | SaveNewItem Id
 
 
 update : Msg -> Model -> Model
@@ -81,10 +84,27 @@ update msg model =
         ModifyMaxOnHand id newMax ->
             updateModel model id newMax MaxOnHand
 
+        SaveNewItem id ->
+            updateSaveNewModel model id
+
 
 updateModel : Model -> Id -> String -> Prop -> Model
 updateModel model id newVal prop =
     { model | items = model.items |> List.map (\item -> updateItem item newVal id prop) }
+
+
+updateSaveNewModel : Model -> Id -> Model
+updateSaveNewModel model id =
+    { model | items = model.items |> List.map (\item -> updateSaveNewItem item id) }
+
+
+updateSaveNewItem : Item -> Id -> Item
+updateSaveNewItem item id =
+    if id == item.id then
+        { item | isNew = Just False }
+
+    else
+        item
 
 
 updateItem : Item -> String -> Int -> Prop -> Item
@@ -99,6 +119,9 @@ updateItem item newVal id prop =
 
             Name ->
                 { item | name = newVal }
+
+            IsNew ->
+                { item | isNew = Just True }
 
     else
         item
@@ -145,19 +168,67 @@ toRow item =
             , div [ class "bar__quantityExcessive", style "width" (buildQuantityExcessiveWidth item) ] []
             , div [ classList (quanitiyLeftClassList item), style "width" (buildQuantityLeftWidth item) ] []
             ]
-        , div [ classList [ ( "row__confirmTick", True ), ( "row__confirmTick--hidden", item.isNew == False ) ], tabindex 0 ]
+        , div
+            [ classList (getConfirmTickClassList item)
+            , onClick (SaveNewItem item.id)
+            , onKeyDown (\key -> SaveNewItem item.id)
+            , tabindex 0
+            ]
             [ img [ src "./src/svg/tick.svg" ] []
             ]
         ]
 
 
+getConfirmTickClassList : Item -> List ( String, Bool )
+getConfirmTickClassList item =
+    [ ( "row__confirmTick", True )
+    , ( "row__confirmTick--hidden", shouldUseHiddenClass item )
+    , ( "row__confirmTick--doesNotHaveName", item.name == "" )
+    , ( "row__confirmTick--allwaysHidden", shouldUseAlwaysHiddenClass item )
+    ]
+
+
+shouldUseHiddenClass : Item -> Bool
+shouldUseHiddenClass item =
+    case item.isNew of
+        Just isNew ->
+            if isNew == True then
+                False
+
+            else
+                True
+
+        Nothing ->
+            False
+
+
+shouldUseAlwaysHiddenClass : Item -> Bool
+shouldUseAlwaysHiddenClass item =
+    case item.isNew of
+        Just isNew ->
+            False
+
+        Nothing ->
+            True
+
+
+onKeyDown : (Int -> msg) -> Attribute msg
+onKeyDown tagger =
+    on "keydown" (Json.map tagger keyCode)
+
+
 getPlaceholderText : Item -> String
 getPlaceholderText item =
-    if item.isNew then
-        "Add new item....."
+    case item.isNew of
+        Just isNew ->
+            if isNew then
+                "Add new item....."
 
-    else
-        ""
+            else
+                ""
+
+        Nothing ->
+            ""
 
 
 quanitiyLeftClassList : Item -> List ( String, Bool )

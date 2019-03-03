@@ -4453,16 +4453,10 @@ var author$project$Main$updateItem = F4(
 						{
 							maxOnHand: author$project$Main$parseOnHand(newVal)
 						});
-				case 'Name':
-					return _Utils_update(
-						item,
-						{name: newVal});
 				default:
 					return _Utils_update(
 						item,
-						{
-							isNew: elm$core$Maybe$Just(true)
-						});
+						{name: newVal});
 			}
 		} else {
 			return item;

@@ -35,7 +35,6 @@ type Prop
     = EstimateOnHand
     | MaxOnHand
     | Name
-    | IsNew
 
 
 type alias Model =
@@ -119,9 +118,6 @@ updateItem item newVal id prop =
 
             Name ->
                 { item | name = newVal }
-
-            IsNew ->
-                { item | isNew = Just True }
 
     else
         item

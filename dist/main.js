@@ -4314,6 +4314,16 @@ var elm$core$Basics$True = {$: 'True'};
 var elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
 };
+var author$project$Main$getNewItem = function (id) {
+	return {
+		estimateOnHand: 0,
+		id: id,
+		isNew: elm$core$Maybe$Just(true),
+		maxOnHand: 500,
+		name: '',
+		unit: 'g'
+	};
+};
 var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var elm$core$Basics$EQ = {$: 'EQ'};
 var elm$core$Basics$LT = {$: 'LT'};
@@ -4402,14 +4412,7 @@ var author$project$Main$init = {
 			{estimateOnHand: 200, id: 2, isNew: elm$core$Maybe$Nothing, maxOnHand: 700, name: 'Red Lentils', unit: 'g'},
 			{estimateOnHand: 10, id: 3, isNew: elm$core$Maybe$Nothing, maxOnHand: 100, name: 'Cinnamon', unit: 'g'},
 			{estimateOnHand: 40, id: 4, isNew: elm$core$Maybe$Nothing, maxOnHand: 150, name: 'Chocolate', unit: 'g'},
-			{
-			estimateOnHand: 0,
-			id: 0,
-			isNew: elm$core$Maybe$Just(true),
-			maxOnHand: 500,
-			name: '',
-			unit: 'g'
-		}
+			author$project$Main$getNewItem(5)
 		]),
 	title: 'Sam\'s Kitchen Pantry'
 };
@@ -4577,17 +4580,42 @@ var author$project$Main$updateSaveNewItem = F2(
 				isNew: elm$core$Maybe$Just(false)
 			}) : item;
 	});
+var elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3(elm$core$List$foldr, elm$core$List$cons, ys, xs);
+		}
+	});
+var elm$core$List$length = function (xs) {
+	return A3(
+		elm$core$List$foldl,
+		F2(
+			function (_n0, i) {
+				return i + 1;
+			}),
+		0,
+		xs);
+};
 var author$project$Main$updateSaveNewModel = F2(
 	function (model, id) {
 		return _Utils_update(
 			model,
 			{
 				items: A2(
-					elm$core$List$map,
-					function (item) {
-						return A2(author$project$Main$updateSaveNewItem, item, id);
-					},
-					model.items)
+					elm$core$List$append,
+					A2(
+						elm$core$List$map,
+						function (item) {
+							return A2(author$project$Main$updateSaveNewItem, item, id);
+						},
+						model.items),
+					_List_fromArray(
+						[
+							author$project$Main$getNewItem(
+							elm$core$List$length(model.items) + 1)
+						]))
 			});
 	});
 var author$project$Main$update = F2(
@@ -4610,9 +4638,11 @@ var author$project$Main$update = F2(
 				var id = msg.a;
 				var newMax = msg.b;
 				return A4(author$project$Main$updateModel, model, id, newMax, author$project$Main$MaxOnHand);
-			default:
+			case 'SaveNewItem':
 				var id = msg.a;
 				return A2(author$project$Main$updateSaveNewModel, model, id);
+			default:
+				return model;
 		}
 	});
 var author$project$Main$ModifyTitle = function (a) {
@@ -4630,6 +4660,7 @@ var author$project$Main$ModifyName = F2(
 	function (a, b) {
 		return {$: 'ModifyName', a: a, b: b};
 	});
+var author$project$Main$NoOp = {$: 'NoOp'};
 var author$project$Main$SaveNewItem = function (a) {
 	return {$: 'SaveNewItem', a: a};
 };
@@ -4888,16 +4919,6 @@ var elm$core$Char$isDigit = function (_char) {
 };
 var elm$core$Char$isAlphaNum = function (_char) {
 	return elm$core$Char$isLower(_char) || (elm$core$Char$isUpper(_char) || elm$core$Char$isDigit(_char));
-};
-var elm$core$List$length = function (xs) {
-	return A3(
-		elm$core$List$foldl,
-		F2(
-			function (_n0, i) {
-				return i + 1;
-			}),
-		0,
-		xs);
 };
 var elm$core$List$map2 = _List_map2;
 var elm$core$List$rangeHelp = F3(
@@ -5343,7 +5364,7 @@ var author$project$Main$toRow = function (item) {
 						author$project$Main$SaveNewItem(item.id)),
 						author$project$Main$onKeyDown(
 						function (key) {
-							return author$project$Main$SaveNewItem(item.id);
+							return (key === 13) ? author$project$Main$SaveNewItem(item.id) : author$project$Main$NoOp;
 						}),
 						elm$html$Html$Attributes$tabindex(0)
 					]),

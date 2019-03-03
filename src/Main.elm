@@ -51,9 +51,14 @@ init =
         , { id = 2, name = "Red Lentils", estimateOnHand = 200, maxOnHand = 700, unit = "g", isNew = Nothing }
         , { id = 3, name = "Cinnamon", estimateOnHand = 10, maxOnHand = 100, unit = "g", isNew = Nothing }
         , { id = 4, name = "Chocolate", estimateOnHand = 40, maxOnHand = 150, unit = "g", isNew = Nothing }
-        , { id = 0, name = "", estimateOnHand = 0, maxOnHand = 500, unit = "g", isNew = Just True }
+        , getNewItem 5
         ]
     }
+
+
+getNewItem : Id -> Item
+getNewItem id =
+    { id = id, name = "", estimateOnHand = 0, maxOnHand = 500, unit = "g", isNew = Just True }
 
 
 
@@ -66,6 +71,7 @@ type Msg
     | ModifyMaxOnHand Id String
     | ModifyName Id String
     | SaveNewItem Id
+    | NoOp
 
 
 update : Msg -> Model -> Model
@@ -86,6 +92,9 @@ update msg model =
         SaveNewItem id ->
             updateSaveNewModel model id
 
+        NoOp ->
+            model
+
 
 updateModel : Model -> Id -> String -> Prop -> Model
 updateModel model id newVal prop =
@@ -94,7 +103,7 @@ updateModel model id newVal prop =
 
 updateSaveNewModel : Model -> Id -> Model
 updateSaveNewModel model id =
-    { model | items = model.items |> List.map (\item -> updateSaveNewItem item id) }
+    { model | items = List.append (model.items |> List.map (\item -> updateSaveNewItem item id)) [ getNewItem (List.length model.items + 1) ] }
 
 
 updateSaveNewItem : Item -> Id -> Item
@@ -167,7 +176,14 @@ toRow item =
         , div
             [ classList (getConfirmTickClassList item)
             , onClick (SaveNewItem item.id)
-            , onKeyDown (\key -> SaveNewItem item.id)
+            , onKeyDown
+                (\key ->
+                    if key == 13 then
+                        SaveNewItem item.id
+
+                    else
+                        NoOp
+                )
             , tabindex 0
             ]
             [ img [ src "./src/svg/tick.svg" ] []

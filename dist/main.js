@@ -4317,6 +4317,8 @@ var elm$core$Maybe$Just = function (a) {
 var author$project$Main$getNewItem = function (id) {
 	return {
 		estimateOnHand: 0,
+		estimateTime: elm$core$Maybe$Just(4),
+		estimateTimeUnit: elm$core$Maybe$Just('weeks'),
 		id: id,
 		isNew: elm$core$Maybe$Just(true),
 		maxOnHand: 500,
@@ -4408,10 +4410,10 @@ var elm$core$Set$toList = function (_n0) {
 var author$project$Main$init = {
 	items: _List_fromArray(
 		[
-			{estimateOnHand: 400, id: 1, isNew: elm$core$Maybe$Nothing, maxOnHand: 500, name: 'Chickpeas', unit: 'g'},
-			{estimateOnHand: 200, id: 2, isNew: elm$core$Maybe$Nothing, maxOnHand: 700, name: 'Red Lentils', unit: 'g'},
-			{estimateOnHand: 10, id: 3, isNew: elm$core$Maybe$Nothing, maxOnHand: 100, name: 'Cinnamon', unit: 'g'},
-			{estimateOnHand: 40, id: 4, isNew: elm$core$Maybe$Nothing, maxOnHand: 150, name: 'Chocolate', unit: 'g'},
+			{estimateOnHand: 400, estimateTime: elm$core$Maybe$Nothing, estimateTimeUnit: elm$core$Maybe$Nothing, id: 1, isNew: elm$core$Maybe$Nothing, maxOnHand: 500, name: 'Chickpeas', unit: 'g'},
+			{estimateOnHand: 200, estimateTime: elm$core$Maybe$Nothing, estimateTimeUnit: elm$core$Maybe$Nothing, id: 2, isNew: elm$core$Maybe$Nothing, maxOnHand: 700, name: 'Red Lentils', unit: 'g'},
+			{estimateOnHand: 10, estimateTime: elm$core$Maybe$Nothing, estimateTimeUnit: elm$core$Maybe$Nothing, id: 3, isNew: elm$core$Maybe$Nothing, maxOnHand: 100, name: 'Cinnamon', unit: 'g'},
+			{estimateOnHand: 40, estimateTime: elm$core$Maybe$Nothing, estimateTimeUnit: elm$core$Maybe$Nothing, id: 4, isNew: elm$core$Maybe$Nothing, maxOnHand: 150, name: 'Chocolate', unit: 'g'},
 			author$project$Main$getNewItem(5)
 		]),
 	title: 'Sam\'s Kitchen Pantry'

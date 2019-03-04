@@ -28,7 +28,15 @@ type alias MaxOnHand =
 
 
 type alias Item =
-    { id : Id, name : String, estimateOnHand : EstimateOnHand, maxOnHand : MaxOnHand, unit : String, isNew : Maybe Bool }
+    { id : Id
+    , name : String
+    , estimateOnHand : EstimateOnHand
+    , maxOnHand : MaxOnHand
+    , unit : String
+    , isNew : Maybe Bool
+    , estimateTime : Maybe Int
+    , estimateTimeUnit : Maybe String
+    }
 
 
 type Prop
@@ -47,10 +55,10 @@ init : Model
 init =
     { title = "Sam's Kitchen Pantry"
     , items =
-        [ { id = 1, name = "Chickpeas", estimateOnHand = 400, maxOnHand = 500, unit = "g", isNew = Nothing }
-        , { id = 2, name = "Red Lentils", estimateOnHand = 200, maxOnHand = 700, unit = "g", isNew = Nothing }
-        , { id = 3, name = "Cinnamon", estimateOnHand = 10, maxOnHand = 100, unit = "g", isNew = Nothing }
-        , { id = 4, name = "Chocolate", estimateOnHand = 40, maxOnHand = 150, unit = "g", isNew = Nothing }
+        [ { id = 1, name = "Chickpeas", estimateOnHand = 400, maxOnHand = 500, unit = "g", isNew = Nothing, estimateTime = Nothing, estimateTimeUnit = Nothing }
+        , { id = 2, name = "Red Lentils", estimateOnHand = 200, maxOnHand = 700, unit = "g", isNew = Nothing, estimateTime = Nothing, estimateTimeUnit = Nothing }
+        , { id = 3, name = "Cinnamon", estimateOnHand = 10, maxOnHand = 100, unit = "g", isNew = Nothing, estimateTime = Nothing, estimateTimeUnit = Nothing }
+        , { id = 4, name = "Chocolate", estimateOnHand = 40, maxOnHand = 150, unit = "g", isNew = Nothing, estimateTime = Nothing, estimateTimeUnit = Nothing }
         , getNewItem 5
         ]
     }
@@ -58,7 +66,7 @@ init =
 
 getNewItem : Id -> Item
 getNewItem id =
-    { id = id, name = "", estimateOnHand = 0, maxOnHand = 500, unit = "g", isNew = Just True }
+    { id = id, name = "", estimateOnHand = 0, maxOnHand = 500, unit = "g", isNew = Just True, estimateTime = Just 4, estimateTimeUnit = Just "weeks" }
 
 
 

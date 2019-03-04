@@ -5320,7 +5320,16 @@ var author$project$Main$toRow = function (item) {
 				elm$html$Html$div,
 				_List_fromArray(
 					[
-						elm$html$Html$Attributes$class('bar')
+						elm$html$Html$Attributes$class('bar'),
+						elm$html$Html$Attributes$classList(
+						_List_fromArray(
+							[
+								_Utils_Tuple2(
+								'bar--hidden',
+								_Utils_eq(
+									item.isNew,
+									elm$core$Maybe$Just(true)))
+							]))
 					]),
 				_List_fromArray(
 					[
@@ -5357,6 +5366,38 @@ var author$project$Main$toRow = function (item) {
 								elm$html$Html$Attributes$style,
 								'width',
 								author$project$Main$buildQuantityLeftWidth(item))
+							]),
+						_List_Nil)
+					])),
+				A2(
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('inputBox time'),
+						elm$html$Html$Attributes$classList(
+						_List_fromArray(
+							[
+								_Utils_Tuple2(
+								'time--hidden',
+								_Utils_eq(item.isNew, elm$core$Maybe$Nothing) || _Utils_eq(
+									item.isNew,
+									elm$core$Maybe$Just(false)))
+							]))
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$input,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('time__input time__input--left inputBox__innerEdit')
+							]),
+						_List_Nil),
+						A2(
+						elm$html$Html$input,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('time__input time__input--right inputBox__innerEdit')
 							]),
 						_List_Nil)
 					])),

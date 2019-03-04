@@ -176,10 +176,14 @@ toRow item =
             , input [ class "quantity__edit inputBox__innerEdit", onInput (ModifyMaxOnHand item.id), value (item.maxOnHand |> String.fromInt) ] [ text (item.maxOnHand |> String.fromInt) ]
             , span [ class "quantity__unit" ] [ input [ class "quantity__unit__innerEdit inputBox__innerEdit", value item.unit ] [] ]
             ]
-        , div [ class "bar" ]
+        , div [ class "bar", classList [ ( "bar--hidden", item.isNew == Just True ) ] ]
             [ div [ class "bar__quantityUsed", onClick (ModifyEstimateOnHand item.id (item.maxOnHand |> String.fromInt)) ] []
             , div [ class "bar__quantityExcessive", style "width" (buildQuantityExcessiveWidth item) ] []
             , div [ classList (quanitiyLeftClassList item), style "width" (buildQuantityLeftWidth item) ] []
+            ]
+        , div [ class "inputBox time", classList [ ( "time--hidden", item.isNew == Nothing || item.isNew == Just False ) ] ]
+            [ input [ class "time__input time__input--left inputBox__innerEdit" ] []
+            , input [ class "time__input time__input--right inputBox__innerEdit" ] []
             ]
         , div
             [ classList (getConfirmTickClassList item)

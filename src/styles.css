@@ -229,6 +229,10 @@ body {
     height: var(--input-height);
 }
 
+.bar--hidden {
+    display: none;
+}
+
 .bar__quantityUsed {
     position: absolute;
     left: 0;
@@ -265,4 +269,25 @@ body {
 
 .bar__quantityLeft--low {
     background-color: var(--color-alias-quantity-left-low);
+}
+
+.time {
+    display: flex;
+    align-items: center;
+}
+
+.time__input {
+    width: 0;
+}
+
+.time__input--left {
+    width: 40px;
+}
+
+.time__input--right {
+    flex: 1 1 0;
+}
+
+.time--hidden {
+    display: none;
 }

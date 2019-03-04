@@ -4660,7 +4660,6 @@ var author$project$Main$ModifyName = F2(
 	function (a, b) {
 		return {$: 'ModifyName', a: a, b: b};
 	});
-var author$project$Main$NoOp = {$: 'NoOp'};
 var author$project$Main$SaveNewItem = function (a) {
 	return {$: 'SaveNewItem', a: a};
 };
@@ -4734,6 +4733,11 @@ var author$project$Main$getPlaceholderText = function (item) {
 var author$project$Main$isOverstocked = function (item) {
 	return author$project$Main$calcEstimateRemainingPercentage(item) > 100;
 };
+var author$project$Main$NoOp = {$: 'NoOp'};
+var author$project$Main$onConfirmKeyDown = F2(
+	function (key, item) {
+		return (key === 13) ? author$project$Main$SaveNewItem(item.id) : author$project$Main$NoOp;
+	});
 var elm$core$Array$branchFactor = 32;
 var elm$core$Array$Array_elm_builtin = F4(
 	function (a, b, c, d) {
@@ -5364,7 +5368,7 @@ var author$project$Main$toRow = function (item) {
 						author$project$Main$SaveNewItem(item.id)),
 						author$project$Main$onKeyDown(
 						function (key) {
-							return (key === 13) ? author$project$Main$SaveNewItem(item.id) : author$project$Main$NoOp;
+							return A2(author$project$Main$onConfirmKeyDown, key, item);
 						}),
 						elm$html$Html$Attributes$tabindex(0)
 					]),

@@ -177,18 +177,21 @@ toRow item =
             [ classList (getConfirmTickClassList item)
             , onClick (SaveNewItem item.id)
             , onKeyDown
-                (\key ->
-                    if key == 13 then
-                        SaveNewItem item.id
-
-                    else
-                        NoOp
-                )
+                (\key -> onConfirmKeyDown key item)
             , tabindex 0
             ]
             [ img [ src "./src/svg/tick.svg" ] []
             ]
         ]
+
+
+onConfirmKeyDown : Int -> Item -> Msg
+onConfirmKeyDown key item =
+    if key == 13 then
+        SaveNewItem item.id
+
+    else
+        NoOp
 
 
 getConfirmTickClassList : Item -> List ( String, Bool )

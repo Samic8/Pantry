@@ -42,6 +42,7 @@ type Prop
     = EstimateOnHand
     | MaxOnHand
     | Name
+    | EstimateTime
 
 
 type alias Model =
@@ -77,6 +78,7 @@ type Msg
     | ModifyEstimateOnHand Id String
     | ModifyMaxOnHand Id String
     | ModifyName Id String
+    | ModifyEstimateTime Id String
     | SaveNewItem Id
     | NoOp
 
@@ -95,6 +97,9 @@ update msg model =
 
         ModifyMaxOnHand id newMax ->
             updateModel model id newMax MaxOnHand
+
+        ModifyEstimateTime id newTime ->
+            updateModel model id newTime EstimateTime
 
         SaveNewItem id ->
             updateSaveNewModel model id
@@ -134,6 +139,9 @@ updateItem item newVal id prop =
 
             Name ->
                 { item | name = newVal }
+
+            EstimateTime ->
+                { item | estimateTime = Just newVal }
 
     else
         item
@@ -182,7 +190,7 @@ toRow item =
             ]
         , div [ class "inputBox time", classList [ ( "time--hidden", item.isNew == Nothing || item.isNew == Just False ) ] ]
             [ div [ class "time__helpText" ] [ text "Estimate" ]
-            , input [ class "time__input inputBox__innerEdit", value (Maybe.withDefault "" item.estimateTime) ] []
+            , input [ class "time__input inputBox__innerEdit", value (Maybe.withDefault "" item.estimateTime), onInput (ModifyEstimateTime item.id) ] []
             ]
         , div
             [ classList (getConfirmTickClassList item)

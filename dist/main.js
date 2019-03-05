@@ -4418,6 +4418,7 @@ var author$project$Main$init = {
 	title: 'Sam\'s Kitchen Pantry'
 };
 var author$project$Main$EstimateOnHand = {$: 'EstimateOnHand'};
+var author$project$Main$EstimateTime = {$: 'EstimateTime'};
 var author$project$Main$MaxOnHand = {$: 'MaxOnHand'};
 var author$project$Main$Name = {$: 'Name'};
 var elm$core$Basics$apR = F2(
@@ -4457,10 +4458,16 @@ var author$project$Main$updateItem = F4(
 						{
 							maxOnHand: author$project$Main$parseOnHand(newVal)
 						});
-				default:
+				case 'Name':
 					return _Utils_update(
 						item,
 						{name: newVal});
+				default:
+					return _Utils_update(
+						item,
+						{
+							estimateTime: elm$core$Maybe$Just(newVal)
+						});
 			}
 		} else {
 			return item;
@@ -4639,6 +4646,10 @@ var author$project$Main$update = F2(
 				var id = msg.a;
 				var newMax = msg.b;
 				return A4(author$project$Main$updateModel, model, id, newMax, author$project$Main$MaxOnHand);
+			case 'ModifyEstimateTime':
+				var id = msg.a;
+				var newTime = msg.b;
+				return A4(author$project$Main$updateModel, model, id, newTime, author$project$Main$EstimateTime);
 			case 'SaveNewItem':
 				var id = msg.a;
 				return A2(author$project$Main$updateSaveNewModel, model, id);
@@ -4652,6 +4663,10 @@ var author$project$Main$ModifyTitle = function (a) {
 var author$project$Main$ModifyEstimateOnHand = F2(
 	function (a, b) {
 		return {$: 'ModifyEstimateOnHand', a: a, b: b};
+	});
+var author$project$Main$ModifyEstimateTime = F2(
+	function (a, b) {
+		return {$: 'ModifyEstimateTime', a: a, b: b};
 	});
 var author$project$Main$ModifyMaxOnHand = F2(
 	function (a, b) {
@@ -5401,7 +5416,9 @@ var author$project$Main$toRow = function (item) {
 							[
 								elm$html$Html$Attributes$class('time__input inputBox__innerEdit'),
 								elm$html$Html$Attributes$value(
-								A2(elm$core$Maybe$withDefault, '', item.estimateTime))
+								A2(elm$core$Maybe$withDefault, '', item.estimateTime)),
+								elm$html$Html$Events$onInput(
+								author$project$Main$ModifyEstimateTime(item.id))
 							]),
 						_List_Nil)
 					])),

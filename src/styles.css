@@ -16,6 +16,7 @@
     --color-alias-quantity-excessive: var(--color-green);
     --color-alias-quantity-left: var(--color-purple);
     --color-alias-quantity-left-low: var(--color-red);
+    --color-alias-new-item-help-text: var(--color-blue-darkest);
 
     --primary-font-size: 18px;
 
@@ -160,7 +161,7 @@ body {
 }
 
 .inputBox::placeholder {
-    color: var(--color-blue-darkest);
+    color: var(--color-alias-new-item-help-text);
 }
 
 .inputBox__innerEdit {
@@ -276,18 +277,18 @@ body {
     align-items: center;
 }
 
-.time__input {
-    width: 0;
-}
-
-.time__input--left {
-    width: 40px;
-}
-
-.time__input--right {
-    flex: 1 1 0;
-}
-
 .time--hidden {
     display: none;
+}
+
+.time__helpText {
+    color: var(--color-alias-new-item-help-text);
+}
+
+.time__input {
+    flex: 1 1 0;
+    width: 0;
+    padding-left: 7px;
+    margin-right: var(--input-padding-left);
+    text-align: left;
 }

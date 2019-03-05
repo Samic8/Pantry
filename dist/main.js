@@ -4317,8 +4317,7 @@ var elm$core$Maybe$Just = function (a) {
 var author$project$Main$getNewItem = function (id) {
 	return {
 		estimateOnHand: 0,
-		estimateTime: elm$core$Maybe$Just(4),
-		estimateTimeUnit: elm$core$Maybe$Just('weeks'),
+		estimateTime: elm$core$Maybe$Just('4 weeks'),
 		id: id,
 		isNew: elm$core$Maybe$Just(true),
 		maxOnHand: 500,
@@ -4410,10 +4409,10 @@ var elm$core$Set$toList = function (_n0) {
 var author$project$Main$init = {
 	items: _List_fromArray(
 		[
-			{estimateOnHand: 400, estimateTime: elm$core$Maybe$Nothing, estimateTimeUnit: elm$core$Maybe$Nothing, id: 1, isNew: elm$core$Maybe$Nothing, maxOnHand: 500, name: 'Chickpeas', unit: 'g'},
-			{estimateOnHand: 200, estimateTime: elm$core$Maybe$Nothing, estimateTimeUnit: elm$core$Maybe$Nothing, id: 2, isNew: elm$core$Maybe$Nothing, maxOnHand: 700, name: 'Red Lentils', unit: 'g'},
-			{estimateOnHand: 10, estimateTime: elm$core$Maybe$Nothing, estimateTimeUnit: elm$core$Maybe$Nothing, id: 3, isNew: elm$core$Maybe$Nothing, maxOnHand: 100, name: 'Cinnamon', unit: 'g'},
-			{estimateOnHand: 40, estimateTime: elm$core$Maybe$Nothing, estimateTimeUnit: elm$core$Maybe$Nothing, id: 4, isNew: elm$core$Maybe$Nothing, maxOnHand: 150, name: 'Chocolate', unit: 'g'},
+			{estimateOnHand: 400, estimateTime: elm$core$Maybe$Nothing, id: 1, isNew: elm$core$Maybe$Nothing, maxOnHand: 500, name: 'Chickpeas', unit: 'g'},
+			{estimateOnHand: 200, estimateTime: elm$core$Maybe$Nothing, id: 2, isNew: elm$core$Maybe$Nothing, maxOnHand: 700, name: 'Red Lentils', unit: 'g'},
+			{estimateOnHand: 10, estimateTime: elm$core$Maybe$Nothing, id: 3, isNew: elm$core$Maybe$Nothing, maxOnHand: 100, name: 'Cinnamon', unit: 'g'},
+			{estimateOnHand: 40, estimateTime: elm$core$Maybe$Nothing, id: 4, isNew: elm$core$Maybe$Nothing, maxOnHand: 150, name: 'Chocolate', unit: 'g'},
 			author$project$Main$getNewItem(5)
 		]),
 	title: 'Sam\'s Kitchen Pantry'
@@ -5387,17 +5386,22 @@ var author$project$Main$toRow = function (item) {
 				_List_fromArray(
 					[
 						A2(
-						elm$html$Html$input,
+						elm$html$Html$div,
 						_List_fromArray(
 							[
-								elm$html$Html$Attributes$class('time__input time__input--left inputBox__innerEdit')
+								elm$html$Html$Attributes$class('time__helpText')
 							]),
-						_List_Nil),
+						_List_fromArray(
+							[
+								elm$html$Html$text('Estimate')
+							])),
 						A2(
 						elm$html$Html$input,
 						_List_fromArray(
 							[
-								elm$html$Html$Attributes$class('time__input time__input--right inputBox__innerEdit')
+								elm$html$Html$Attributes$class('time__input inputBox__innerEdit'),
+								elm$html$Html$Attributes$value(
+								A2(elm$core$Maybe$withDefault, '', item.estimateTime))
 							]),
 						_List_Nil)
 					])),

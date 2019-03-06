@@ -1,10 +1,12 @@
 module Main exposing (Item, Model, Msg(..), init, main, toRow, update, updateItem, view)
 
 import Browser
+import Browser.Dom exposing (focus)
 import Html exposing (Attribute, Html, button, div, h1, header, img, input, label, li, section, span, text, ul)
-import Html.Attributes exposing (class, classList, placeholder, src, style, tabindex, value)
+import Html.Attributes exposing (class, classList, id, placeholder, src, style, tabindex, value)
 import Html.Events exposing (keyCode, on, onClick, onInput)
 import Json.Decode as Json
+import Task
 
 
 main =
@@ -80,32 +82,36 @@ type Msg
     | ModifyName Id String
     | ModifyEstimateTime Id String
     | SaveNewItem Id
+    | FocusNewItem
     | NoOp
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ModifyTitle newTitle ->
-            { model | title = newTitle }
+            ( { model | title = newTitle }, Cmd.none )
 
         ModifyName id newName ->
-            updateModel model id newName Name
+            ( updateModel model id newName Name, Cmd.none )
 
         ModifyEstimateOnHand id newEstimate ->
-            updateModel model id newEstimate EstimateOnHand
+            ( updateModel model id newEstimate EstimateOnHand, Cmd.none )
 
         ModifyMaxOnHand id newMax ->
-            updateModel model id newMax MaxOnHand
+            ( updateModel model id newMax MaxOnHand, Cmd.none )
 
         ModifyEstimateTime id newTime ->
-            updateModel model id newTime EstimateTime
+            ( updateModel model id newTime EstimateTime, Cmd.none )
 
         SaveNewItem id ->
-            updateSaveNewModel model id
+            ( updateSaveNewModel model id, Cmd.none )
+
+        FocusNewItem ->
+            ( model, Task.attempt (\_ -> NoOp) (focus "new-item-name-input") )
 
         NoOp ->
-            model
+            ( model, Cmd.none )
 
 
 updateModel : Model -> Id -> String -> Prop -> Model
@@ -176,7 +182,20 @@ view model =
 toRow : Item -> Html Msg
 toRow item =
     li [ class "row" ]
-        [ input [ class "inputBox", onInput (ModifyName item.id), value item.name, placeholder (getPlaceholderText item) ] []
+        [ input
+            [ class "inputBox"
+            , id
+                (if item.isNew == Just True then
+                    "new-item-name-input"
+
+                 else
+                    ""
+                )
+            , onInput (ModifyName item.id)
+            , value item.name
+            , placeholder (getPlaceholderText item)
+            ]
+            []
         , div [ class "quantity inputBox", classList [ ( "inputBox--covered", shouldCoverInputBox item ) ] ]
             [ input [ class "quantity__edit inputBox__innerEdit", classList [ ( "quantity__edit--excessive", isOverstocked item ) ], onInput (ModifyEstimateOnHand item.id), value (item.estimateOnHand |> String.fromInt) ] []
             , span [] [ text "/" ]

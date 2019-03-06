@@ -5148,6 +5148,11 @@ var author$project$Main$quanitiyLeftClassList = function (item) {
 			author$project$Main$isQuantityExcessive(item))
 		]);
 };
+var author$project$Main$shouldCoverInputBox = function (item) {
+	return _Utils_eq(
+		item.isNew,
+		elm$core$Maybe$Just(true)) && (item.name === '');
+};
 var elm$html$Html$div = _VirtualDom_node('div');
 var elm$html$Html$img = _VirtualDom_node('img');
 var elm$html$Html$input = _VirtualDom_node('input');
@@ -5268,7 +5273,14 @@ var author$project$Main$toRow = function (item) {
 				elm$html$Html$div,
 				_List_fromArray(
 					[
-						elm$html$Html$Attributes$class('quantity inputBox')
+						elm$html$Html$Attributes$class('quantity inputBox'),
+						elm$html$Html$Attributes$classList(
+						_List_fromArray(
+							[
+								_Utils_Tuple2(
+								'inputBox--covered',
+								author$project$Main$shouldCoverInputBox(item))
+							]))
 					]),
 				_List_fromArray(
 					[
@@ -5395,7 +5407,10 @@ var author$project$Main$toRow = function (item) {
 								'time--hidden',
 								_Utils_eq(item.isNew, elm$core$Maybe$Nothing) || _Utils_eq(
 									item.isNew,
-									elm$core$Maybe$Just(false)))
+									elm$core$Maybe$Just(false))),
+								_Utils_Tuple2(
+								'inputBox--covered',
+								author$project$Main$shouldCoverInputBox(item))
 							]))
 					]),
 				_List_fromArray(

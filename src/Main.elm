@@ -177,7 +177,7 @@ toRow : Item -> Html Msg
 toRow item =
     li [ class "row" ]
         [ input [ class "inputBox", onInput (ModifyName item.id), value item.name, placeholder (getPlaceholderText item) ] []
-        , div [ class "quantity inputBox" ]
+        , div [ class "quantity inputBox", classList [ ( "inputBox--covered", shouldCoverInputBox item ) ] ]
             [ input [ class "quantity__edit inputBox__innerEdit", classList [ ( "quantity__edit--excessive", isOverstocked item ) ], onInput (ModifyEstimateOnHand item.id), value (item.estimateOnHand |> String.fromInt) ] []
             , span [] [ text "/" ]
             , input [ class "quantity__edit inputBox__innerEdit", onInput (ModifyMaxOnHand item.id), value (item.maxOnHand |> String.fromInt) ] [ text (item.maxOnHand |> String.fromInt) ]
@@ -188,7 +188,7 @@ toRow item =
             , div [ class "bar__quantityExcessive", style "width" (buildQuantityExcessiveWidth item) ] []
             , div [ classList (quanitiyLeftClassList item), style "width" (buildQuantityLeftWidth item) ] []
             ]
-        , div [ class "inputBox time", classList [ ( "time--hidden", item.isNew == Nothing || item.isNew == Just False ) ] ]
+        , div [ class "inputBox time", classList [ ( "time--hidden", item.isNew == Nothing || item.isNew == Just False ), ( "inputBox--covered", shouldCoverInputBox item ) ] ]
             [ div [ class "time__helpText" ] [ text "Estimate" ]
             , input [ class "time__input inputBox__innerEdit", value (Maybe.withDefault "" item.estimateTime), onInput (ModifyEstimateTime item.id) ] []
             ]
@@ -202,6 +202,11 @@ toRow item =
             [ img [ src "./src/svg/tick.svg" ] []
             ]
         ]
+
+
+shouldCoverInputBox : Item -> Bool
+shouldCoverInputBox item =
+    item.isNew == Just True && item.name == ""
 
 
 onConfirmKeyDown : Int -> Item -> Msg

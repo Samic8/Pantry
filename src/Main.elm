@@ -1,14 +1,25 @@
 module Main exposing (Item, Model, Msg(..), init, main, toRow, update, updateItem, view)
 
 import Browser
+import Browser.Dom as Dom
 import Html exposing (Attribute, Html, button, div, h1, header, img, input, label, li, section, span, text, ul)
-import Html.Attributes exposing (class, classList, placeholder, src, style, tabindex, value)
+import Html.Attributes exposing (class, classList, id, placeholder, src, style, tabindex, value)
 import Html.Events exposing (keyCode, on, onClick, onInput)
 import Json.Decode as Json
+import Task
 
 
 main =
-    Browser.sandbox { init = init, update = update, view = view }
+    Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
+
+
+
+-- subscriptions
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
 
 
 
@@ -51,17 +62,19 @@ type alias Model =
     }
 
 
-init : Model
-init =
-    { title = "Sam's Kitchen Pantry"
-    , items =
-        [ { id = 1, name = "Chickpeas", estimateOnHand = 400, maxOnHand = 500, unit = "g", isNew = Nothing, estimateTime = Nothing }
-        , { id = 2, name = "Red Lentils", estimateOnHand = 200, maxOnHand = 700, unit = "g", isNew = Nothing, estimateTime = Nothing }
-        , { id = 3, name = "Cinnamon", estimateOnHand = 10, maxOnHand = 100, unit = "g", isNew = Nothing, estimateTime = Nothing }
-        , { id = 4, name = "Chocolate", estimateOnHand = 40, maxOnHand = 150, unit = "g", isNew = Nothing, estimateTime = Nothing }
-        , getNewItem 5
-        ]
-    }
+init : () -> ( Model, Cmd Msg )
+init _ =
+    ( { title = "Sam's Kitchen Pantry"
+      , items =
+            [ { id = 1, name = "Chickpeas", estimateOnHand = 400, maxOnHand = 500, unit = "g", isNew = Nothing, estimateTime = Nothing }
+            , { id = 2, name = "Red Lentils", estimateOnHand = 200, maxOnHand = 700, unit = "g", isNew = Nothing, estimateTime = Nothing }
+            , { id = 3, name = "Cinnamon", estimateOnHand = 10, maxOnHand = 100, unit = "g", isNew = Nothing, estimateTime = Nothing }
+            , { id = 4, name = "Chocolate", estimateOnHand = 40, maxOnHand = 150, unit = "g", isNew = Nothing, estimateTime = Nothing }
+            , getNewItem 5
+            ]
+      }
+    , Cmd.none
+    )
 
 
 getNewItem : Id -> Item
@@ -83,29 +96,34 @@ type Msg
     | NoOp
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ModifyTitle newTitle ->
-            { model | title = newTitle }
+            ( { model | title = newTitle }, Cmd.none )
 
         ModifyName id newName ->
-            updateModel model id newName Name
+            ( updateModel model id newName Name, Cmd.none )
 
         ModifyEstimateOnHand id newEstimate ->
-            updateModel model id newEstimate EstimateOnHand
+            ( updateModel model id newEstimate EstimateOnHand, Cmd.none )
 
         ModifyMaxOnHand id newMax ->
-            updateModel model id newMax MaxOnHand
+            ( updateModel model id newMax MaxOnHand, Cmd.none )
 
         ModifyEstimateTime id newTime ->
-            updateModel model id newTime EstimateTime
+            ( updateModel model id newTime EstimateTime, Cmd.none )
 
         SaveNewItem id ->
-            updateSaveNewModel model id
+            ( updateSaveNewModel model id, focusElement )
 
         NoOp ->
-            model
+            ( model, Cmd.none )
+
+
+focusElement : Cmd Msg
+focusElement =
+    Task.attempt (\_ -> NoOp) (Dom.focus "new-item-name-input")
 
 
 updateModel : Model -> Id -> String -> Prop -> Model
@@ -176,7 +194,20 @@ view model =
 toRow : Item -> Html Msg
 toRow item =
     li [ class "row" ]
-        [ input [ class "inputBox", onInput (ModifyName item.id), value item.name, placeholder (getPlaceholderText item) ] []
+        [ input
+            [ class "inputBox"
+            , id
+                (if item.isNew == Just True then
+                    "new-item-name-input"
+
+                 else
+                    ""
+                )
+            , onInput (ModifyName item.id)
+            , value item.name
+            , placeholder (getPlaceholderText item)
+            ]
+            []
         , div [ class "quantity inputBox", classList [ ( "inputBox--covered", shouldCoverInputBox item ) ] ]
             [ input [ class "quantity__edit inputBox__innerEdit", classList [ ( "quantity__edit--excessive", isOverstocked item ) ], onInput (ModifyEstimateOnHand item.id), value (item.estimateOnHand |> String.fromInt) ] []
             , span [] [ text "/" ]

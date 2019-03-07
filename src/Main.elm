@@ -1,7 +1,7 @@
 module Main exposing (Item, Model, Msg(..), init, main, toRow, update, updateItem, view)
 
 import Browser
-import Browser.Dom exposing (focus)
+import Browser.Dom as Dom
 import Html exposing (Attribute, Html, button, div, h1, header, img, input, label, li, section, span, text, ul)
 import Html.Attributes exposing (class, classList, id, placeholder, src, style, tabindex, value)
 import Html.Events exposing (keyCode, on, onClick, onInput)
@@ -10,7 +10,16 @@ import Task
 
 
 main =
-    Browser.sandbox { init = init, update = update, view = view }
+    Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
+
+
+
+-- subscriptions
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
 
 
 
@@ -53,17 +62,19 @@ type alias Model =
     }
 
 
-init : Model
-init =
-    { title = "Sam's Kitchen Pantry"
-    , items =
-        [ { id = 1, name = "Chickpeas", estimateOnHand = 400, maxOnHand = 500, unit = "g", isNew = Nothing, estimateTime = Nothing }
-        , { id = 2, name = "Red Lentils", estimateOnHand = 200, maxOnHand = 700, unit = "g", isNew = Nothing, estimateTime = Nothing }
-        , { id = 3, name = "Cinnamon", estimateOnHand = 10, maxOnHand = 100, unit = "g", isNew = Nothing, estimateTime = Nothing }
-        , { id = 4, name = "Chocolate", estimateOnHand = 40, maxOnHand = 150, unit = "g", isNew = Nothing, estimateTime = Nothing }
-        , getNewItem 5
-        ]
-    }
+init : () -> ( Model, Cmd Msg )
+init _ =
+    ( { title = "Sam's Kitchen Pantry"
+      , items =
+            [ { id = 1, name = "Chickpeas", estimateOnHand = 400, maxOnHand = 500, unit = "g", isNew = Nothing, estimateTime = Nothing }
+            , { id = 2, name = "Red Lentils", estimateOnHand = 200, maxOnHand = 700, unit = "g", isNew = Nothing, estimateTime = Nothing }
+            , { id = 3, name = "Cinnamon", estimateOnHand = 10, maxOnHand = 100, unit = "g", isNew = Nothing, estimateTime = Nothing }
+            , { id = 4, name = "Chocolate", estimateOnHand = 40, maxOnHand = 150, unit = "g", isNew = Nothing, estimateTime = Nothing }
+            , getNewItem 5
+            ]
+      }
+    , Cmd.none
+    )
 
 
 getNewItem : Id -> Item
@@ -105,10 +116,10 @@ update msg model =
             ( updateModel model id newTime EstimateTime, Cmd.none )
 
         SaveNewItem id ->
-            ( updateSaveNewModel model id, Cmd.none )
+            ( updateSaveNewModel model id, Cmd.map (always FocusNewItem) Cmd.none )
 
         FocusNewItem ->
-            ( model, Task.attempt (\_ -> NoOp) (focus "new-item-name-input") )
+            ( model, Task.attempt (\_ -> NoOp) (Dom.focus "new-item-name-input") )
 
         NoOp ->
             ( model, Cmd.none )

@@ -4820,57 +4820,35 @@ var author$project$Main$subscriptions = function (model) {
 };
 var author$project$Main$EstimateOnHand = {$: 'EstimateOnHand'};
 var author$project$Main$EstimateTime = {$: 'EstimateTime'};
-var author$project$Main$FocusNewItem = {$: 'FocusNewItem'};
 var author$project$Main$MaxOnHand = {$: 'MaxOnHand'};
 var author$project$Main$Name = {$: 'Name'};
 var author$project$Main$NoOp = {$: 'NoOp'};
-var elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
-var elm$core$String$toInt = _String_toInt;
-var author$project$Main$parseOnHand = function (stringVal) {
-	return A2(
-		elm$core$Maybe$withDefault,
-		0,
-		elm$core$String$toInt(stringVal));
+var elm$browser$Browser$External = function (a) {
+	return {$: 'External', a: a};
 };
-var author$project$Main$updateItem = F4(
-	function (item, newVal, id, prop) {
-		if (_Utils_eq(item.id, id)) {
-			switch (prop.$) {
-				case 'EstimateOnHand':
-					return _Utils_update(
-						item,
-						{
-							estimateOnHand: author$project$Main$parseOnHand(newVal)
-						});
-				case 'MaxOnHand':
-					return _Utils_update(
-						item,
-						{
-							maxOnHand: author$project$Main$parseOnHand(newVal)
-						});
-				case 'Name':
-					return _Utils_update(
-						item,
-						{name: newVal});
-				default:
-					return _Utils_update(
-						item,
-						{
-							estimateTime: elm$core$Maybe$Just(newVal)
-						});
-			}
-		} else {
-			return item;
-		}
-	});
+var elm$browser$Browser$Internal = function (a) {
+	return {$: 'Internal', a: a};
+};
+var elm$browser$Browser$Dom$NotFound = function (a) {
+	return {$: 'NotFound', a: a};
+};
+var elm$core$Basics$never = function (_n0) {
+	never:
+	while (true) {
+		var nvr = _n0.a;
+		var $temp$_n0 = nvr;
+		_n0 = $temp$_n0;
+		continue never;
+	}
+};
+var elm$core$Basics$identity = function (x) {
+	return x;
+};
+var elm$core$Task$Perform = function (a) {
+	return {$: 'Perform', a: a};
+};
+var elm$core$Task$succeed = _Scheduler_succeed;
+var elm$core$Task$init = elm$core$Task$succeed(_Utils_Tuple0);
 var elm$core$List$foldrHelper = F4(
 	function (fn, acc, ctr, ls) {
 		if (!ls.b) {
@@ -4940,81 +4918,6 @@ var elm$core$List$map = F2(
 			_List_Nil,
 			xs);
 	});
-var author$project$Main$updateModel = F4(
-	function (model, id, newVal, prop) {
-		return _Utils_update(
-			model,
-			{
-				items: A2(
-					elm$core$List$map,
-					function (item) {
-						return A4(author$project$Main$updateItem, item, newVal, id, prop);
-					},
-					model.items)
-			});
-	});
-var author$project$Main$updateSaveNewItem = F2(
-	function (item, id) {
-		return _Utils_eq(id, item.id) ? _Utils_update(
-			item,
-			{
-				isNew: elm$core$Maybe$Just(false)
-			}) : item;
-	});
-var elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3(elm$core$List$foldr, elm$core$List$cons, ys, xs);
-		}
-	});
-var author$project$Main$updateSaveNewModel = F2(
-	function (model, id) {
-		return _Utils_update(
-			model,
-			{
-				items: A2(
-					elm$core$List$append,
-					A2(
-						elm$core$List$map,
-						function (item) {
-							return A2(author$project$Main$updateSaveNewItem, item, id);
-						},
-						model.items),
-					_List_fromArray(
-						[
-							author$project$Main$getNewItem(
-							elm$core$List$length(model.items) + 1)
-						]))
-			});
-	});
-var elm$browser$Browser$External = function (a) {
-	return {$: 'External', a: a};
-};
-var elm$browser$Browser$Internal = function (a) {
-	return {$: 'Internal', a: a};
-};
-var elm$browser$Browser$Dom$NotFound = function (a) {
-	return {$: 'NotFound', a: a};
-};
-var elm$core$Basics$never = function (_n0) {
-	never:
-	while (true) {
-		var nvr = _n0.a;
-		var $temp$_n0 = nvr;
-		_n0 = $temp$_n0;
-		continue never;
-	}
-};
-var elm$core$Basics$identity = function (x) {
-	return x;
-};
-var elm$core$Task$Perform = function (a) {
-	return {$: 'Perform', a: a};
-};
-var elm$core$Task$succeed = _Scheduler_succeed;
-var elm$core$Task$init = elm$core$Task$succeed(_Utils_Tuple0);
 var elm$core$Task$andThen = _Scheduler_andThen;
 var elm$core$Task$map = F2(
 	function (func, taskA) {
@@ -5126,6 +5029,7 @@ var elm$core$String$left = F2(
 		return (n < 1) ? '' : A3(elm$core$String$slice, 0, n, string);
 	});
 var elm$core$String$contains = _String_contains;
+var elm$core$String$toInt = _String_toInt;
 var elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
 		return {fragment: fragment, host: host, path: path, port_: port_, protocol: protocol, query: query};
@@ -5233,11 +5137,6 @@ var elm$url$Url$fromString = function (str) {
 		A2(elm$core$String$dropLeft, 8, str)) : elm$core$Maybe$Nothing);
 };
 var elm$browser$Browser$Dom$focus = _Browser_call('focus');
-var elm$core$Basics$always = F2(
-	function (a, _n0) {
-		return a;
-	});
-var elm$core$Platform$Cmd$map = _Platform_map;
 var elm$core$Basics$composeL = F3(
 	function (g, f, x) {
 		return g(
@@ -5261,6 +5160,107 @@ var elm$core$Task$attempt = F2(
 							A2(elm$core$Basics$composeL, elm$core$Task$succeed, resultToMessage),
 							elm$core$Result$Ok),
 						task))));
+	});
+var author$project$Main$focusElement = A2(
+	elm$core$Task$attempt,
+	function (_n0) {
+		return author$project$Main$NoOp;
+	},
+	elm$browser$Browser$Dom$focus('new-item-name-input'));
+var elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var author$project$Main$parseOnHand = function (stringVal) {
+	return A2(
+		elm$core$Maybe$withDefault,
+		0,
+		elm$core$String$toInt(stringVal));
+};
+var author$project$Main$updateItem = F4(
+	function (item, newVal, id, prop) {
+		if (_Utils_eq(item.id, id)) {
+			switch (prop.$) {
+				case 'EstimateOnHand':
+					return _Utils_update(
+						item,
+						{
+							estimateOnHand: author$project$Main$parseOnHand(newVal)
+						});
+				case 'MaxOnHand':
+					return _Utils_update(
+						item,
+						{
+							maxOnHand: author$project$Main$parseOnHand(newVal)
+						});
+				case 'Name':
+					return _Utils_update(
+						item,
+						{name: newVal});
+				default:
+					return _Utils_update(
+						item,
+						{
+							estimateTime: elm$core$Maybe$Just(newVal)
+						});
+			}
+		} else {
+			return item;
+		}
+	});
+var author$project$Main$updateModel = F4(
+	function (model, id, newVal, prop) {
+		return _Utils_update(
+			model,
+			{
+				items: A2(
+					elm$core$List$map,
+					function (item) {
+						return A4(author$project$Main$updateItem, item, newVal, id, prop);
+					},
+					model.items)
+			});
+	});
+var author$project$Main$updateSaveNewItem = F2(
+	function (item, id) {
+		return _Utils_eq(id, item.id) ? _Utils_update(
+			item,
+			{
+				isNew: elm$core$Maybe$Just(false)
+			}) : item;
+	});
+var elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3(elm$core$List$foldr, elm$core$List$cons, ys, xs);
+		}
+	});
+var author$project$Main$updateSaveNewModel = F2(
+	function (model, id) {
+		return _Utils_update(
+			model,
+			{
+				items: A2(
+					elm$core$List$append,
+					A2(
+						elm$core$List$map,
+						function (item) {
+							return A2(author$project$Main$updateSaveNewItem, item, id);
+						},
+						model.items),
+					_List_fromArray(
+						[
+							author$project$Main$getNewItem(
+							elm$core$List$length(model.items) + 1)
+						]))
+			});
 	});
 var author$project$Main$update = F2(
 	function (msg, model) {
@@ -5300,19 +5300,7 @@ var author$project$Main$update = F2(
 				var id = msg.a;
 				return _Utils_Tuple2(
 					A2(author$project$Main$updateSaveNewModel, model, id),
-					A2(
-						elm$core$Platform$Cmd$map,
-						elm$core$Basics$always(author$project$Main$FocusNewItem),
-						elm$core$Platform$Cmd$none));
-			case 'FocusNewItem':
-				return _Utils_Tuple2(
-					model,
-					A2(
-						elm$core$Task$attempt,
-						function (_n1) {
-							return author$project$Main$NoOp;
-						},
-						elm$browser$Browser$Dom$focus('new-item-name-input')));
+					author$project$Main$focusElement);
 			default:
 				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 		}

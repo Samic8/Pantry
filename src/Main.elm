@@ -93,7 +93,6 @@ type Msg
     | ModifyName Id String
     | ModifyEstimateTime Id String
     | SaveNewItem Id
-    | FocusNewItem
     | NoOp
 
 
@@ -116,13 +115,15 @@ update msg model =
             ( updateModel model id newTime EstimateTime, Cmd.none )
 
         SaveNewItem id ->
-            ( updateSaveNewModel model id, Cmd.map (always FocusNewItem) Cmd.none )
-
-        FocusNewItem ->
-            ( model, Task.attempt (\_ -> NoOp) (Dom.focus "new-item-name-input") )
+            ( updateSaveNewModel model id, focusElement )
 
         NoOp ->
             ( model, Cmd.none )
+
+
+focusElement : Cmd Msg
+focusElement =
+    Task.attempt (\_ -> NoOp) (Dom.focus "new-item-name-input")
 
 
 updateModel : Model -> Id -> String -> Prop -> Model

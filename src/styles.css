@@ -14,6 +14,7 @@
     --color-alias-header-main: var(--color-grey);
     --color-alias-list-container: var(--color-grey);
     --color-alias-input-background: var(--color-white);
+    --color-alias-input-focus-background: var(--color-blue-light);
     --color-alias-quantity-excessive: var(--color-green);
     --color-alias-quantity-left: var(--color-purple);
     --color-alias-quantity-left-low: var(--color-red);
@@ -82,14 +83,28 @@ body {
 }
 
 .filters {
+    display: grid;
+    grid-template-columns: var(--row-columns);
+    grid-gap: var(--column-gap);
     width: var(--list-container-width);
     padding: 12px var(--list-container-side-padding);
 }
 
 .filters__confirmButton {
+    grid-column: 2;
+    width: 100%;
     border: var(--input-border);
-    background: var(--color-alias-input-background);
+    background-color: var(--color-alias-input-background);
     border-radius: var(--border-radius);
+    appearance: none;
+    height: var(--input-height);
+    font-size: var(--primary-font-size);
+    color: var(--color-blue-dark);
+    cursor: pointer;
+}
+
+.filters__confirmButton:hover, .filters__confirmButton:focus {
+    background-color: var(--color-alias-input-focus-background);
 }
 
 .listContainer {
@@ -100,6 +115,7 @@ body {
     list-style-type: none;
     display: grid;
     grid-gap: var(--row-gap);
+    margin-top: 0;
 }
 
 .row {
@@ -208,7 +224,7 @@ body {
 .inputBox__innerEdit:hover, .inputBox__innerEdit:focus {
     transition: var(--edit-transition);
     border: var(--input-border);
-    background-color: var(--color-blue-light);
+    background-color: var(--color-alias-input-focus-background);
     outline: 0;
 }
 

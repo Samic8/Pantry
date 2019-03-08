@@ -5747,6 +5747,7 @@ var author$project$Main$toRow = function (item) {
 					]))
 			]));
 };
+var elm$html$Html$button = _VirtualDom_node('button');
 var elm$html$Html$h1 = _VirtualDom_node('h1');
 var elm$html$Html$header = _VirtualDom_node('header');
 var elm$html$Html$section = _VirtualDom_node('section');
@@ -5819,7 +5820,19 @@ var author$project$Main$view = function (model) {
 							[
 								elm$html$Html$Attributes$class('filters')
 							]),
-						_List_Nil),
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$button,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('filters__confirmButton')
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('Confirm')
+									]))
+							])),
 						A2(
 						elm$html$Html$ul,
 						_List_fromArray(

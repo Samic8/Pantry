@@ -40,20 +40,22 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
     background-color: var(--color-alias-header-main);
     height: 63px;
     padding: 0 52px;
 }
 
 .header__title {
-    justify-self: center;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     height: 40px;
     width: 202px;
     border: none;
     font-size: var(--primary-font-size);
     border: none;
     text-align: center;
-    margin-right: auto;
 }
 
 .header__logo {

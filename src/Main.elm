@@ -186,7 +186,8 @@ view model =
             , input [ onInput ModifyTitle, value model.title, class "header__title" ] []
             ]
         , section [ class "mainContent" ]
-            [ ul [ class "listContainer" ] (model.items |> List.map toRow)
+            [ section [ class "filters" ] []
+            , ul [ class "listContainer" ] (model.items |> List.map toRow)
             ]
         ]
 

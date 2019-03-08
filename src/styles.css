@@ -19,15 +19,17 @@
     --color-alias-quantity-left-low: var(--color-red);
     --color-alias-new-item-help-text: var(--color-blue-darkest);
 
+    --input-border: var(--input-border-size) dashed var(--color-blue-dark);
     --primary-font-size: 18px;
-
     --row-gap: 23px;
     --column-gap: 13px;
     --input-padding-left: 16px;
     --input-height: 48px;
     --input-border-size: 1px;
+    --list-container-width: 740px;
     --list-container-side-padding: 42px;
-
+    --border-radius: 5px;
+    --row-columns: 240px 210px 1fr;
     --edit-transition: .2s background-color ease;
 }
 
@@ -75,16 +77,26 @@ body {
 }
 
 .mainContent {
-    display: flex;
+    display: grid;
     justify-content: center;
 }
 
+.filters {
+    width: var(--list-container-width);
+    padding: 12px var(--list-container-side-padding);
+}
+
+.filters__confirmButton {
+    border: var(--input-border);
+    background: var(--color-alias-input-background);
+    border-radius: var(--border-radius);
+}
+
 .listContainer {
-    background-color: var(--color-alias-list-container);
-    width: 740px;
+    width: var(--list-container-width);
     padding: 32px var(--list-container-side-padding);
-    border-radius: 5px;
-    margin-top: 70px;
+    background-color: var(--color-alias-list-container);
+    border-radius: var(--border-radius);
     list-style-type: none;
     display: grid;
     grid-gap: var(--row-gap);
@@ -93,7 +105,7 @@ body {
 .row {
     display: grid;
     position: relative;
-    grid-template-columns: 240px 210px 1fr;
+    grid-template-columns: var(--row-columns);
     grid-gap: var(--column-gap);
 }
 
@@ -114,7 +126,7 @@ body {
 }
 
 .row__confirmTick:hover, .row__confirmTick:focus {
-    border: var(--input-border-size) dashed var(--color-blue-dark);
+    border: var(--input-border);
     background-color: var(--color-alias-list-container);
     transition: var(--edit-transition);
     outline: none;
@@ -195,7 +207,7 @@ body {
 
 .inputBox__innerEdit:hover, .inputBox__innerEdit:focus {
     transition: var(--edit-transition);
-    border: var(--input-border-size) dashed var(--color-blue-dark);
+    border: var(--input-border);
     background-color: var(--color-blue-light);
     outline: 0;
 }
@@ -239,7 +251,6 @@ body {
 :root {
     --quanitiy-used-index: 0;
     --qaunitiy-bar-index: calc(var(--quanitiy-used-index) + 1);
-    --bar-border-radius: 5px;
 }
 
 /* Bar */
@@ -274,13 +285,13 @@ body {
 .bar__quantityExcessive {
     background-color: var(--color-alias-quantity-excessive);
     z-index: var(--qaunitiy-bar-index);
-    border-top-left-radius: var(--bar-border-radius);
+    border-top-left-radius: var(--border-radius);
 }
 
 .bar__quantityLeft {
     margin-left: auto;
     background-color: var(--color-alias-quantity-left);
-    border-radius: var(--bar-border-radius) 0 var(--bar-border-radius) 0;
+    border-radius: var(--border-radius) 0 var(--border-radius) 0;
     z-index: var(--qaunitiy-bar-index);
 }
 

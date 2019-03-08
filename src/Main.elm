@@ -38,6 +38,10 @@ type alias MaxOnHand =
     Int
 
 
+type alias Items =
+    List Item
+
+
 type alias Item =
     { id : Id
     , name : String
@@ -58,7 +62,8 @@ type Prop
 
 type alias Model =
     { title : String
-    , items : List Item
+    , items : Items
+    , hasChanges : Bool
     }
 
 
@@ -72,6 +77,7 @@ init _ =
             , { id = 4, name = "Chocolate", estimateOnHand = 40, maxOnHand = 150, unit = "g", isNew = Nothing, estimateTime = Nothing }
             , getNewItem 5
             ]
+      , hasChanges = False
       }
     , Cmd.none
     )
@@ -128,7 +134,12 @@ focusElement =
 
 updateModel : Model -> Id -> String -> Prop -> Model
 updateModel model id newVal prop =
-    { model | items = model.items |> List.map (\item -> updateItem item newVal id prop) }
+    { model | items = model.items |> List.map (\item -> updateItem item newVal id prop), hasChanges = isItemNew model.items id }
+
+
+isItemNew : Items -> Id -> Bool
+isItemNew items id =
+    items |> List.filter (\item -> item.id == id) |> List.any (\item -> item.isNew /= Just True)
 
 
 updateSaveNewModel : Model -> Id -> Model
@@ -187,7 +198,7 @@ view model =
             ]
         , section [ class "mainContent" ]
             [ section [ class "filters" ]
-                [ button [ class "filters__confirmButton" ] [ text "Confirm" ] ]
+                [ button [ class "filters__confirmButton", classList [ ( "filters__confirmButton--hide", model.hasChanges == False ) ] ] [ text "Confirm" ] ]
             , ul [ class "listContainer" ] (model.items |> List.map toRow)
             ]
         ]

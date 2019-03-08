@@ -107,6 +107,10 @@ body {
     background-color: var(--color-alias-input-focus-background);
 }
 
+.filters__confirmButton--hide {
+    display: none;
+}
+
 .listContainer {
     width: var(--list-container-width);
     padding: 32px var(--list-container-side-padding);

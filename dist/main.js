@@ -4325,8 +4325,8 @@ var author$project$Main$getNewItem = function (id) {
 		unit: 'g'
 	};
 };
-var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var elm$core$Basics$False = {$: 'False'};
+var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var elm$core$Result$isOk = function (result) {
 	if (result.$ === 'Ok') {
 		return true;
@@ -4801,6 +4801,7 @@ var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var author$project$Main$init = function (_n0) {
 	return _Utils_Tuple2(
 		{
+			hasChanges: false,
 			items: _List_fromArray(
 				[
 					{estimateOnHand: 400, estimateTime: elm$core$Maybe$Nothing, id: 1, isNew: elm$core$Maybe$Nothing, maxOnHand: 500, name: 'Chickpeas', unit: 'g'},
@@ -5167,6 +5168,55 @@ var author$project$Main$focusElement = A2(
 		return author$project$Main$NoOp;
 	},
 	elm$browser$Browser$Dom$focus('new-item-name-input'));
+var elm$core$Basics$neq = _Utils_notEqual;
+var elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var author$project$Main$isItemNew = F2(
+	function (items, id) {
+		return A2(
+			elm$core$List$any,
+			function (item) {
+				return !_Utils_eq(
+					item.isNew,
+					elm$core$Maybe$Just(true));
+			},
+			A2(
+				elm$core$List$filter,
+				function (item) {
+					return _Utils_eq(item.id, id);
+				},
+				items));
+	});
 var elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
 		if (maybe.$ === 'Just') {
@@ -5218,6 +5268,7 @@ var author$project$Main$updateModel = F4(
 		return _Utils_update(
 			model,
 			{
+				hasChanges: A2(author$project$Main$isItemNew, model.items, id),
 				items: A2(
 					elm$core$List$map,
 					function (item) {
@@ -5448,17 +5499,6 @@ var elm$html$Html$Attributes$stringProperty = F2(
 			elm$json$Json$Encode$string(string));
 	});
 var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
-var elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
 var elm$core$Tuple$second = function (_n0) {
 	var y = _n0.b;
 	return y;
@@ -5826,7 +5866,12 @@ var author$project$Main$view = function (model) {
 								elm$html$Html$button,
 								_List_fromArray(
 									[
-										elm$html$Html$Attributes$class('filters__confirmButton')
+										elm$html$Html$Attributes$class('filters__confirmButton'),
+										elm$html$Html$Attributes$classList(
+										_List_fromArray(
+											[
+												_Utils_Tuple2('filters__confirmButton--hide', !model.hasChanges)
+											]))
 									]),
 								_List_fromArray(
 									[

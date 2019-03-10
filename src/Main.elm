@@ -2,24 +2,18 @@ module Main exposing (Item, Model, Msg(..), init, main, toRow, update, updateIte
 
 import Browser
 import Browser.Dom as Dom
+import Browser.Events
+import DOM exposing (Rectangle, boundingClientRect, offsetLeft, offsetParent, offsetWidth, parentElement, target)
+import Debug
 import Html exposing (Attribute, Html, button, div, h1, header, img, input, label, li, section, span, text, ul)
 import Html.Attributes exposing (class, classList, id, placeholder, src, style, tabindex, value)
-import Html.Events exposing (keyCode, on, onClick, onInput)
+import Html.Events exposing (keyCode, on, onClick, onInput, onMouseDown, onMouseUp)
 import Json.Decode as Json
 import Task
 
 
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
-
-
-
--- subscriptions
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
 
 
 
@@ -64,6 +58,9 @@ type alias Model =
     { title : String
     , items : Items
     , hasChanges : Bool
+    , barDragingItemId : Maybe Id
+    , barDragingWidth : Maybe Float
+    , barDragingLeft : Maybe Float
     }
 
 
@@ -78,6 +75,9 @@ init _ =
             , getNewItem 5
             ]
       , hasChanges = False
+      , barDragingItemId = Nothing
+      , barDragingWidth = Nothing
+      , barDragingLeft = Nothing
       }
     , Cmd.none
     )
@@ -86,6 +86,33 @@ init _ =
 getNewItem : Id -> Item
 getNewItem id =
     { id = id, name = "", estimateOnHand = 0, maxOnHand = 500, unit = "g", isNew = Just True, estimateTime = Just "4 weeks" }
+
+
+
+-- subscriptions
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    case model.barDragingItemId of
+        Just id ->
+            Sub.batch
+                [ Browser.Events.onMouseMove mouseDecoder
+                , Browser.Events.onMouseUp (Json.succeed OnBarMouseUp)
+                ]
+
+        Nothing ->
+            Sub.none
+
+
+mouseDecoder : Json.Decoder Msg
+mouseDecoder =
+    Json.map toStringValue (Json.at [ "clientX" ] Json.float)
+
+
+toStringValue : Float -> Msg
+toStringValue mouseMove =
+    BarDragingMouseMove mouseMove
 
 
 
@@ -99,6 +126,9 @@ type Msg
     | ModifyName Id String
     | ModifyEstimateTime Id String
     | SaveNewItem Id
+    | OnBarMouseDown Id Float Rectangle
+    | OnBarMouseUp
+    | BarDragingMouseMove Float
     | NoOp
 
 
@@ -123,8 +153,36 @@ update msg model =
         SaveNewItem id ->
             ( updateSaveNewModel model id, focusElement )
 
+        OnBarMouseDown id barWidth barLeft ->
+            ( { model | barDragingWidth = Just barWidth, barDragingLeft = Just barLeft.left, barDragingItemId = Just id }, Cmd.none )
+
+        OnBarMouseUp ->
+            ( { model | barDragingWidth = Nothing, barDragingLeft = Nothing, barDragingItemId = Nothing }, Cmd.none )
+
+        BarDragingMouseMove mouseMove ->
+            let
+                id =
+                    model.barDragingItemId |> Maybe.withDefault 0
+            in
+            ( updateModel model id (buildNewEstimateFromMouseMove model id mouseMove) EstimateOnHand, Cmd.none )
+
         NoOp ->
             ( model, Cmd.none )
+
+
+buildNewEstimateFromMouseMove : Model -> Id -> Float -> String
+buildNewEstimateFromMouseMove model id mouseMove =
+    let
+        pixelsFromRight =
+            (Maybe.withDefault 0 model.barDragingLeft + Maybe.withDefault 0 model.barDragingWidth) - mouseMove
+
+        percentageFloat =
+            pixelsFromRight / (model.barDragingWidth |> Maybe.withDefault 0)
+
+        itemMaxOnHand =
+            List.sum (getItemFromId model.items id |> List.map (\item -> item.maxOnHand)) |> toFloat
+    in
+    round (itemMaxOnHand * percentageFloat) |> String.fromInt
 
 
 focusElement : Cmd Msg
@@ -139,7 +197,12 @@ updateModel model id newVal prop =
 
 isItemNew : Items -> Id -> Bool
 isItemNew items id =
-    items |> List.filter (\item -> item.id == id) |> List.any (\item -> item.isNew /= Just True)
+    getItemFromId items id |> List.any (\item -> item.isNew /= Just True)
+
+
+getItemFromId : Items -> Id -> Items
+getItemFromId items id =
+    items |> List.filter (\item -> item.id == id)
 
 
 updateSaveNewModel : Model -> Id -> Model
@@ -198,7 +261,8 @@ view model =
             ]
         , section [ class "mainContent" ]
             [ section [ class "filters" ]
-                [ button [ class "filters__confirmButton", classList [ ( "filters__confirmButton--hide", model.hasChanges == False ) ] ] [ text "Confirm" ] ]
+                [ button [ class "filters__confirmButton", classList [ ( "filters__confirmButton--hide", model.hasChanges == False ) ] ] [ text "Confirm" ]
+                ]
             , ul [ class "listContainer" ] (model.items |> List.map toRow)
             ]
         ]
@@ -230,7 +294,13 @@ toRow item =
         , div [ class "bar", classList [ ( "bar--hidden", item.isNew == Just True ) ] ]
             [ div [ class "bar__quantityUsed", onClick (ModifyEstimateOnHand item.id (item.maxOnHand |> String.fromInt)) ] []
             , div [ class "bar__quantityExcessive", style "width" (buildQuantityExcessiveWidth item) ] []
-            , div [ classList (quanitiyLeftClassList item), style "width" (buildQuantityLeftWidth item) ] []
+            , div [ classList (quanitiyLeftClassList item), style "width" (buildQuantityRemainingWidth item) ]
+                [ div
+                    [ class "bar__quantityRemaining__lever"
+                    , on "mousedown" (onLeverMouseDown item)
+                    ]
+                    []
+                ]
             ]
         , div [ class "inputBox time", classList [ ( "time--hidden", item.isNew == Nothing || item.isNew == Just False ), ( "inputBox--covered", shouldCoverInputBox item ) ] ]
             [ div [ class "time__helpText" ] [ text "Estimate" ]
@@ -246,6 +316,13 @@ toRow item =
             [ img [ src "./src/svg/tick.svg" ] []
             ]
         ]
+
+
+onLeverMouseDown : Item -> Json.Decoder Msg
+onLeverMouseDown item =
+    Json.map2 (OnBarMouseDown item.id)
+        (target <| parentElement <| parentElement <| offsetWidth)
+        (target <| parentElement <| parentElement <| boundingClientRect)
 
 
 shouldCoverInputBox : Item -> Bool
@@ -316,9 +393,9 @@ getPlaceholderText item =
 
 quanitiyLeftClassList : Item -> List ( String, Bool )
 quanitiyLeftClassList item =
-    [ ( "bar__quantityLeft", True )
-    , ( "bar__quantityLeft--low", calcEstimateRemainingPercentage item <= 20 )
-    , ( "bar__quantityLeft--excessive", isQuantityExcessive item )
+    [ ( "bar__quantityRemaining", True )
+    , ( "bar__quantityRemaining--low", calcEstimateRemainingPercentage item <= 20 )
+    , ( "bar__quantityRemaining--excessive", isQuantityExcessive item )
     ]
 
 
@@ -336,8 +413,8 @@ isQuantityExcessive item =
     calcEstimateRemainingPercentage item > 100
 
 
-buildQuantityLeftWidth : Item -> String
-buildQuantityLeftWidth item =
+buildQuantityRemainingWidth : Item -> String
+buildQuantityRemainingWidth item =
     if isQuantityExcessive item then
         (((toFloat item.maxOnHand / toFloat item.estimateOnHand) * 100) |> String.fromFloat) ++ "%"
 

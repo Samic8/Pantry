@@ -16,8 +16,8 @@
     --color-alias-input-background: var(--color-white);
     --color-alias-input-focus-background: var(--color-blue-light);
     --color-alias-quantity-excessive: var(--color-green);
-    --color-alias-quantity-left: var(--color-purple);
-    --color-alias-quantity-left-low: var(--color-red);
+    --color-alias-quantity-remaining: var(--color-purple);
+    --color-alias-quantity-remaining-low: var(--color-red);
     --color-alias-new-item-help-text: var(--color-blue-darkest);
 
     --input-border: var(--input-border-size) dashed var(--color-blue-dark);
@@ -308,19 +308,36 @@ body {
     border-top-left-radius: var(--border-radius);
 }
 
-.bar__quantityLeft {
+.bar__quantityRemaining {
+    position: relative;
     margin-left: auto;
-    background-color: var(--color-alias-quantity-left);
+    background-color: var(--color-alias-quantity-remaining);
     border-radius: var(--border-radius) 0 var(--border-radius) 0;
     z-index: var(--qaunitiy-bar-index);
 }
 
-.bar__quantityLeft--excessive {
+.bar__quantityRemaining--excessive {
     border-top-left-radius: 0;
 }
 
-.bar__quantityLeft--low {
-    background-color: var(--color-alias-quantity-left-low);
+.bar__quantityRemaining--low {
+    background-color: var(--color-alias-quantity-remaining-low);
+}
+
+.bar__quantityRemaining__lever {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0px;
+    width: 10px;
+    opacity: 0;
+    background-color: black;
+    z-index: 2;
+    cursor: move;
+}
+
+.bar__quantityRemaining__lever:hover {
+    opacity: 1;
 }
 
 .time {

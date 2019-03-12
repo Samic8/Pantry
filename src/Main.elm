@@ -54,6 +54,11 @@ type Prop
     | EstimateTime
 
 
+type MouseMoveFocus
+    = FilterBarMove
+    | EstimateOnHandMove
+
+
 type alias Model =
     { title : String
     , items : Items
@@ -61,6 +66,8 @@ type alias Model =
     , barDragingItemId : Maybe Id
     , barDragingWidth : Maybe Float
     , barDragingLeft : Maybe Float
+    , filterPercentage : Int
+    , mouseMoveFocus : Maybe MouseMoveFocus
     }
 
 
@@ -78,6 +85,8 @@ init _ =
       , barDragingItemId = Nothing
       , barDragingWidth = Nothing
       , barDragingLeft = Nothing
+      , filterPercentage = 100
+      , mouseMoveFocus = Nothing
       }
     , Cmd.none
     )
@@ -94,15 +103,23 @@ getNewItem id =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    case model.barDragingItemId of
-        Just id ->
-            Sub.batch
-                [ Browser.Events.onMouseMove mouseDecoder
-                , Browser.Events.onMouseUp (Json.succeed OnBarMouseUp)
-                ]
+    case model.mouseMoveFocus of
+        Just FilterBarMove ->
+            subscribeToMouseMove
+
+        Just EstimateOnHandMove ->
+            subscribeToMouseMove
 
         Nothing ->
             Sub.none
+
+
+subscribeToMouseMove : Sub Msg
+subscribeToMouseMove =
+    Sub.batch
+        [ Browser.Events.onMouseMove mouseDecoder
+        , Browser.Events.onMouseUp (Json.succeed OnBarMouseUp)
+        ]
 
 
 mouseDecoder : Json.Decoder Msg
@@ -129,6 +146,7 @@ type Msg
     | OnBarMouseDown Id Float Rectangle
     | OnBarMouseUp
     | BarDragingMouseMove Float
+    | OnFilterBarMouseDown Float Rectangle
     | NoOp
 
 
@@ -154,17 +172,28 @@ update msg model =
             ( updateSaveNewModel model id, focusElement )
 
         OnBarMouseDown id barWidth barLeft ->
-            ( { model | barDragingWidth = Just barWidth, barDragingLeft = Just barLeft.left, barDragingItemId = Just id }, Cmd.none )
+            ( { model | barDragingWidth = Just barWidth, barDragingLeft = Just barLeft.left, barDragingItemId = Just id, mouseMoveFocus = Just EstimateOnHandMove }, Cmd.none )
 
         OnBarMouseUp ->
             ( { model | barDragingWidth = Nothing, barDragingLeft = Nothing, barDragingItemId = Nothing }, Cmd.none )
 
         BarDragingMouseMove mouseMove ->
-            let
-                id =
-                    model.barDragingItemId |> Maybe.withDefault 0
-            in
-            ( updateModel model id (buildNewEstimateFromMouseMove model id mouseMove) EstimateOnHand, Cmd.none )
+            case model.mouseMoveFocus of
+                Just EstimateOnHandMove ->
+                    let
+                        id =
+                            model.barDragingItemId |> Maybe.withDefault 0
+                    in
+                    ( updateModel model id (buildNewEstimateFromMouseMove model id mouseMove) EstimateOnHand, Cmd.none )
+
+                Just FilterBarMove ->
+                    ( { model | filterPercentage = round (buildPercentageFromMouseMove model mouseMove * 100) }, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        OnFilterBarMouseDown barWidth barLeft ->
+            ( { model | barDragingWidth = Just barWidth, barDragingLeft = Just barLeft.left, mouseMoveFocus = Just FilterBarMove }, Cmd.none )
 
         NoOp ->
             ( model, Cmd.none )
@@ -173,16 +202,25 @@ update msg model =
 buildNewEstimateFromMouseMove : Model -> Id -> Float -> String
 buildNewEstimateFromMouseMove model id mouseMove =
     let
-        pixelsFromRight =
-            (Maybe.withDefault 0 model.barDragingLeft + Maybe.withDefault 0 model.barDragingWidth) - mouseMove
-
         percentageFloat =
-            pixelsFromRight / (model.barDragingWidth |> Maybe.withDefault 0)
+            buildPercentageFromMouseMove model mouseMove
 
         itemMaxOnHand =
             List.sum (getItemFromId model.items id |> List.map (\item -> item.maxOnHand)) |> toFloat
     in
     round (itemMaxOnHand * percentageFloat) |> String.fromInt
+
+
+buildPercentageFromMouseMove : Model -> Float -> Float
+buildPercentageFromMouseMove model mouseMove =
+    let
+        pixelsFromRight =
+            (Maybe.withDefault 0 model.barDragingLeft + Maybe.withDefault 0 model.barDragingWidth) - mouseMove
+
+        percentageFloat =
+            pixelsFromRight / (model.barDragingWidth |> Maybe.withDefault 0)
+    in
+    percentageFloat
 
 
 focusElement : Cmd Msg
@@ -262,6 +300,16 @@ view model =
         , section [ class "mainContent" ]
             [ section [ class "filters" ]
                 [ button [ class "filters__confirmButton", classList [ ( "filters__confirmButton--hide", model.hasChanges == False ) ] ] [ text "Confirm" ]
+                , div [ class "bar" ]
+                    [ div [ class "bar__quantityUsed" ] []
+                    , div [ class "bar__quantityRemaining", style "width" ((model.filterPercentage |> String.fromInt) ++ "%") ]
+                        [ div
+                            [ class "bar__quantityRemaining__lever"
+                            , on "mousedown" (onLeverMouseDown OnFilterBarMouseDown)
+                            ]
+                            []
+                        ]
+                    ]
                 ]
             , ul [ class "listContainer" ] (model.items |> List.map toRow)
             ]
@@ -297,7 +345,7 @@ toRow item =
             , div [ classList (quanitiyLeftClassList item), style "width" (buildQuantityRemainingWidth item) ]
                 [ div
                     [ class "bar__quantityRemaining__lever"
-                    , on "mousedown" (onLeverMouseDown item)
+                    , on "mousedown" (onLeverMouseDown (OnBarMouseDown item.id))
                     ]
                     []
                 ]
@@ -318,9 +366,9 @@ toRow item =
         ]
 
 
-onLeverMouseDown : Item -> Json.Decoder Msg
-onLeverMouseDown item =
-    Json.map2 (OnBarMouseDown item.id)
+onLeverMouseDown : (Float -> Rectangle -> Msg) -> Json.Decoder Msg
+onLeverMouseDown msg =
+    Json.map2 msg
         (target <| parentElement <| parentElement <| offsetWidth)
         (target <| parentElement <| parentElement <| boundingClientRect)
 

@@ -4804,6 +4804,7 @@ var author$project$Main$init = function (_n0) {
 			barDragingItemId: elm$core$Maybe$Nothing,
 			barDragingLeft: elm$core$Maybe$Nothing,
 			barDragingWidth: elm$core$Maybe$Nothing,
+			filterPercentage: 100,
 			hasChanges: false,
 			items: _List_fromArray(
 				[
@@ -4813,6 +4814,7 @@ var author$project$Main$init = function (_n0) {
 					{estimateOnHand: 40, estimateTime: elm$core$Maybe$Nothing, id: 4, isNew: elm$core$Maybe$Nothing, maxOnHand: 150, name: 'Chocolate', unit: 'g'},
 					author$project$Main$getNewItem(5)
 				]),
+			mouseMoveFocus: elm$core$Maybe$Nothing,
 			title: 'Sam\'s Kitchen Pantry'
 		},
 		elm$core$Platform$Cmd$none);
@@ -5554,26 +5556,49 @@ var elm$browser$Browser$Events$on = F3(
 var elm$browser$Browser$Events$onMouseMove = A2(elm$browser$Browser$Events$on, elm$browser$Browser$Events$Document, 'mousemove');
 var elm$browser$Browser$Events$onMouseUp = A2(elm$browser$Browser$Events$on, elm$browser$Browser$Events$Document, 'mouseup');
 var elm$core$Platform$Sub$batch = _Platform_batch;
+var author$project$Main$subscribeToMouseMove = elm$core$Platform$Sub$batch(
+	_List_fromArray(
+		[
+			elm$browser$Browser$Events$onMouseMove(author$project$Main$mouseDecoder),
+			elm$browser$Browser$Events$onMouseUp(
+			elm$json$Json$Decode$succeed(author$project$Main$OnBarMouseUp))
+		]));
 var elm$core$Platform$Sub$none = elm$core$Platform$Sub$batch(_List_Nil);
 var author$project$Main$subscriptions = function (model) {
-	var _n0 = model.barDragingItemId;
+	var _n0 = model.mouseMoveFocus;
 	if (_n0.$ === 'Just') {
-		var id = _n0.a;
-		return elm$core$Platform$Sub$batch(
-			_List_fromArray(
-				[
-					elm$browser$Browser$Events$onMouseMove(author$project$Main$mouseDecoder),
-					elm$browser$Browser$Events$onMouseUp(
-					elm$json$Json$Decode$succeed(author$project$Main$OnBarMouseUp))
-				]));
+		if (_n0.a.$ === 'FilterBarMove') {
+			var _n1 = _n0.a;
+			return author$project$Main$subscribeToMouseMove;
+		} else {
+			var _n2 = _n0.a;
+			return author$project$Main$subscribeToMouseMove;
+		}
 	} else {
 		return elm$core$Platform$Sub$none;
 	}
 };
 var author$project$Main$EstimateOnHand = {$: 'EstimateOnHand'};
+var author$project$Main$EstimateOnHandMove = {$: 'EstimateOnHandMove'};
 var author$project$Main$EstimateTime = {$: 'EstimateTime'};
+var author$project$Main$FilterBarMove = {$: 'FilterBarMove'};
 var author$project$Main$MaxOnHand = {$: 'MaxOnHand'};
 var author$project$Main$Name = {$: 'Name'};
+var elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var author$project$Main$buildPercentageFromMouseMove = F2(
+	function (model, mouseMove) {
+		var pixelsFromRight = (A2(elm$core$Maybe$withDefault, 0, model.barDragingLeft) + A2(elm$core$Maybe$withDefault, 0, model.barDragingWidth)) - mouseMove;
+		var percentageFloat = pixelsFromRight / A2(elm$core$Maybe$withDefault, 0, model.barDragingWidth);
+		return percentageFloat;
+	});
 var elm$core$List$filter = F2(
 	function (isGood, list) {
 		return A3(
@@ -5598,19 +5623,9 @@ var elm$core$Basics$round = _Basics_round;
 var elm$core$List$sum = function (numbers) {
 	return A3(elm$core$List$foldl, elm$core$Basics$add, 0, numbers);
 };
-var elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var author$project$Main$buildNewEstimateFromMouseMove = F3(
 	function (model, id, mouseMove) {
-		var pixelsFromRight = (A2(elm$core$Maybe$withDefault, 0, model.barDragingLeft) + A2(elm$core$Maybe$withDefault, 0, model.barDragingWidth)) - mouseMove;
-		var percentageFloat = pixelsFromRight / A2(elm$core$Maybe$withDefault, 0, model.barDragingWidth);
+		var percentageFloat = A2(author$project$Main$buildPercentageFromMouseMove, model, mouseMove);
 		var itemMaxOnHand = elm$core$List$sum(
 			A2(
 				elm$core$List$map,
@@ -5822,7 +5837,8 @@ var author$project$Main$update = F2(
 						{
 							barDragingItemId: elm$core$Maybe$Just(id),
 							barDragingLeft: elm$core$Maybe$Just(barLeft.left),
-							barDragingWidth: elm$core$Maybe$Just(barWidth)
+							barDragingWidth: elm$core$Maybe$Just(barWidth),
+							mouseMoveFocus: elm$core$Maybe$Just(author$project$Main$EstimateOnHandMove)
 						}),
 					elm$core$Platform$Cmd$none);
 			case 'OnBarMouseUp':
@@ -5833,14 +5849,44 @@ var author$project$Main$update = F2(
 					elm$core$Platform$Cmd$none);
 			case 'BarDragingMouseMove':
 				var mouseMove = msg.a;
-				var id = A2(elm$core$Maybe$withDefault, 0, model.barDragingItemId);
+				var _n1 = model.mouseMoveFocus;
+				if (_n1.$ === 'Just') {
+					if (_n1.a.$ === 'EstimateOnHandMove') {
+						var _n2 = _n1.a;
+						var id = A2(elm$core$Maybe$withDefault, 0, model.barDragingItemId);
+						return _Utils_Tuple2(
+							A4(
+								author$project$Main$updateModel,
+								model,
+								id,
+								A3(author$project$Main$buildNewEstimateFromMouseMove, model, id, mouseMove),
+								author$project$Main$EstimateOnHand),
+							elm$core$Platform$Cmd$none);
+					} else {
+						var _n3 = _n1.a;
+						return _Utils_Tuple2(
+							_Utils_update(
+								model,
+								{
+									filterPercentage: elm$core$Basics$round(
+										A2(author$project$Main$buildPercentageFromMouseMove, model, mouseMove) * 100)
+								}),
+							elm$core$Platform$Cmd$none);
+					}
+				} else {
+					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+				}
+			case 'OnFilterBarMouseDown':
+				var barWidth = msg.a;
+				var barLeft = msg.b;
 				return _Utils_Tuple2(
-					A4(
-						author$project$Main$updateModel,
+					_Utils_update(
 						model,
-						id,
-						A3(author$project$Main$buildNewEstimateFromMouseMove, model, id, mouseMove),
-						author$project$Main$EstimateOnHand),
+						{
+							barDragingLeft: elm$core$Maybe$Just(barLeft.left),
+							barDragingWidth: elm$core$Maybe$Just(barWidth),
+							mouseMoveFocus: elm$core$Maybe$Just(author$project$Main$FilterBarMove)
+						}),
 					elm$core$Platform$Cmd$none);
 			default:
 				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
@@ -5848,6 +5894,84 @@ var author$project$Main$update = F2(
 	});
 var author$project$Main$ModifyTitle = function (a) {
 	return {$: 'ModifyTitle', a: a};
+};
+var author$project$Main$OnFilterBarMouseDown = F2(
+	function (a, b) {
+		return {$: 'OnFilterBarMouseDown', a: a, b: b};
+	});
+var debois$elm_dom$DOM$offsetHeight = A2(elm$json$Json$Decode$field, 'offsetHeight', elm$json$Json$Decode$float);
+var debois$elm_dom$DOM$offsetWidth = A2(elm$json$Json$Decode$field, 'offsetWidth', elm$json$Json$Decode$float);
+var debois$elm_dom$DOM$offsetLeft = A2(elm$json$Json$Decode$field, 'offsetLeft', elm$json$Json$Decode$float);
+var elm$json$Json$Decode$null = _Json_decodeNull;
+var elm$json$Json$Decode$oneOf = _Json_oneOf;
+var debois$elm_dom$DOM$offsetParent = F2(
+	function (x, decoder) {
+		return elm$json$Json$Decode$oneOf(
+			_List_fromArray(
+				[
+					A2(
+					elm$json$Json$Decode$field,
+					'offsetParent',
+					elm$json$Json$Decode$null(x)),
+					A2(elm$json$Json$Decode$field, 'offsetParent', decoder)
+				]));
+	});
+var debois$elm_dom$DOM$offsetTop = A2(elm$json$Json$Decode$field, 'offsetTop', elm$json$Json$Decode$float);
+var debois$elm_dom$DOM$scrollLeft = A2(elm$json$Json$Decode$field, 'scrollLeft', elm$json$Json$Decode$float);
+var debois$elm_dom$DOM$scrollTop = A2(elm$json$Json$Decode$field, 'scrollTop', elm$json$Json$Decode$float);
+var elm$json$Json$Decode$andThen = _Json_andThen;
+var elm$json$Json$Decode$map4 = _Json_map4;
+var debois$elm_dom$DOM$position = F2(
+	function (x, y) {
+		return A2(
+			elm$json$Json$Decode$andThen,
+			function (_n0) {
+				var x_ = _n0.a;
+				var y_ = _n0.b;
+				return A2(
+					debois$elm_dom$DOM$offsetParent,
+					_Utils_Tuple2(x_, y_),
+					A2(debois$elm_dom$DOM$position, x_, y_));
+			},
+			A5(
+				elm$json$Json$Decode$map4,
+				F4(
+					function (scrollLeftP, scrollTopP, offsetLeftP, offsetTopP) {
+						return _Utils_Tuple2((x + offsetLeftP) - scrollLeftP, (y + offsetTopP) - scrollTopP);
+					}),
+				debois$elm_dom$DOM$scrollLeft,
+				debois$elm_dom$DOM$scrollTop,
+				debois$elm_dom$DOM$offsetLeft,
+				debois$elm_dom$DOM$offsetTop));
+	});
+var elm$json$Json$Decode$map3 = _Json_map3;
+var debois$elm_dom$DOM$boundingClientRect = A4(
+	elm$json$Json$Decode$map3,
+	F3(
+		function (_n0, width, height) {
+			var x = _n0.a;
+			var y = _n0.b;
+			return {height: height, left: x, top: y, width: width};
+		}),
+	A2(debois$elm_dom$DOM$position, 0, 0),
+	debois$elm_dom$DOM$offsetWidth,
+	debois$elm_dom$DOM$offsetHeight);
+var debois$elm_dom$DOM$parentElement = function (decoder) {
+	return A2(elm$json$Json$Decode$field, 'parentElement', decoder);
+};
+var debois$elm_dom$DOM$target = function (decoder) {
+	return A2(elm$json$Json$Decode$field, 'target', decoder);
+};
+var author$project$Main$onLeverMouseDown = function (msg) {
+	return A3(
+		elm$json$Json$Decode$map2,
+		msg,
+		debois$elm_dom$DOM$target(
+			debois$elm_dom$DOM$parentElement(
+				debois$elm_dom$DOM$parentElement(debois$elm_dom$DOM$offsetWidth))),
+		debois$elm_dom$DOM$target(
+			debois$elm_dom$DOM$parentElement(
+				debois$elm_dom$DOM$parentElement(debois$elm_dom$DOM$boundingClientRect))));
 };
 var author$project$Main$ModifyEstimateOnHand = F2(
 	function (a, b) {
@@ -5864,6 +5988,10 @@ var author$project$Main$ModifyMaxOnHand = F2(
 var author$project$Main$ModifyName = F2(
 	function (a, b) {
 		return {$: 'ModifyName', a: a, b: b};
+	});
+var author$project$Main$OnBarMouseDown = F3(
+	function (a, b, c) {
+		return {$: 'OnBarMouseDown', a: a, b: b, c: c};
 	});
 var author$project$Main$SaveNewItem = function (a) {
 	return {$: 'SaveNewItem', a: a};
@@ -5954,84 +6082,6 @@ var author$project$Main$onKeyDown = function (tagger) {
 		elm$html$Html$Events$on,
 		'keydown',
 		A2(elm$json$Json$Decode$map, tagger, elm$html$Html$Events$keyCode));
-};
-var author$project$Main$OnBarMouseDown = F3(
-	function (a, b, c) {
-		return {$: 'OnBarMouseDown', a: a, b: b, c: c};
-	});
-var debois$elm_dom$DOM$offsetHeight = A2(elm$json$Json$Decode$field, 'offsetHeight', elm$json$Json$Decode$float);
-var debois$elm_dom$DOM$offsetWidth = A2(elm$json$Json$Decode$field, 'offsetWidth', elm$json$Json$Decode$float);
-var debois$elm_dom$DOM$offsetLeft = A2(elm$json$Json$Decode$field, 'offsetLeft', elm$json$Json$Decode$float);
-var elm$json$Json$Decode$null = _Json_decodeNull;
-var elm$json$Json$Decode$oneOf = _Json_oneOf;
-var debois$elm_dom$DOM$offsetParent = F2(
-	function (x, decoder) {
-		return elm$json$Json$Decode$oneOf(
-			_List_fromArray(
-				[
-					A2(
-					elm$json$Json$Decode$field,
-					'offsetParent',
-					elm$json$Json$Decode$null(x)),
-					A2(elm$json$Json$Decode$field, 'offsetParent', decoder)
-				]));
-	});
-var debois$elm_dom$DOM$offsetTop = A2(elm$json$Json$Decode$field, 'offsetTop', elm$json$Json$Decode$float);
-var debois$elm_dom$DOM$scrollLeft = A2(elm$json$Json$Decode$field, 'scrollLeft', elm$json$Json$Decode$float);
-var debois$elm_dom$DOM$scrollTop = A2(elm$json$Json$Decode$field, 'scrollTop', elm$json$Json$Decode$float);
-var elm$json$Json$Decode$andThen = _Json_andThen;
-var elm$json$Json$Decode$map4 = _Json_map4;
-var debois$elm_dom$DOM$position = F2(
-	function (x, y) {
-		return A2(
-			elm$json$Json$Decode$andThen,
-			function (_n0) {
-				var x_ = _n0.a;
-				var y_ = _n0.b;
-				return A2(
-					debois$elm_dom$DOM$offsetParent,
-					_Utils_Tuple2(x_, y_),
-					A2(debois$elm_dom$DOM$position, x_, y_));
-			},
-			A5(
-				elm$json$Json$Decode$map4,
-				F4(
-					function (scrollLeftP, scrollTopP, offsetLeftP, offsetTopP) {
-						return _Utils_Tuple2((x + offsetLeftP) - scrollLeftP, (y + offsetTopP) - scrollTopP);
-					}),
-				debois$elm_dom$DOM$scrollLeft,
-				debois$elm_dom$DOM$scrollTop,
-				debois$elm_dom$DOM$offsetLeft,
-				debois$elm_dom$DOM$offsetTop));
-	});
-var elm$json$Json$Decode$map3 = _Json_map3;
-var debois$elm_dom$DOM$boundingClientRect = A4(
-	elm$json$Json$Decode$map3,
-	F3(
-		function (_n0, width, height) {
-			var x = _n0.a;
-			var y = _n0.b;
-			return {height: height, left: x, top: y, width: width};
-		}),
-	A2(debois$elm_dom$DOM$position, 0, 0),
-	debois$elm_dom$DOM$offsetWidth,
-	debois$elm_dom$DOM$offsetHeight);
-var debois$elm_dom$DOM$parentElement = function (decoder) {
-	return A2(elm$json$Json$Decode$field, 'parentElement', decoder);
-};
-var debois$elm_dom$DOM$target = function (decoder) {
-	return A2(elm$json$Json$Decode$field, 'target', decoder);
-};
-var author$project$Main$onLeverMouseDown = function (item) {
-	return A3(
-		elm$json$Json$Decode$map2,
-		author$project$Main$OnBarMouseDown(item.id),
-		debois$elm_dom$DOM$target(
-			debois$elm_dom$DOM$parentElement(
-				debois$elm_dom$DOM$parentElement(debois$elm_dom$DOM$offsetWidth))),
-		debois$elm_dom$DOM$target(
-			debois$elm_dom$DOM$parentElement(
-				debois$elm_dom$DOM$parentElement(debois$elm_dom$DOM$boundingClientRect))));
 };
 var author$project$Main$quanitiyLeftClassList = function (item) {
 	return _List_fromArray(
@@ -6290,7 +6340,8 @@ var author$project$Main$toRow = function (item) {
 										A2(
 										elm$html$Html$Events$on,
 										'mousedown',
-										author$project$Main$onLeverMouseDown(item))
+										author$project$Main$onLeverMouseDown(
+											author$project$Main$OnBarMouseDown(item.id)))
 									]),
 								_List_Nil)
 							]))
@@ -6452,6 +6503,46 @@ var author$project$Main$view = function (model) {
 								_List_fromArray(
 									[
 										elm$html$Html$text('Confirm')
+									])),
+								A2(
+								elm$html$Html$div,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('bar')
+									]),
+								_List_fromArray(
+									[
+										A2(
+										elm$html$Html$div,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$class('bar__quantityUsed')
+											]),
+										_List_Nil),
+										A2(
+										elm$html$Html$div,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$class('bar__quantityRemaining'),
+												A2(
+												elm$html$Html$Attributes$style,
+												'width',
+												elm$core$String$fromInt(model.filterPercentage) + '%')
+											]),
+										_List_fromArray(
+											[
+												A2(
+												elm$html$Html$div,
+												_List_fromArray(
+													[
+														elm$html$Html$Attributes$class('bar__quantityRemaining__lever'),
+														A2(
+														elm$html$Html$Events$on,
+														'mousedown',
+														author$project$Main$onLeverMouseDown(author$project$Main$OnFilterBarMouseDown))
+													]),
+												_List_Nil)
+											]))
 									]))
 							])),
 						A2(

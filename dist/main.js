@@ -5845,7 +5845,7 @@ var author$project$Main$update = F2(
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{barDragingItemId: elm$core$Maybe$Nothing, barDragingLeft: elm$core$Maybe$Nothing, barDragingWidth: elm$core$Maybe$Nothing}),
+						{barDragingItemId: elm$core$Maybe$Nothing, barDragingLeft: elm$core$Maybe$Nothing, barDragingWidth: elm$core$Maybe$Nothing, mouseMoveFocus: elm$core$Maybe$Nothing}),
 					elm$core$Platform$Cmd$none);
 			case 'BarDragingMouseMove':
 				var mouseMove = msg.a;

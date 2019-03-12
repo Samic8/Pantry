@@ -175,7 +175,7 @@ update msg model =
             ( { model | barDragingWidth = Just barWidth, barDragingLeft = Just barLeft.left, barDragingItemId = Just id, mouseMoveFocus = Just EstimateOnHandMove }, Cmd.none )
 
         OnBarMouseUp ->
-            ( { model | barDragingWidth = Nothing, barDragingLeft = Nothing, barDragingItemId = Nothing }, Cmd.none )
+            ( { model | barDragingWidth = Nothing, barDragingLeft = Nothing, barDragingItemId = Nothing, mouseMoveFocus = Nothing }, Cmd.none )
 
         BarDragingMouseMove mouseMove ->
             case model.mouseMoveFocus of

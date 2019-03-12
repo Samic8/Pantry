@@ -311,7 +311,7 @@ view model =
                         ]
                     ]
                 ]
-            , ul [ class "listContainer" ] (model.items |> List.map toRow)
+            , ul [ class "listContainer" ] (model.items |> List.filter (\item -> calcEstimateRemainingPercentage item <= toFloat model.filterPercentage) |> List.map toRow)
             ]
         ]
 

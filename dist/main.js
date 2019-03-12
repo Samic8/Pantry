@@ -5899,6 +5899,9 @@ var author$project$Main$OnFilterBarMouseDown = F2(
 	function (a, b) {
 		return {$: 'OnFilterBarMouseDown', a: a, b: b};
 	});
+var author$project$Main$calcEstimateRemainingPercentage = function (item) {
+	return (item.estimateOnHand / item.maxOnHand) * 100;
+};
 var debois$elm_dom$DOM$offsetHeight = A2(elm$json$Json$Decode$field, 'offsetHeight', elm$json$Json$Decode$float);
 var debois$elm_dom$DOM$offsetWidth = A2(elm$json$Json$Decode$field, 'offsetWidth', elm$json$Json$Decode$float);
 var debois$elm_dom$DOM$offsetLeft = A2(elm$json$Json$Decode$field, 'offsetLeft', elm$json$Json$Decode$float);
@@ -5995,9 +5998,6 @@ var author$project$Main$OnBarMouseDown = F3(
 	});
 var author$project$Main$SaveNewItem = function (a) {
 	return {$: 'SaveNewItem', a: a};
-};
-var author$project$Main$calcEstimateRemainingPercentage = function (item) {
-	return (item.estimateOnHand / item.maxOnHand) * 100;
 };
 var author$project$Main$isQuantityExcessive = function (item) {
 	return author$project$Main$calcEstimateRemainingPercentage(item) > 100;
@@ -6551,7 +6551,17 @@ var author$project$Main$view = function (model) {
 							[
 								elm$html$Html$Attributes$class('listContainer')
 							]),
-						A2(elm$core$List$map, author$project$Main$toRow, model.items))
+						A2(
+							elm$core$List$map,
+							author$project$Main$toRow,
+							A2(
+								elm$core$List$filter,
+								function (item) {
+									return _Utils_cmp(
+										author$project$Main$calcEstimateRemainingPercentage(item),
+										model.filterPercentage) < 1;
+								},
+								model.items)))
 					]))
 			]));
 };

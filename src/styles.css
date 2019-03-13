@@ -318,7 +318,11 @@ body {
     opacity: 0;
     background-color: black;
     z-index: 2;
-    cursor: move;
+    cursor: ew-resize;
+}
+
+.bar__mainPercentage__lever:hover {
+    opacity: .2;
 }
 
 .bar__used {
@@ -355,10 +359,6 @@ body {
 
 .bar__quantityRemaining--low {
     background-color: var(--color-alias-quantity-remaining-low);
-}
-
-.bar__quantityRemaining__lever:hover {
-    opacity: 1;
 }
 
 .time {

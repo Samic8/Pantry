@@ -300,7 +300,7 @@ view model =
         , section [ class "mainContent" ]
             [ section [ class "filters" ]
                 [ button [ class "filters__confirmButton", classList [ ( "filters__confirmButton--hide", model.hasChanges == False ) ] ] [ text "Confirm" ]
-                , div [ class "bar" ]
+                , div [ class "filters__bar bar" ]
                     [ div [ class "bar__quantityUsed" ] []
                     , div [ class "bar__quantityRemaining", style "width" ((model.filterPercentage |> String.fromInt) ++ "%") ]
                         [ div

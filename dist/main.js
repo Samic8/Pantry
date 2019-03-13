@@ -6523,7 +6523,7 @@ var author$project$Main$view = function (model) {
 								elm$html$Html$div,
 								_List_fromArray(
 									[
-										elm$html$Html$Attributes$class('bar')
+										elm$html$Html$Attributes$class('filters__bar bar')
 									]),
 								_List_fromArray(
 									[

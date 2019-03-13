@@ -103,6 +103,10 @@ body {
     cursor: pointer;
 }
 
+.filters__bar {
+    grid-column: 3;
+}
+
 .filters__confirmButton:hover, .filters__confirmButton:focus {
     background-color: var(--color-alias-input-focus-background);
 }

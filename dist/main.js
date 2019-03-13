@@ -6101,7 +6101,7 @@ var author$project$Main$onKeyDown = function (tagger) {
 var author$project$Main$quanitiyLeftClassList = function (item) {
 	return _List_fromArray(
 		[
-			_Utils_Tuple2('bar__quantityRemaining', true),
+			_Utils_Tuple2('bar__mainPercentage bar__quantityRemaining', true),
 			_Utils_Tuple2(
 			'bar__quantityRemaining--low',
 			author$project$Main$calcEstimateRemainingPercentage(item) <= 20),
@@ -6315,7 +6315,7 @@ var author$project$Main$toRow = function (item) {
 						elm$html$Html$div,
 						_List_fromArray(
 							[
-								elm$html$Html$Attributes$class('bar__quantityUsed'),
+								elm$html$Html$Attributes$class('bar__used bar__quantityUsed'),
 								elm$html$Html$Events$onClick(
 								A2(
 									author$project$Main$ModifyEstimateOnHand,
@@ -6351,7 +6351,7 @@ var author$project$Main$toRow = function (item) {
 								elm$html$Html$div,
 								_List_fromArray(
 									[
-										elm$html$Html$Attributes$class('bar__quantityRemaining__lever'),
+										elm$html$Html$Attributes$class('bar__mainPercentage__lever'),
 										A2(
 										elm$html$Html$Events$on,
 										'mousedown',
@@ -6523,7 +6523,7 @@ var author$project$Main$view = function (model) {
 								elm$html$Html$div,
 								_List_fromArray(
 									[
-										elm$html$Html$Attributes$class('filters__bar bar')
+										elm$html$Html$Attributes$class('filterBar bar')
 									]),
 								_List_fromArray(
 									[
@@ -6531,14 +6531,14 @@ var author$project$Main$view = function (model) {
 										elm$html$Html$div,
 										_List_fromArray(
 											[
-												elm$html$Html$Attributes$class('bar__quantityUsed')
+												elm$html$Html$Attributes$class('bar__used filterBar__used')
 											]),
 										_List_Nil),
 										A2(
 										elm$html$Html$div,
 										_List_fromArray(
 											[
-												elm$html$Html$Attributes$class('bar__quantityRemaining'),
+												elm$html$Html$Attributes$class('bar__mainPercentage filterBar__mainPercentage'),
 												A2(
 												elm$html$Html$Attributes$style,
 												'width',
@@ -6550,7 +6550,7 @@ var author$project$Main$view = function (model) {
 												elm$html$Html$div,
 												_List_fromArray(
 													[
-														elm$html$Html$Attributes$class('bar__quantityRemaining__lever'),
+														elm$html$Html$Attributes$class('bar__mainPercentage__lever'),
 														A2(
 														elm$html$Html$Events$on,
 														'mousedown',

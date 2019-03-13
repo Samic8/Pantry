@@ -3,6 +3,7 @@
     --color-grey-light: #F9F9F9;
     --color-grey: #f6f6f6;
     --color-grey-dark: #E1E1E1;
+    --color-grey-darkest: #C4C4C4;
     --color-white: #fff;
     --color-purple: #9B4CEA;
     --color-blue-darkest: #0441B8;
@@ -103,18 +104,30 @@ body {
     cursor: pointer;
 }
 
-.filters__bar {
+.filters__confirmButton--hide {
+    display: none;
+}
+
+/* Filter Bar */
+.filterBar {
     grid-column: 3;
+}
+
+.filterBar__used {
+    border: 1px solid var(--color-grey-dark);
+    border-radius: var(--border-radius);
+    background-color: var(--color-grey-light);
+}
+
+.filterBar__mainPercentage {
+    background-color: var(--color-grey-darkest);
 }
 
 .filters__confirmButton:hover, .filters__confirmButton:focus {
     background-color: var(--color-alias-input-focus-background);
 }
 
-.filters__confirmButton--hide {
-    display: none;
-}
-
+/* List Container */
 .listContainer {
     width: var(--list-container-width);
     padding: 32px var(--list-container-side-padding);
@@ -289,7 +302,26 @@ body {
     display: none;
 }
 
-.bar__quantityUsed {
+.bar__mainPercentage {
+    position: relative;
+    margin-left: auto;
+    border-radius: var(--border-radius) 0 var(--border-radius) 0;
+    z-index: var(--qaunitiy-bar-index);
+}
+
+.bar__mainPercentage__lever {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0px;
+    width: 10px;
+    opacity: 0;
+    background-color: black;
+    z-index: 2;
+    cursor: move;
+}
+
+.bar__used {
     position: absolute;
     left: 0;
     top: 0;
@@ -298,6 +330,7 @@ body {
     z-index: 0;
 }
 
+/* Quantity Bar */
 .bar__quantityUsed:hover {
     transition: var(--edit-transition);
     border: var(--input-border-size) dashed var(--color-blue-dark);
@@ -313,11 +346,7 @@ body {
 }
 
 .bar__quantityRemaining {
-    position: relative;
-    margin-left: auto;
     background-color: var(--color-alias-quantity-remaining);
-    border-radius: var(--border-radius) 0 var(--border-radius) 0;
-    z-index: var(--qaunitiy-bar-index);
 }
 
 .bar__quantityRemaining--excessive {
@@ -326,18 +355,6 @@ body {
 
 .bar__quantityRemaining--low {
     background-color: var(--color-alias-quantity-remaining-low);
-}
-
-.bar__quantityRemaining__lever {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0px;
-    width: 10px;
-    opacity: 0;
-    background-color: black;
-    z-index: 2;
-    cursor: move;
 }
 
 .bar__quantityRemaining__lever:hover {

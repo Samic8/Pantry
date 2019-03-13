@@ -300,11 +300,11 @@ view model =
         , section [ class "mainContent" ]
             [ section [ class "filters" ]
                 [ button [ class "filters__confirmButton", classList [ ( "filters__confirmButton--hide", model.hasChanges == False ) ] ] [ text "Confirm" ]
-                , div [ class "filters__bar bar" ]
-                    [ div [ class "bar__quantityUsed" ] []
-                    , div [ class "bar__quantityRemaining", style "width" ((model.filterPercentage |> String.fromInt) ++ "%") ]
+                , div [ class "filterBar bar" ]
+                    [ div [ class "bar__used filterBar__used" ] []
+                    , div [ class "bar__mainPercentage filterBar__mainPercentage", style "width" ((model.filterPercentage |> String.fromInt) ++ "%") ]
                         [ div
-                            [ class "bar__quantityRemaining__lever"
+                            [ class "bar__mainPercentage__lever"
                             , on "mousedown" (onLeverMouseDown OnFilterBarMouseDown)
                             ]
                             []
@@ -357,11 +357,11 @@ toRow item =
             , span [ class "quantity__unit" ] [ input [ class "quantity__unit__innerEdit inputBox__innerEdit", value item.unit ] [] ]
             ]
         , div [ class "bar", classList [ ( "bar--hidden", item.isNew == Just True ) ] ]
-            [ div [ class "bar__quantityUsed", onClick (ModifyEstimateOnHand item.id (item.maxOnHand |> String.fromInt)) ] []
+            [ div [ class "bar__used bar__quantityUsed", onClick (ModifyEstimateOnHand item.id (item.maxOnHand |> String.fromInt)) ] []
             , div [ class "bar__quantityExcessive", style "width" (buildQuantityExcessiveWidth item) ] []
             , div [ classList (quanitiyLeftClassList item), style "width" (buildQuantityRemainingWidth item) ]
                 [ div
-                    [ class "bar__quantityRemaining__lever"
+                    [ class "bar__mainPercentage__lever"
                     , on "mousedown" (onLeverMouseDown (OnBarMouseDown item.id))
                     ]
                     []
@@ -458,7 +458,7 @@ getPlaceholderText item =
 
 quanitiyLeftClassList : Item -> List ( String, Bool )
 quanitiyLeftClassList item =
-    [ ( "bar__quantityRemaining", True )
+    [ ( "bar__mainPercentage bar__quantityRemaining", True )
     , ( "bar__quantityRemaining--low", calcEstimateRemainingPercentage item <= 20 )
     , ( "bar__quantityRemaining--excessive", isQuantityExcessive item )
     ]

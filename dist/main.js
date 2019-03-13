@@ -5902,6 +5902,24 @@ var author$project$Main$OnFilterBarMouseDown = F2(
 var author$project$Main$calcEstimateRemainingPercentage = function (item) {
 	return (item.estimateOnHand / item.maxOnHand) * 100;
 };
+var author$project$Main$isOverstocked = function (item) {
+	return author$project$Main$calcEstimateRemainingPercentage(item) > 100;
+};
+var author$project$Main$shouldIncludeItemInView = F2(
+	function (model, item) {
+		return (_Utils_cmp(
+			author$project$Main$calcEstimateRemainingPercentage(item),
+			model.filterPercentage) < 1) ? true : (author$project$Main$isOverstocked(item) ? true : false);
+	});
+var author$project$Main$filterUsingPercentage = F2(
+	function (model, items) {
+		return A2(
+			elm$core$List$filter,
+			function (item) {
+				return A2(author$project$Main$shouldIncludeItemInView, model, item);
+			},
+			items);
+	});
 var debois$elm_dom$DOM$offsetHeight = A2(elm$json$Json$Decode$field, 'offsetHeight', elm$json$Json$Decode$float);
 var debois$elm_dom$DOM$offsetWidth = A2(elm$json$Json$Decode$field, 'offsetWidth', elm$json$Json$Decode$float);
 var debois$elm_dom$DOM$offsetLeft = A2(elm$json$Json$Decode$field, 'offsetLeft', elm$json$Json$Decode$float);
@@ -6056,9 +6074,6 @@ var author$project$Main$getPlaceholderText = function (item) {
 	} else {
 		return '';
 	}
-};
-var author$project$Main$isOverstocked = function (item) {
-	return author$project$Main$calcEstimateRemainingPercentage(item) > 100;
 };
 var author$project$Main$onConfirmKeyDown = F2(
 	function (key, item) {
@@ -6554,14 +6569,7 @@ var author$project$Main$view = function (model) {
 						A2(
 							elm$core$List$map,
 							author$project$Main$toRow,
-							A2(
-								elm$core$List$filter,
-								function (item) {
-									return _Utils_cmp(
-										author$project$Main$calcEstimateRemainingPercentage(item),
-										model.filterPercentage) < 1;
-								},
-								model.items)))
+							A2(author$project$Main$filterUsingPercentage, model, model.items)))
 					]))
 			]));
 };

@@ -311,9 +311,26 @@ view model =
                         ]
                     ]
                 ]
-            , ul [ class "listContainer" ] (model.items |> List.filter (\item -> calcEstimateRemainingPercentage item <= toFloat model.filterPercentage) |> List.map toRow)
+            , ul [ class "listContainer" ] (model.items |> filterUsingPercentage model |> List.map toRow)
             ]
         ]
+
+
+filterUsingPercentage : Model -> Items -> List Item
+filterUsingPercentage model items =
+    items |> List.filter (\item -> shouldIncludeItemInView model item)
+
+
+shouldIncludeItemInView : Model -> Item -> Bool
+shouldIncludeItemInView model item =
+    if calcEstimateRemainingPercentage item <= toFloat model.filterPercentage then
+        True
+
+    else if isOverstocked item then
+        True
+
+    else
+        False
 
 
 toRow : Item -> Html Msg

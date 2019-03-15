@@ -8,6 +8,7 @@ import Debug
 import Html exposing (Attribute, Html, button, div, h1, header, img, input, label, li, section, span, text, ul)
 import Html.Attributes exposing (class, classList, id, placeholder, src, style, tabindex, value)
 import Html.Events exposing (keyCode, on, onClick, onInput, onMouseDown, onMouseUp)
+import Http
 import Json.Decode as Json
 import Task
 
@@ -73,14 +74,8 @@ type alias Model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { title = "Sam's Kitchen Pantry"
-      , items =
-            [ { id = 1, name = "Chickpeas", estimateOnHand = 400, maxOnHand = 500, unit = "g", isNew = Nothing, estimateTime = Nothing }
-            , { id = 2, name = "Red Lentils", estimateOnHand = 200, maxOnHand = 700, unit = "g", isNew = Nothing, estimateTime = Nothing }
-            , { id = 3, name = "Cinnamon", estimateOnHand = 10, maxOnHand = 100, unit = "g", isNew = Nothing, estimateTime = Nothing }
-            , { id = 4, name = "Chocolate", estimateOnHand = 40, maxOnHand = 150, unit = "g", isNew = Nothing, estimateTime = Nothing }
-            , getNewItem 5
-            ]
+    ( { title = ""
+      , items = []
       , hasChanges = False
       , barDragingItemId = Nothing
       , barDragingWidth = Nothing
@@ -88,8 +83,40 @@ init _ =
       , filterPercentage = 100
       , mouseMoveFocus = Nothing
       }
-    , Cmd.none
+    , Http.get
+        { url = "http://localhost:8000/pantry"
+        , expect = Http.expectJson Initialise pantryDecoder
+        }
     )
+
+
+type alias ItemsResponse =
+    List ItemResponse
+
+
+type alias ItemResponse =
+    { id : Int, name : String, estimateOnHand : Int, maxOnHand : Int, unit : String }
+
+
+type alias PantryResult =
+    { title : String, itemsResponse : ItemsResponse }
+
+
+pantryDecoder : Json.Decoder PantryResult
+pantryDecoder =
+    Json.map2 PantryResult
+        (Json.field "title" Json.string)
+        (Json.field "items" (Json.list mapItems))
+
+
+mapItems : Json.Decoder ItemResponse
+mapItems =
+    Json.map5 ItemResponse
+        (Json.field "id" Json.int)
+        (Json.field "name" Json.string)
+        (Json.field "estimateOnHand" Json.int)
+        (Json.field "maxOnHand" Json.int)
+        (Json.field "unit" Json.string)
 
 
 getNewItem : Id -> Item
@@ -137,7 +164,8 @@ toStringValue mouseMove =
 
 
 type Msg
-    = ModifyTitle String
+    = Initialise (Result Http.Error PantryResult)
+    | ModifyTitle String
     | ModifyEstimateOnHand Id String
     | ModifyMaxOnHand Id String
     | ModifyName Id String
@@ -153,6 +181,14 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        Initialise result ->
+            case result of
+                Ok pantry ->
+                    ( { model | title = pantry.title, items = List.append (transformItemsReponse pantry.itemsResponse) [ getNewItem (List.length pantry.itemsResponse) ] }, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
         ModifyTitle newTitle ->
             ( { model | title = newTitle }, Cmd.none )
 
@@ -197,6 +233,15 @@ update msg model =
 
         NoOp ->
             ( model, Cmd.none )
+
+
+transformItemsReponse : ItemsResponse -> List Item
+transformItemsReponse itemsResponse =
+    List.map
+        (\itemRes ->
+            Item itemRes.id itemRes.name itemRes.estimateOnHand itemRes.maxOnHand itemRes.unit Nothing Nothing
+        )
+        itemsResponse
 
 
 buildNewEstimateFromMouseMove : Model -> Id -> Float -> String

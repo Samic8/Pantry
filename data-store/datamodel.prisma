@@ -1,0 +1,7 @@
+type Item {
+  id: ID! @unique
+  name: String!
+  estimateOnHand: Int!
+  maxOnHand: Int!
+  unit: String!
+}

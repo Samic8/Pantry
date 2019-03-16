@@ -4978,7 +4978,7 @@ var elm$json$Json$Decode$string = _Json_decodeString;
 var author$project$Main$mapItems = A6(
 	elm$json$Json$Decode$map5,
 	author$project$Main$ItemResponse,
-	A2(elm$json$Json$Decode$field, 'id', elm$json$Json$Decode$int),
+	A2(elm$json$Json$Decode$field, 'id', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'name', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'estimateOnHand', elm$json$Json$Decode$int),
 	A2(elm$json$Json$Decode$field, 'maxOnHand', elm$json$Json$Decode$int),
@@ -5876,7 +5876,7 @@ var elm$http$Http$get = function (r) {
 };
 var author$project$Main$init = function (_n0) {
 	return _Utils_Tuple2(
-		{barDragingItemId: elm$core$Maybe$Nothing, barDragingLeft: elm$core$Maybe$Nothing, barDragingWidth: elm$core$Maybe$Nothing, filterPercentage: 100, hasChanges: false, items: _List_Nil, mouseMoveFocus: elm$core$Maybe$Nothing, title: ''},
+		{barDragingItemId: '', barDragingLeft: elm$core$Maybe$Nothing, barDragingWidth: elm$core$Maybe$Nothing, filterPercentage: 100, hasChanges: false, items: _List_Nil, mouseMoveFocus: elm$core$Maybe$Nothing, title: ''},
 		elm$http$Http$get(
 			{
 				expect: A2(elm$http$Http$expectJson, author$project$Main$Initialise, author$project$Main$pantryDecoder),
@@ -6430,6 +6430,9 @@ var author$project$Main$EstimateOnHand = {$: 'EstimateOnHand'};
 var author$project$Main$EstimateOnHandMove = {$: 'EstimateOnHandMove'};
 var author$project$Main$EstimateTime = {$: 'EstimateTime'};
 var author$project$Main$FilterBarMove = {$: 'FilterBarMove'};
+var author$project$Main$GotNewItem = function (a) {
+	return {$: 'GotNewItem', a: a};
+};
 var author$project$Main$MaxOnHand = {$: 'MaxOnHand'};
 var author$project$Main$Name = {$: 'Name'};
 var elm$core$Maybe$withDefault = F2(
@@ -6531,15 +6534,42 @@ var author$project$Main$Item = F7(
 	function (id, name, estimateOnHand, maxOnHand, unit, isNew, estimateTime) {
 		return {estimateOnHand: estimateOnHand, estimateTime: estimateTime, id: id, isNew: isNew, maxOnHand: maxOnHand, name: name, unit: unit};
 	});
+var author$project$Main$transformItemResponse = function (itemResponse) {
+	return A7(author$project$Main$Item, itemResponse.id, itemResponse.name, itemResponse.estimateOnHand, itemResponse.maxOnHand, itemResponse.unit, elm$core$Maybe$Nothing, elm$core$Maybe$Nothing);
+};
+var elm$core$Basics$neq = _Utils_notEqual;
+var elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3(elm$core$List$foldr, elm$core$List$cons, ys, xs);
+		}
+	});
+var author$project$Main$processNewItem = F2(
+	function (model, newItem) {
+		return A2(
+			elm$core$List$append,
+			A2(
+				elm$core$List$filter,
+				function (item) {
+					return item.id !== 'new-item';
+				},
+				model.items),
+			_List_fromArray(
+				[
+					author$project$Main$transformItemResponse(newItem),
+					author$project$Main$getNewItem('new-item')
+				]));
+	});
 var author$project$Main$transformItemsReponse = function (itemsResponse) {
 	return A2(
 		elm$core$List$map,
 		function (itemRes) {
-			return A7(author$project$Main$Item, itemRes.id, itemRes.name, itemRes.estimateOnHand, itemRes.maxOnHand, itemRes.unit, elm$core$Maybe$Nothing, elm$core$Maybe$Nothing);
+			return author$project$Main$transformItemResponse(itemRes);
 		},
 		itemsResponse);
 };
-var elm$core$Basics$neq = _Utils_notEqual;
 var elm$core$List$any = F2(
 	function (isOkay, list) {
 		any:
@@ -6631,14 +6661,6 @@ var author$project$Main$updateSaveNewItem = F2(
 				isNew: elm$core$Maybe$Just(false)
 			}) : item;
 	});
-var elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3(elm$core$List$foldr, elm$core$List$cons, ys, xs);
-		}
-	});
 var author$project$Main$updateSaveNewModel = F2(
 	function (model, id) {
 		return _Utils_update(
@@ -6654,13 +6676,37 @@ var author$project$Main$updateSaveNewModel = F2(
 						model.items),
 					_List_fromArray(
 						[
-							author$project$Main$getNewItem(
-							elm$core$List$length(model.items) + 1)
+							author$project$Main$getNewItem('new-item')
 						]))
 			});
 	});
 var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
+var elm$http$Http$jsonBody = function (value) {
+	return A2(
+		_Http_pair,
+		'application/json',
+		A2(elm$json$Json$Encode$encode, 0, value));
+};
+var elm$http$Http$post = function (r) {
+	return elm$http$Http$request(
+		{body: r.body, expect: r.expect, headers: _List_Nil, method: 'POST', timeout: elm$core$Maybe$Nothing, tracker: elm$core$Maybe$Nothing, url: r.url});
+};
+var elm$json$Json$Encode$int = _Json_wrap;
+var elm$json$Json$Encode$object = function (pairs) {
+	return _Json_wrap(
+		A3(
+			elm$core$List$foldl,
+			F2(
+				function (_n0, obj) {
+					var k = _n0.a;
+					var v = _n0.b;
+					return A3(_Json_addField, k, v, obj);
+				}),
+			_Json_emptyObject(_Utils_Tuple0),
+			pairs));
+};
+var elm$json$Json$Encode$string = _Json_wrap;
 var author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -6677,8 +6723,7 @@ var author$project$Main$update = F2(
 									author$project$Main$transformItemsReponse(pantry.itemsResponse),
 									_List_fromArray(
 										[
-											author$project$Main$getNewItem(
-											elm$core$List$length(pantry.itemsResponse))
+											author$project$Main$getNewItem('new-item')
 										])),
 								title: pantry.title
 							}),
@@ -6718,10 +6763,50 @@ var author$project$Main$update = F2(
 					A4(author$project$Main$updateModel, model, id, newTime, author$project$Main$EstimateTime),
 					elm$core$Platform$Cmd$none);
 			case 'SaveNewItem':
-				var id = msg.a;
+				var item = msg.a;
 				return _Utils_Tuple2(
-					A2(author$project$Main$updateSaveNewModel, model, id),
-					author$project$Main$focusElement);
+					A2(author$project$Main$updateSaveNewModel, model, item.id),
+					elm$core$Platform$Cmd$batch(
+						_List_fromArray(
+							[
+								author$project$Main$focusElement,
+								elm$http$Http$post(
+								{
+									body: elm$http$Http$jsonBody(
+										elm$json$Json$Encode$object(
+											_List_fromArray(
+												[
+													_Utils_Tuple2(
+													'name',
+													elm$json$Json$Encode$string(item.name)),
+													_Utils_Tuple2(
+													'maxOnHand',
+													elm$json$Json$Encode$int(item.maxOnHand)),
+													_Utils_Tuple2(
+													'onHand',
+													elm$json$Json$Encode$int(item.estimateOnHand)),
+													_Utils_Tuple2(
+													'unit',
+													elm$json$Json$Encode$string(item.unit))
+												]))),
+									expect: A2(elm$http$Http$expectJson, author$project$Main$GotNewItem, author$project$Main$mapItems),
+									url: 'http://localhost:8000/pantry/new-item'
+								})
+							])));
+			case 'GotNewItem':
+				var result = msg.a;
+				if (result.$ === 'Ok') {
+					var newItem = result.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								items: A2(author$project$Main$processNewItem, model, newItem)
+							}),
+						elm$core$Platform$Cmd$none);
+				} else {
+					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+				}
 			case 'OnBarMouseDown':
 				var id = msg.a;
 				var barWidth = msg.b;
@@ -6730,7 +6815,7 @@ var author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{
-							barDragingItemId: elm$core$Maybe$Just(id),
+							barDragingItemId: id,
 							barDragingLeft: elm$core$Maybe$Just(barLeft.left),
 							barDragingWidth: elm$core$Maybe$Just(barWidth),
 							mouseMoveFocus: elm$core$Maybe$Just(author$project$Main$EstimateOnHandMove)
@@ -6740,15 +6825,15 @@ var author$project$Main$update = F2(
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{barDragingItemId: elm$core$Maybe$Nothing, barDragingLeft: elm$core$Maybe$Nothing, barDragingWidth: elm$core$Maybe$Nothing, mouseMoveFocus: elm$core$Maybe$Nothing}),
+						{barDragingItemId: '', barDragingLeft: elm$core$Maybe$Nothing, barDragingWidth: elm$core$Maybe$Nothing, mouseMoveFocus: elm$core$Maybe$Nothing}),
 					elm$core$Platform$Cmd$none);
 			case 'BarDragingMouseMove':
 				var mouseMove = msg.a;
-				var _n2 = model.mouseMoveFocus;
-				if (_n2.$ === 'Just') {
-					if (_n2.a.$ === 'EstimateOnHandMove') {
-						var _n3 = _n2.a;
-						var id = A2(elm$core$Maybe$withDefault, 0, model.barDragingItemId);
+				var _n3 = model.mouseMoveFocus;
+				if (_n3.$ === 'Just') {
+					if (_n3.a.$ === 'EstimateOnHandMove') {
+						var _n4 = _n3.a;
+						var id = model.barDragingItemId;
 						return _Utils_Tuple2(
 							A4(
 								author$project$Main$updateModel,
@@ -6758,7 +6843,7 @@ var author$project$Main$update = F2(
 								author$project$Main$EstimateOnHand),
 							elm$core$Platform$Cmd$none);
 					} else {
-						var _n4 = _n2.a;
+						var _n5 = _n3.a;
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
@@ -6972,7 +7057,7 @@ var author$project$Main$getPlaceholderText = function (item) {
 };
 var author$project$Main$onConfirmKeyDown = F2(
 	function (key, item) {
-		return (key === 13) ? author$project$Main$SaveNewItem(item.id) : author$project$Main$NoOp;
+		return (key === 13) ? author$project$Main$SaveNewItem(item) : author$project$Main$NoOp;
 	});
 var elm$html$Html$Events$keyCode = A2(elm$json$Json$Decode$field, 'keyCode', elm$json$Json$Decode$int);
 var elm$virtual_dom$VirtualDom$Normal = function (a) {
@@ -7016,7 +7101,6 @@ var elm$html$Html$li = _VirtualDom_node('li');
 var elm$html$Html$span = _VirtualDom_node('span');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
-var elm$json$Json$Encode$string = _Json_wrap;
 var elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
 		return A2(
@@ -7303,7 +7387,7 @@ var author$project$Main$toRow = function (item) {
 						elm$html$Html$Attributes$classList(
 						author$project$Main$getConfirmTickClassList(item)),
 						elm$html$Html$Events$onClick(
-						author$project$Main$SaveNewItem(item.id)),
+						author$project$Main$SaveNewItem(item)),
 						author$project$Main$onKeyDown(
 						function (key) {
 							return A2(author$project$Main$onConfirmKeyDown, key, item);

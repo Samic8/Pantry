@@ -10,6 +10,7 @@ import Html.Attributes exposing (class, classList, id, placeholder, src, style, 
 import Html.Events exposing (keyCode, on, onClick, onInput, onMouseDown, onMouseUp)
 import Http
 import Json.Decode as Json
+import Json.Encode as Encode
 import Task
 
 
@@ -22,7 +23,7 @@ main =
 
 
 type alias Id =
-    Int
+    String
 
 
 type alias EstimateOnHand =
@@ -64,7 +65,7 @@ type alias Model =
     { title : String
     , items : Items
     , hasChanges : Bool
-    , barDragingItemId : Maybe Id
+    , barDragingItemId : String
     , barDragingWidth : Maybe Float
     , barDragingLeft : Maybe Float
     , filterPercentage : Int
@@ -77,7 +78,7 @@ init _ =
     ( { title = ""
       , items = []
       , hasChanges = False
-      , barDragingItemId = Nothing
+      , barDragingItemId = ""
       , barDragingWidth = Nothing
       , barDragingLeft = Nothing
       , filterPercentage = 100
@@ -95,7 +96,7 @@ type alias ItemsResponse =
 
 
 type alias ItemResponse =
-    { id : Int, name : String, estimateOnHand : Int, maxOnHand : Int, unit : String }
+    { id : String, name : String, estimateOnHand : Int, maxOnHand : Int, unit : String }
 
 
 type alias PantryResult =
@@ -112,7 +113,7 @@ pantryDecoder =
 mapItems : Json.Decoder ItemResponse
 mapItems =
     Json.map5 ItemResponse
-        (Json.field "id" Json.int)
+        (Json.field "id" Json.string)
         (Json.field "name" Json.string)
         (Json.field "estimateOnHand" Json.int)
         (Json.field "maxOnHand" Json.int)
@@ -170,7 +171,8 @@ type Msg
     | ModifyMaxOnHand Id String
     | ModifyName Id String
     | ModifyEstimateTime Id String
-    | SaveNewItem Id
+    | SaveNewItem Item
+    | GotNewItem (Result Http.Error ItemResponse)
     | OnBarMouseDown Id Float Rectangle
     | OnBarMouseUp
     | BarDragingMouseMove Float
@@ -184,7 +186,7 @@ update msg model =
         Initialise result ->
             case result of
                 Ok pantry ->
-                    ( { model | title = pantry.title, items = List.append (transformItemsReponse pantry.itemsResponse) [ getNewItem (List.length pantry.itemsResponse) ] }, Cmd.none )
+                    ( { model | title = pantry.title, items = List.append (transformItemsReponse pantry.itemsResponse) [ getNewItem "new-item" ] }, Cmd.none )
 
                 Err _ ->
                     ( model, Cmd.none )
@@ -204,21 +206,46 @@ update msg model =
         ModifyEstimateTime id newTime ->
             ( updateModel model id newTime EstimateTime, Cmd.none )
 
-        SaveNewItem id ->
-            ( updateSaveNewModel model id, focusElement )
+        SaveNewItem item ->
+            ( updateSaveNewModel model item.id
+            , Cmd.batch
+                [ focusElement
+                , Http.post
+                    { url = "http://localhost:8000/pantry/new-item"
+                    , body =
+                        Http.jsonBody
+                            (Encode.object
+                                [ ( "name", Encode.string item.name )
+                                , ( "maxOnHand", Encode.int item.maxOnHand )
+                                , ( "onHand", Encode.int item.estimateOnHand )
+                                , ( "unit", Encode.string item.unit )
+                                ]
+                            )
+                    , expect = Http.expectJson GotNewItem mapItems
+                    }
+                ]
+            )
+
+        GotNewItem result ->
+            case result of
+                Ok newItem ->
+                    ( { model | items = processNewItem model newItem }, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
 
         OnBarMouseDown id barWidth barLeft ->
-            ( { model | barDragingWidth = Just barWidth, barDragingLeft = Just barLeft.left, barDragingItemId = Just id, mouseMoveFocus = Just EstimateOnHandMove }, Cmd.none )
+            ( { model | barDragingWidth = Just barWidth, barDragingLeft = Just barLeft.left, barDragingItemId = id, mouseMoveFocus = Just EstimateOnHandMove }, Cmd.none )
 
         OnBarMouseUp ->
-            ( { model | barDragingWidth = Nothing, barDragingLeft = Nothing, barDragingItemId = Nothing, mouseMoveFocus = Nothing }, Cmd.none )
+            ( { model | barDragingWidth = Nothing, barDragingLeft = Nothing, barDragingItemId = "", mouseMoveFocus = Nothing }, Cmd.none )
 
         BarDragingMouseMove mouseMove ->
             case model.mouseMoveFocus of
                 Just EstimateOnHandMove ->
                     let
                         id =
-                            model.barDragingItemId |> Maybe.withDefault 0
+                            model.barDragingItemId
                     in
                     ( updateModel model id (buildNewEstimateFromMouseMove model id mouseMove) EstimateOnHand, Cmd.none )
 
@@ -235,13 +262,23 @@ update msg model =
             ( model, Cmd.none )
 
 
+processNewItem : Model -> ItemResponse -> List Item
+processNewItem model newItem =
+    List.append (model.items |> List.filter (\item -> item.id /= "new-item")) [ transformItemResponse newItem, getNewItem "new-item" ]
+
+
 transformItemsReponse : ItemsResponse -> List Item
 transformItemsReponse itemsResponse =
     List.map
         (\itemRes ->
-            Item itemRes.id itemRes.name itemRes.estimateOnHand itemRes.maxOnHand itemRes.unit Nothing Nothing
+            transformItemResponse itemRes
         )
         itemsResponse
+
+
+transformItemResponse : ItemResponse -> Item
+transformItemResponse itemResponse =
+    Item itemResponse.id itemResponse.name itemResponse.estimateOnHand itemResponse.maxOnHand itemResponse.unit Nothing Nothing
 
 
 buildNewEstimateFromMouseMove : Model -> Id -> Float -> String
@@ -273,7 +310,7 @@ focusElement =
     Task.attempt (\_ -> NoOp) (Dom.focus "new-item-name-input")
 
 
-updateModel : Model -> Id -> String -> Prop -> Model
+updateModel : Model -> String -> String -> Prop -> Model
 updateModel model id newVal prop =
     { model | items = model.items |> List.map (\item -> updateItem item newVal id prop), hasChanges = isItemNew model.items id }
 
@@ -290,7 +327,7 @@ getItemFromId items id =
 
 updateSaveNewModel : Model -> Id -> Model
 updateSaveNewModel model id =
-    { model | items = List.append (model.items |> List.map (\item -> updateSaveNewItem item id)) [ getNewItem (List.length model.items + 1) ] }
+    { model | items = List.append (model.items |> List.map (\item -> updateSaveNewItem item id)) [ getNewItem "new-item" ] }
 
 
 updateSaveNewItem : Item -> Id -> Item
@@ -302,7 +339,7 @@ updateSaveNewItem item id =
         item
 
 
-updateItem : Item -> String -> Int -> Prop -> Item
+updateItem : Item -> String -> String -> Prop -> Item
 updateItem item newVal id prop =
     if item.id == id then
         case prop of
@@ -418,7 +455,7 @@ toRow item =
             ]
         , div
             [ classList (getConfirmTickClassList item)
-            , onClick (SaveNewItem item.id)
+            , onClick (SaveNewItem item)
             , onKeyDown
                 (\key -> onConfirmKeyDown key item)
             , tabindex 0
@@ -443,7 +480,7 @@ shouldCoverInputBox item =
 onConfirmKeyDown : Int -> Item -> Msg
 onConfirmKeyDown key item =
     if key == 13 then
-        SaveNewItem item.id
+        SaveNewItem item
 
     else
         NoOp

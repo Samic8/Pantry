@@ -6522,17 +6522,17 @@ var author$project$Main$focusElement = A2(
 var author$project$Main$getNewItem = function (id) {
 	return {
 		estimateOnHand: 0,
-		estimateTime: elm$core$Maybe$Just('4 weeks'),
 		id: id,
 		isNew: elm$core$Maybe$Just(true),
 		maxOnHand: 500,
 		name: '',
-		unit: 'g'
+		unit: 'g',
+		userEstimateRunOut: elm$core$Maybe$Just('4 weeks')
 	};
 };
 var author$project$Main$Item = F7(
-	function (id, name, estimateOnHand, maxOnHand, unit, isNew, estimateTime) {
-		return {estimateOnHand: estimateOnHand, estimateTime: estimateTime, id: id, isNew: isNew, maxOnHand: maxOnHand, name: name, unit: unit};
+	function (id, name, estimateOnHand, maxOnHand, unit, isNew, userEstimateRunOut) {
+		return {estimateOnHand: estimateOnHand, id: id, isNew: isNew, maxOnHand: maxOnHand, name: name, unit: unit, userEstimateRunOut: userEstimateRunOut};
 	});
 var author$project$Main$transformItemResponse = function (itemResponse) {
 	return A7(author$project$Main$Item, itemResponse.id, itemResponse.name, itemResponse.estimateOnHand, itemResponse.maxOnHand, itemResponse.unit, elm$core$Maybe$Nothing, elm$core$Maybe$Nothing);
@@ -6632,7 +6632,7 @@ var author$project$Main$updateItem = F4(
 					return _Utils_update(
 						item,
 						{
-							estimateTime: elm$core$Maybe$Just(newVal)
+							userEstimateRunOut: elm$core$Maybe$Just(newVal)
 						});
 			}
 		} else {
@@ -6787,7 +6787,11 @@ var author$project$Main$update = F2(
 													elm$json$Json$Encode$int(item.estimateOnHand)),
 													_Utils_Tuple2(
 													'unit',
-													elm$json$Json$Encode$string(item.unit))
+													elm$json$Json$Encode$string(item.unit)),
+													_Utils_Tuple2(
+													'userEstimateRunOut',
+													elm$json$Json$Encode$string(
+														A2(elm$core$Maybe$withDefault, '', item.userEstimateRunOut)))
 												]))),
 									expect: A2(elm$http$Http$expectJson, author$project$Main$GotNewItem, author$project$Main$mapItems),
 									url: 'http://localhost:8000/pantry/new-item'
@@ -7374,7 +7378,7 @@ var author$project$Main$toRow = function (item) {
 							[
 								elm$html$Html$Attributes$class('time__input inputBox__innerEdit'),
 								elm$html$Html$Attributes$value(
-								A2(elm$core$Maybe$withDefault, '', item.estimateTime)),
+								A2(elm$core$Maybe$withDefault, '', item.userEstimateRunOut)),
 								elm$html$Html$Events$onInput(
 								author$project$Main$ModifyEstimateTime(item.id))
 							]),

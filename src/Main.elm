@@ -45,7 +45,7 @@ type alias Item =
     , maxOnHand : MaxOnHand
     , unit : String
     , isNew : Maybe Bool
-    , estimateTime : Maybe String
+    , userEstimateRunOut : Maybe String
     }
 
 
@@ -122,7 +122,7 @@ mapItems =
 
 getNewItem : Id -> Item
 getNewItem id =
-    { id = id, name = "", estimateOnHand = 0, maxOnHand = 500, unit = "g", isNew = Just True, estimateTime = Just "4 weeks" }
+    { id = id, name = "", estimateOnHand = 0, maxOnHand = 500, unit = "g", isNew = Just True, userEstimateRunOut = Just "4 weeks" }
 
 
 
@@ -219,6 +219,7 @@ update msg model =
                                 , ( "maxOnHand", Encode.int item.maxOnHand )
                                 , ( "onHand", Encode.int item.estimateOnHand )
                                 , ( "unit", Encode.string item.unit )
+                                , ( "userEstimateRunOut", Encode.string (Maybe.withDefault "" item.userEstimateRunOut) )
                                 ]
                             )
                     , expect = Http.expectJson GotNewItem mapItems
@@ -353,7 +354,7 @@ updateItem item newVal id prop =
                 { item | name = newVal }
 
             EstimateTime ->
-                { item | estimateTime = Just newVal }
+                { item | userEstimateRunOut = Just newVal }
 
     else
         item
@@ -451,7 +452,7 @@ toRow item =
             ]
         , div [ class "inputBox time", classList [ ( "time--hidden", item.isNew == Nothing || item.isNew == Just False ), ( "inputBox--covered", shouldCoverInputBox item ) ] ]
             [ div [ class "time__helpText" ] [ text "Estimate" ]
-            , input [ class "time__input inputBox__innerEdit", value (Maybe.withDefault "" item.estimateTime), onInput (ModifyEstimateTime item.id) ] []
+            , input [ class "time__input inputBox__innerEdit", value (Maybe.withDefault "" item.userEstimateRunOut), onInput (ModifyEstimateTime item.id) ] []
             ]
         , div
             [ classList (getConfirmTickClassList item)

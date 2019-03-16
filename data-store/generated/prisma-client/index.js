@@ -7,6 +7,10 @@ var models = [
   {
     name: "Item",
     embedded: false
+  },
+  {
+    name: "Restock",
+    embedded: false
   }
 ];
 exports.Prisma = prisma_lib_1.makePrismaClientClass({

@@ -7,6 +7,11 @@
             "type": "npm",
             "script": "make",
             "problemMatcher": []
+        },
+        {
+            "type": "npm",
+            "script": "server",
+            "problemMatcher": []
         }
     ]
 }

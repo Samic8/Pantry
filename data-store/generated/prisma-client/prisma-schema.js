@@ -7,16 +7,22 @@ module.exports = {
   count: Int!
 }
 
+type AggregateRestock {
+  count: Int!
+}
+
 type BatchPayload {
   count: Long!
 }
 
+scalar DateTime
+
 type Item {
   id: ID!
   name: String!
-  estimateOnHand: Int!
   maxOnHand: Int!
   unit: String!
+  restocks(where: RestockWhereInput, orderBy: RestockOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Restock!]
 }
 
 type ItemConnection {
@@ -27,9 +33,9 @@ type ItemConnection {
 
 input ItemCreateInput {
   name: String!
-  estimateOnHand: Int!
   maxOnHand: Int!
   unit: String!
+  restocks: RestockCreateManyInput
 }
 
 type ItemEdge {
@@ -42,8 +48,6 @@ enum ItemOrderByInput {
   id_DESC
   name_ASC
   name_DESC
-  estimateOnHand_ASC
-  estimateOnHand_DESC
   maxOnHand_ASC
   maxOnHand_DESC
   unit_ASC
@@ -57,7 +61,6 @@ enum ItemOrderByInput {
 type ItemPreviousValues {
   id: ID!
   name: String!
-  estimateOnHand: Int!
   maxOnHand: Int!
   unit: String!
 }
@@ -82,14 +85,13 @@ input ItemSubscriptionWhereInput {
 
 input ItemUpdateInput {
   name: String
-  estimateOnHand: Int
   maxOnHand: Int
   unit: String
+  restocks: RestockUpdateManyInput
 }
 
 input ItemUpdateManyMutationInput {
   name: String
-  estimateOnHand: Int
   maxOnHand: Int
   unit: String
 }
@@ -123,14 +125,6 @@ input ItemWhereInput {
   name_not_starts_with: String
   name_ends_with: String
   name_not_ends_with: String
-  estimateOnHand: Int
-  estimateOnHand_not: Int
-  estimateOnHand_in: [Int!]
-  estimateOnHand_not_in: [Int!]
-  estimateOnHand_lt: Int
-  estimateOnHand_lte: Int
-  estimateOnHand_gt: Int
-  estimateOnHand_gte: Int
   maxOnHand: Int
   maxOnHand_not: Int
   maxOnHand_in: [Int!]
@@ -153,6 +147,9 @@ input ItemWhereInput {
   unit_not_starts_with: String
   unit_ends_with: String
   unit_not_ends_with: String
+  restocks_every: RestockWhereInput
+  restocks_some: RestockWhereInput
+  restocks_none: RestockWhereInput
   AND: [ItemWhereInput!]
   OR: [ItemWhereInput!]
   NOT: [ItemWhereInput!]
@@ -171,6 +168,9 @@ type Mutation {
   upsertItem(where: ItemWhereUniqueInput!, create: ItemCreateInput!, update: ItemUpdateInput!): Item!
   deleteItem(where: ItemWhereUniqueInput!): Item
   deleteManyItems(where: ItemWhereInput): BatchPayload!
+  createRestock(data: RestockCreateInput!): Restock!
+  updateManyRestocks(data: RestockUpdateManyMutationInput!, where: RestockWhereInput): BatchPayload!
+  deleteManyRestocks(where: RestockWhereInput): BatchPayload!
 }
 
 enum MutationType {
@@ -194,11 +194,216 @@ type Query {
   item(where: ItemWhereUniqueInput!): Item
   items(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Item]!
   itemsConnection(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ItemConnection!
+  restocks(where: RestockWhereInput, orderBy: RestockOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Restock]!
+  restocksConnection(where: RestockWhereInput, orderBy: RestockOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): RestockConnection!
   node(id: ID!): Node
+}
+
+type Restock {
+  date: DateTime!
+  newOnHand: Int!
+  previousRestock: Restock
+  userEstimateRunOut: DateTime
+  didRunOut: DateTime
+  leftOverFromPrevious: Int
+}
+
+type RestockConnection {
+  pageInfo: PageInfo!
+  edges: [RestockEdge]!
+  aggregate: AggregateRestock!
+}
+
+input RestockCreateInput {
+  date: DateTime!
+  newOnHand: Int!
+  previousRestock: RestockCreateOneInput
+  userEstimateRunOut: DateTime
+  didRunOut: DateTime
+  leftOverFromPrevious: Int
+}
+
+input RestockCreateManyInput {
+  create: [RestockCreateInput!]
+}
+
+input RestockCreateOneInput {
+  create: RestockCreateInput
+}
+
+type RestockEdge {
+  node: Restock!
+  cursor: String!
+}
+
+enum RestockOrderByInput {
+  date_ASC
+  date_DESC
+  newOnHand_ASC
+  newOnHand_DESC
+  userEstimateRunOut_ASC
+  userEstimateRunOut_DESC
+  didRunOut_ASC
+  didRunOut_DESC
+  leftOverFromPrevious_ASC
+  leftOverFromPrevious_DESC
+  id_ASC
+  id_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type RestockPreviousValues {
+  date: DateTime!
+  newOnHand: Int!
+  userEstimateRunOut: DateTime
+  didRunOut: DateTime
+  leftOverFromPrevious: Int
+}
+
+input RestockScalarWhereInput {
+  date: DateTime
+  date_not: DateTime
+  date_in: [DateTime!]
+  date_not_in: [DateTime!]
+  date_lt: DateTime
+  date_lte: DateTime
+  date_gt: DateTime
+  date_gte: DateTime
+  newOnHand: Int
+  newOnHand_not: Int
+  newOnHand_in: [Int!]
+  newOnHand_not_in: [Int!]
+  newOnHand_lt: Int
+  newOnHand_lte: Int
+  newOnHand_gt: Int
+  newOnHand_gte: Int
+  userEstimateRunOut: DateTime
+  userEstimateRunOut_not: DateTime
+  userEstimateRunOut_in: [DateTime!]
+  userEstimateRunOut_not_in: [DateTime!]
+  userEstimateRunOut_lt: DateTime
+  userEstimateRunOut_lte: DateTime
+  userEstimateRunOut_gt: DateTime
+  userEstimateRunOut_gte: DateTime
+  didRunOut: DateTime
+  didRunOut_not: DateTime
+  didRunOut_in: [DateTime!]
+  didRunOut_not_in: [DateTime!]
+  didRunOut_lt: DateTime
+  didRunOut_lte: DateTime
+  didRunOut_gt: DateTime
+  didRunOut_gte: DateTime
+  leftOverFromPrevious: Int
+  leftOverFromPrevious_not: Int
+  leftOverFromPrevious_in: [Int!]
+  leftOverFromPrevious_not_in: [Int!]
+  leftOverFromPrevious_lt: Int
+  leftOverFromPrevious_lte: Int
+  leftOverFromPrevious_gt: Int
+  leftOverFromPrevious_gte: Int
+  AND: [RestockScalarWhereInput!]
+  OR: [RestockScalarWhereInput!]
+  NOT: [RestockScalarWhereInput!]
+}
+
+type RestockSubscriptionPayload {
+  mutation: MutationType!
+  node: Restock
+  updatedFields: [String!]
+  previousValues: RestockPreviousValues
+}
+
+input RestockSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: RestockWhereInput
+  AND: [RestockSubscriptionWhereInput!]
+  OR: [RestockSubscriptionWhereInput!]
+  NOT: [RestockSubscriptionWhereInput!]
+}
+
+input RestockUpdateManyDataInput {
+  date: DateTime
+  newOnHand: Int
+  userEstimateRunOut: DateTime
+  didRunOut: DateTime
+  leftOverFromPrevious: Int
+}
+
+input RestockUpdateManyInput {
+  create: [RestockCreateInput!]
+  deleteMany: [RestockScalarWhereInput!]
+  updateMany: [RestockUpdateManyWithWhereNestedInput!]
+}
+
+input RestockUpdateManyMutationInput {
+  date: DateTime
+  newOnHand: Int
+  userEstimateRunOut: DateTime
+  didRunOut: DateTime
+  leftOverFromPrevious: Int
+}
+
+input RestockUpdateManyWithWhereNestedInput {
+  where: RestockScalarWhereInput!
+  data: RestockUpdateManyDataInput!
+}
+
+input RestockWhereInput {
+  date: DateTime
+  date_not: DateTime
+  date_in: [DateTime!]
+  date_not_in: [DateTime!]
+  date_lt: DateTime
+  date_lte: DateTime
+  date_gt: DateTime
+  date_gte: DateTime
+  newOnHand: Int
+  newOnHand_not: Int
+  newOnHand_in: [Int!]
+  newOnHand_not_in: [Int!]
+  newOnHand_lt: Int
+  newOnHand_lte: Int
+  newOnHand_gt: Int
+  newOnHand_gte: Int
+  previousRestock: RestockWhereInput
+  userEstimateRunOut: DateTime
+  userEstimateRunOut_not: DateTime
+  userEstimateRunOut_in: [DateTime!]
+  userEstimateRunOut_not_in: [DateTime!]
+  userEstimateRunOut_lt: DateTime
+  userEstimateRunOut_lte: DateTime
+  userEstimateRunOut_gt: DateTime
+  userEstimateRunOut_gte: DateTime
+  didRunOut: DateTime
+  didRunOut_not: DateTime
+  didRunOut_in: [DateTime!]
+  didRunOut_not_in: [DateTime!]
+  didRunOut_lt: DateTime
+  didRunOut_lte: DateTime
+  didRunOut_gt: DateTime
+  didRunOut_gte: DateTime
+  leftOverFromPrevious: Int
+  leftOverFromPrevious_not: Int
+  leftOverFromPrevious_in: [Int!]
+  leftOverFromPrevious_not_in: [Int!]
+  leftOverFromPrevious_lt: Int
+  leftOverFromPrevious_lte: Int
+  leftOverFromPrevious_gt: Int
+  leftOverFromPrevious_gte: Int
+  AND: [RestockWhereInput!]
+  OR: [RestockWhereInput!]
+  NOT: [RestockWhereInput!]
 }
 
 type Subscription {
   item(where: ItemSubscriptionWhereInput): ItemSubscriptionPayload
+  restock(where: RestockSubscriptionWhereInput): RestockSubscriptionPayload
 }
 `
       }

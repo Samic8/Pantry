@@ -7,7 +7,7 @@ import DOM exposing (Rectangle, boundingClientRect, offsetLeft, offsetParent, of
 import Debug
 import Html exposing (Attribute, Html, button, div, h1, header, img, input, label, li, section, span, text, ul)
 import Html.Attributes exposing (class, classList, id, placeholder, src, style, tabindex, value)
-import Html.Events exposing (keyCode, on, onClick, onInput, onMouseDown, onMouseUp)
+import Html.Events exposing (keyCode, on, onClick, onInput, onMouseDown, onMouseUp, onSubmit)
 import Http
 import Json.Decode as Json
 import Json.Encode as Encode
@@ -177,6 +177,7 @@ type Msg
     | OnBarMouseUp
     | BarDragingMouseMove Float
     | OnFilterBarMouseDown Float Rectangle
+    | ConfirmChanges
     | NoOp
 
 
@@ -259,8 +260,31 @@ update msg model =
         OnFilterBarMouseDown barWidth barLeft ->
             ( { model | barDragingWidth = Just barWidth, barDragingLeft = Just barLeft.left, mouseMoveFocus = Just FilterBarMove }, Cmd.none )
 
+        ConfirmChanges ->
+            ( model
+            , Http.post
+                { url = "http://localhost:8000/pantry/items"
+                , body = Http.jsonBody (Encode.list Encode.object (buildEncodedItemList model.items))
+                , expect = Http.expectJson GotNewItem mapItems
+                }
+            )
+
         NoOp ->
             ( model, Cmd.none )
+
+
+buildEncodedItemList : Items -> List (List ( String, Encode.Value ))
+buildEncodedItemList items =
+    List.filter (\item -> item.isNew /= Just True) items
+        |> List.map
+            (\item ->
+                [ ( "id", Encode.string item.id )
+                , ( "name", Encode.string item.name )
+                , ( "maxOnHand", Encode.int item.maxOnHand )
+                , ( "onHand", Encode.int item.estimateOnHand )
+                , ( "unit", Encode.string item.unit )
+                ]
+            )
 
 
 processNewItem : Model -> ItemResponse -> List Item
@@ -382,7 +406,12 @@ view model =
             ]
         , section [ class "mainContent" ]
             [ section [ class "filters" ]
-                [ button [ class "filters__confirmButton", classList [ ( "filters__confirmButton--hide", model.hasChanges == False ) ] ] [ text "Confirm" ]
+                [ button
+                    [ class "filters__confirmButton"
+                    , classList [ ( "filters__confirmButton--hide", model.hasChanges == False ) ]
+                    , onClick ConfirmChanges
+                    ]
+                    [ text "Confirm" ]
                 , div [ class "filterBar bar" ]
                     [ div [ class "bar__used filterBar__used" ] []
                     , div [ class "bar__mainPercentage filterBar__mainPercentage", style "width" ((model.filterPercentage |> String.fromInt) ++ "%") ]

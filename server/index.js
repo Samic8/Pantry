@@ -4,6 +4,7 @@ const path = require('path');
 const { prisma } = require('../data-store/generated/prisma-client');
 const bodyParser = require('body-parser')
 const moment = require('moment');
+const _ = require('lodash');
 
 app.use( bodyParser.json() );
 app.use( bodyParser.urlencoded({ extended: true })); 
@@ -23,6 +24,35 @@ app.get('/pantry', async (req, res) => {
     });
 });
 
+app.post('/pantry/items', async (req, res) => {
+    const itemUpdates = req.body.map(async item => {
+        return await prisma.updateItem({
+            data: {
+                name: item.name,
+                maxOnHand: item.maxOnHand,
+                unit: item.unit,
+                restocks: {
+                    create: [
+                        {
+                            date: new Date(),
+                            newOnHand: item.onHand,
+                            didRunOut: new Date(),
+                            leftOverFromPrevious: 0,
+                        }
+                    ]
+                }
+            },
+            where: {
+                id: item.id,
+            }
+        });
+    });
+
+    await Promise.all(itemUpdates);
+    const items = await prisma.items().$fragment(fragmentItemsWithRestocks);
+    res.json(items.map(buildItemFromResponse));
+});
+
 function buildItemFromResponse(item) {
     return {
         id: item.id,
@@ -34,7 +64,20 @@ function buildItemFromResponse(item) {
 }
 
 function bulldEstimateOnHand({maxOnHand, restocks}) {
-    return bulldEstimateOnHandForIntialRestock(restocks[0]);
+    if (restocks.length === 1) {
+        return bulldEstimateOnHandForIntialRestock(restocks[0]);
+    }
+
+    const withoutInitial = restocks.slice(1);
+    const averageDays = _.mean(withoutInitial.map((restock, index) => {
+        const totalDays = moment(restock.didRunOut).diff(restock.date, 'days');
+        const amount = restocks[index].newOnHand;
+        // Time to run out of maxOnHand based on this rate
+        return (maxOnHand / amount) * Math.max(1, totalDays);
+    }));
+
+    const daysElapsedSinceRestock = moment().diff(restocks[restocks.length - 1].date, 'days');
+    return Math.max(0, Math.round(((averageDays - daysElapsedSinceRestock) / averageDays) * maxOnHand));
 }
 
 function bulldEstimateOnHandForIntialRestock({date, userEstimateRunOut, newOnHand}) {

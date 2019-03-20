@@ -6435,6 +6435,52 @@ var author$project$Main$GotNewItem = function (a) {
 };
 var author$project$Main$MaxOnHand = {$: 'MaxOnHand'};
 var author$project$Main$Name = {$: 'Name'};
+var elm$core$Basics$neq = _Utils_notEqual;
+var elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var elm$json$Json$Encode$int = _Json_wrap;
+var elm$json$Json$Encode$string = _Json_wrap;
+var author$project$Main$buildEncodedItemList = function (items) {
+	return A2(
+		elm$core$List$map,
+		function (item) {
+			return _List_fromArray(
+				[
+					_Utils_Tuple2(
+					'id',
+					elm$json$Json$Encode$string(item.id)),
+					_Utils_Tuple2(
+					'name',
+					elm$json$Json$Encode$string(item.name)),
+					_Utils_Tuple2(
+					'maxOnHand',
+					elm$json$Json$Encode$int(item.maxOnHand)),
+					_Utils_Tuple2(
+					'onHand',
+					elm$json$Json$Encode$int(item.estimateOnHand)),
+					_Utils_Tuple2(
+					'unit',
+					elm$json$Json$Encode$string(item.unit))
+				]);
+		},
+		A2(
+			elm$core$List$filter,
+			function (item) {
+				return !_Utils_eq(
+					item.isNew,
+					elm$core$Maybe$Just(true));
+			},
+			items));
+};
 var elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
 		if (maybe.$ === 'Just') {
@@ -6449,17 +6495,6 @@ var author$project$Main$buildPercentageFromMouseMove = F2(
 		var pixelsFromRight = (A2(elm$core$Maybe$withDefault, 0, model.barDragingLeft) + A2(elm$core$Maybe$withDefault, 0, model.barDragingWidth)) - mouseMove;
 		var percentageFloat = pixelsFromRight / A2(elm$core$Maybe$withDefault, 0, model.barDragingWidth);
 		return percentageFloat;
-	});
-var elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
 	});
 var author$project$Main$getItemFromId = F2(
 	function (items, id) {
@@ -6537,7 +6572,6 @@ var author$project$Main$Item = F7(
 var author$project$Main$transformItemResponse = function (itemResponse) {
 	return A7(author$project$Main$Item, itemResponse.id, itemResponse.name, itemResponse.estimateOnHand, itemResponse.maxOnHand, itemResponse.unit, elm$core$Maybe$Nothing, elm$core$Maybe$Nothing);
 };
-var elm$core$Basics$neq = _Utils_notEqual;
 var elm$core$List$append = F2(
 	function (xs, ys) {
 		if (!ys.b) {
@@ -6692,7 +6726,15 @@ var elm$http$Http$post = function (r) {
 	return elm$http$Http$request(
 		{body: r.body, expect: r.expect, headers: _List_Nil, method: 'POST', timeout: elm$core$Maybe$Nothing, tracker: elm$core$Maybe$Nothing, url: r.url});
 };
-var elm$json$Json$Encode$int = _Json_wrap;
+var elm$json$Json$Encode$list = F2(
+	function (func, entries) {
+		return _Json_wrap(
+			A3(
+				elm$core$List$foldl,
+				_Json_addEntry(func),
+				_Json_emptyArray(_Utils_Tuple0),
+				entries));
+	});
 var elm$json$Json$Encode$object = function (pairs) {
 	return _Json_wrap(
 		A3(
@@ -6706,7 +6748,6 @@ var elm$json$Json$Encode$object = function (pairs) {
 			_Json_emptyObject(_Utils_Tuple0),
 			pairs));
 };
-var elm$json$Json$Encode$string = _Json_wrap;
 var author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -6872,10 +6913,24 @@ var author$project$Main$update = F2(
 							mouseMoveFocus: elm$core$Maybe$Just(author$project$Main$FilterBarMove)
 						}),
 					elm$core$Platform$Cmd$none);
+			case 'ConfirmChanges':
+				return _Utils_Tuple2(
+					model,
+					elm$http$Http$post(
+						{
+							body: elm$http$Http$jsonBody(
+								A2(
+									elm$json$Json$Encode$list,
+									elm$json$Json$Encode$object,
+									author$project$Main$buildEncodedItemList(model.items))),
+							expect: A2(elm$http$Http$expectJson, author$project$Main$GotNewItem, author$project$Main$mapItems),
+							url: 'http://localhost:8000/pantry/items'
+						}));
 			default:
 				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 		}
 	});
+var author$project$Main$ConfirmChanges = {$: 'ConfirmChanges'};
 var author$project$Main$ModifyTitle = function (a) {
 	return {$: 'ModifyTitle', a: a};
 };
@@ -7494,7 +7549,8 @@ var author$project$Main$view = function (model) {
 										_List_fromArray(
 											[
 												_Utils_Tuple2('filters__confirmButton--hide', !model.hasChanges)
-											]))
+											])),
+										elm$html$Html$Events$onClick(author$project$Main$ConfirmChanges)
 									]),
 								_List_fromArray(
 									[

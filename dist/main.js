@@ -6562,15 +6562,16 @@ var author$project$Main$getNewItem = function (id) {
 		maxOnHand: 500,
 		name: '',
 		unit: 'g',
-		userEstimateRunOut: elm$core$Maybe$Just('4 weeks')
+		userEstimateRunOut: elm$core$Maybe$Just('4 weeks'),
+		wasUpdated: false
 	};
 };
-var author$project$Main$Item = F7(
-	function (id, name, estimateOnHand, maxOnHand, unit, isNew, userEstimateRunOut) {
-		return {estimateOnHand: estimateOnHand, id: id, isNew: isNew, maxOnHand: maxOnHand, name: name, unit: unit, userEstimateRunOut: userEstimateRunOut};
+var author$project$Main$Item = F8(
+	function (id, name, estimateOnHand, maxOnHand, unit, isNew, userEstimateRunOut, wasUpdated) {
+		return {estimateOnHand: estimateOnHand, id: id, isNew: isNew, maxOnHand: maxOnHand, name: name, unit: unit, userEstimateRunOut: userEstimateRunOut, wasUpdated: wasUpdated};
 	});
 var author$project$Main$transformItemResponse = function (itemResponse) {
-	return A7(author$project$Main$Item, itemResponse.id, itemResponse.name, itemResponse.estimateOnHand, itemResponse.maxOnHand, itemResponse.unit, elm$core$Maybe$Nothing, elm$core$Maybe$Nothing);
+	return A8(author$project$Main$Item, itemResponse.id, itemResponse.name, itemResponse.estimateOnHand, itemResponse.maxOnHand, itemResponse.unit, elm$core$Maybe$Nothing, elm$core$Maybe$Nothing, false);
 };
 var elm$core$List$append = F2(
 	function (xs, ys) {
@@ -6650,23 +6651,26 @@ var author$project$Main$updateItem = F4(
 					return _Utils_update(
 						item,
 						{
-							estimateOnHand: author$project$Main$parseOnHand(newVal)
+							estimateOnHand: author$project$Main$parseOnHand(newVal),
+							wasUpdated: true
 						});
 				case 'MaxOnHand':
 					return _Utils_update(
 						item,
 						{
-							maxOnHand: author$project$Main$parseOnHand(newVal)
+							maxOnHand: author$project$Main$parseOnHand(newVal),
+							wasUpdated: true
 						});
 				case 'Name':
 					return _Utils_update(
 						item,
-						{name: newVal});
+						{name: newVal, wasUpdated: true});
 				default:
 					return _Utils_update(
 						item,
 						{
-							userEstimateRunOut: elm$core$Maybe$Just(newVal)
+							userEstimateRunOut: elm$core$Maybe$Just(newVal),
+							wasUpdated: true
 						});
 			}
 		} else {
@@ -6922,7 +6926,13 @@ var author$project$Main$update = F2(
 								A2(
 									elm$json$Json$Encode$list,
 									elm$json$Json$Encode$object,
-									author$project$Main$buildEncodedItemList(model.items))),
+									author$project$Main$buildEncodedItemList(
+										A2(
+											elm$core$List$filter,
+											function (item) {
+												return item.wasUpdated;
+											},
+											model.items)))),
 							expect: A2(elm$http$Http$expectJson, author$project$Main$GotNewItem, author$project$Main$mapItems),
 							url: 'http://localhost:8000/pantry/items'
 						}));

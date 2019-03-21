@@ -46,6 +46,7 @@ type alias Item =
     , unit : String
     , isNew : Maybe Bool
     , userEstimateRunOut : Maybe String
+    , wasUpdated : Bool
     }
 
 
@@ -122,7 +123,7 @@ mapItems =
 
 getNewItem : Id -> Item
 getNewItem id =
-    { id = id, name = "", estimateOnHand = 0, maxOnHand = 500, unit = "g", isNew = Just True, userEstimateRunOut = Just "4 weeks" }
+    { id = id, name = "", estimateOnHand = 0, maxOnHand = 500, unit = "g", isNew = Just True, userEstimateRunOut = Just "4 weeks", wasUpdated = False }
 
 
 
@@ -264,7 +265,7 @@ update msg model =
             ( model
             , Http.post
                 { url = "http://localhost:8000/pantry/items"
-                , body = Http.jsonBody (Encode.list Encode.object (buildEncodedItemList model.items))
+                , body = Http.jsonBody (Encode.list Encode.object (buildEncodedItemList (model.items |> List.filter (\item -> item.wasUpdated == True))))
                 , expect = Http.expectJson GotNewItem mapItems
                 }
             )
@@ -303,7 +304,7 @@ transformItemsReponse itemsResponse =
 
 transformItemResponse : ItemResponse -> Item
 transformItemResponse itemResponse =
-    Item itemResponse.id itemResponse.name itemResponse.estimateOnHand itemResponse.maxOnHand itemResponse.unit Nothing Nothing
+    Item itemResponse.id itemResponse.name itemResponse.estimateOnHand itemResponse.maxOnHand itemResponse.unit Nothing Nothing False
 
 
 buildNewEstimateFromMouseMove : Model -> Id -> Float -> String
@@ -369,16 +370,16 @@ updateItem item newVal id prop =
     if item.id == id then
         case prop of
             EstimateOnHand ->
-                { item | estimateOnHand = newVal |> parseOnHand }
+                { item | estimateOnHand = newVal |> parseOnHand, wasUpdated = True }
 
             MaxOnHand ->
-                { item | maxOnHand = newVal |> parseOnHand }
+                { item | maxOnHand = newVal |> parseOnHand, wasUpdated = True }
 
             Name ->
-                { item | name = newVal }
+                { item | name = newVal, wasUpdated = True }
 
             EstimateTime ->
-                { item | userEstimateRunOut = Just newVal }
+                { item | userEstimateRunOut = Just newVal, wasUpdated = True }
 
     else
         item

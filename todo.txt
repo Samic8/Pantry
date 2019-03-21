@@ -1,3 +1,4 @@
 (A) Only create restock records for changed items
 (A) Don't count as new restock if it happens on the same day
 (C) Add way of specifying if restock ran out or is top up
+(C) Estimates could be calculated in shorted period other then days (e.g hours)

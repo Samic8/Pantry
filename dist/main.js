@@ -7469,7 +7469,7 @@ var author$project$Main$toRow = function (item) {
 						elm$html$Html$img,
 						_List_fromArray(
 							[
-								elm$html$Html$Attributes$src('./src/svg/tick.svg')
+								elm$html$Html$Attributes$src('/src/svg/tick.svg')
 							]),
 						_List_Nil)
 					]))

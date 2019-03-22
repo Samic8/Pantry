@@ -491,7 +491,7 @@ toRow item =
                 (\key -> onConfirmKeyDown key item)
             , tabindex 0
             ]
-            [ img [ src "./src/svg/tick.svg" ] []
+            [ img [ src "/src/svg/tick.svg" ] []
             ]
         ]
 

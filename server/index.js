@@ -26,22 +26,29 @@ app.get('/pantry', async (req, res) => {
 
 app.post('/pantry/items', async (req, res) => {
     const itemUpdates = req.body.map(async item => {
-        return await prisma.updateItem({
-            data: {
-                name: item.name,
-                maxOnHand: item.maxOnHand,
-                unit: item.unit,
-                restocks: {
-                    create: [
-                        {
-                            date: new Date(),
-                            newOnHand: item.onHand,
-                            didRunOut: new Date(),
-                            leftOverFromPrevious: 0,
-                        }
-                    ]
+        const [previousRestock] = await prisma.item({ id: item.id }).restocks();
+        const today = moment();
+        const data = {
+            name: item.name,
+            maxOnHand: item.maxOnHand,
+            unit: item.unit,
+            restocks: {}
+        };
+
+        if (!moment(previousRestock.date).isSame(today, 'day')) {
+            data.restocks.create = [
+                {
+                    date: today,
+                    newOnHand: item.onHand,
+                    didRunOut: today,
+                    // TODO add way in UI for user to specifiy how much was left over
+                    leftOverFromPrevious: 0,
                 }
-            },
+            ];
+        }
+        
+        return await prisma.updateItem({
+            data,
             where: {
                 id: item.id,
             }

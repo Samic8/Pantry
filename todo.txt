@@ -7,3 +7,6 @@ x (A) Create unqiue urls for pantries
 Design
 (B) Experience of creating a new pantry
 (C) Add way of specifying if restock ran out or is top up
+
+Road-map Ideas
+- Use affiliation marketing to generate collection of low items and add them to a shopping cart online

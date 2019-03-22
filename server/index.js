@@ -66,13 +66,13 @@ function buildItemFromResponse(item) {
         name: item.name,
         unit: item.unit,
         maxOnHand: item.maxOnHand,
-        estimateOnHand: bulldEstimateOnHand(item),
+        estimateOnHand: buildEstimateOnHand(item),
     }
 }
 
-function bulldEstimateOnHand({maxOnHand, restocks}) {
+function buildEstimateOnHand({maxOnHand, restocks}) {
     if (restocks.length === 1) {
-        return bulldEstimateOnHandForIntialRestock(restocks[0]);
+        return buildEstimateOnHandForIntialRestock(restocks[0]);
     }
 
     const withoutInitial = restocks.slice(1);
@@ -87,7 +87,7 @@ function bulldEstimateOnHand({maxOnHand, restocks}) {
     return Math.max(0, Math.round(((averageDays - daysElapsedSinceRestock) / averageDays) * maxOnHand));
 }
 
-function bulldEstimateOnHandForIntialRestock({date, userEstimateRunOut, newOnHand}) {
+function buildEstimateOnHandForIntialRestock({date, userEstimateRunOut, newOnHand}) {
     const totalDays = moment(userEstimateRunOut).diff(date, 'days');
     const daysElapsedSinceRestock = moment().diff(date, 'days');
     return Math.round(newOnHand - (newOnHand * (daysElapsedSinceRestock / totalDays)));

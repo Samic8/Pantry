@@ -11,10 +11,13 @@ app.use( bodyParser.urlencoded({ extended: true }));
 app.use('/src', express.static(path.join(`${__dirname}/../src`)));
 app.use('/dist', express.static(path.join(`${__dirname}/../dist`)));
 
-app.get('/', (req, res) => res.sendFile(path.join(`${__dirname}/../index.html`)));
+app.get('/cupboard/*', (req, res) => res.sendFile(path.join(`${__dirname}/../index.html`)));
 
-app.get('/pantry', async (req, res) => {
-    const items = await prisma.items().$fragment(fragmentItemsWithRestocks);
+app.get('/cupboard', async (req, res) => {
+    const urlSlug = getUrlSlugFromReferer(req.headers.referer);
+    const doesCupboardExist = await prisma.$exists.cupboard({ urlSlug });
+    const cupboard = doesCupboardExist ? await prisma.cupboard({ urlSlug }) : await prisma.createCupboard({title: '', urlSlug});
+    const items = await prisma.cupboard({ id: cupboard.id }).items().$fragment(fragmentItemsWithRestocks);
 
     const viewItems = items.map(buildItemFromResponse);
     
@@ -24,9 +27,10 @@ app.get('/pantry', async (req, res) => {
     });
 });
 
-app.post('/pantry/items', async (req, res) => {
+app.post('/cupboard/items', async (req, res) => {
+    const urlSlug = getUrlSlugFromReferer(req.headers.referer);
     const itemUpdates = req.body.map(async item => {
-        const [previousRestock] = await prisma.item({ id: item.id }).restocks();
+        const [previousRestock] = await prisma.item({ id: item.id, cupboard: { connect: { urlSlug } } }).restocks();
         const today = moment();
         const data = {
             name: item.name,
@@ -56,8 +60,31 @@ app.post('/pantry/items', async (req, res) => {
     });
 
     await Promise.all(itemUpdates);
-    const items = await prisma.items().$fragment(fragmentItemsWithRestocks);
+    const items = await prisma.cupboard({ urlSlug }).items().$fragment(fragmentItemsWithRestocks);
     res.json(items.map(buildItemFromResponse));
+});
+
+app.post('/cupboard/new-item', async (req, res) => {
+    const urlSlug = getUrlSlugFromReferer(req.headers.referer);
+    const {name, onHand, maxOnHand, unit, userEstimateRunOut} = req.body;
+    const [timeValue, timeUnit] = userEstimateRunOut.split(' ');
+    const createItemResponse = await prisma.createItem({
+        name,
+        maxOnHand,
+        unit,
+        restocks: {
+            create: [
+                {
+                    date: new Date(),
+                    newOnHand: onHand,
+                    userEstimateRunOut: moment().add(timeValue, timeUnit).toDate(),
+                }
+            ]
+        },
+        cupboard: { connect: { urlSlug } }
+    }).$fragment(fragmentItemsWithRestocks);
+
+    res.json(buildItemFromResponse(createItemResponse))
 });
 
 function buildItemFromResponse(item) {
@@ -93,26 +120,9 @@ function buildEstimateOnHandForIntialRestock({date, userEstimateRunOut, newOnHan
     return Math.round(newOnHand - (newOnHand * (daysElapsedSinceRestock / totalDays)));
 }
 
-app.post('/pantry/new-item', async (req, res) => {
-    const {name, onHand, maxOnHand, unit, userEstimateRunOut} = req.body;
-    const [timeValue, timeUnit] = userEstimateRunOut.split(' ');
-    const createItemResponse = await prisma.createItem({
-        name,
-        maxOnHand,
-        unit,
-        restocks: {
-            create: [
-                {
-                    date: new Date(),
-                    newOnHand: onHand,
-                    userEstimateRunOut: moment().add(timeValue, timeUnit).toDate(),
-                }
-            ]
-        }
-    }).$fragment(fragmentItemsWithRestocks);
-
-    res.json(buildItemFromResponse(createItemResponse))
-})
+function getUrlSlugFromReferer(referer) {
+    return referer.match(/cupboard\/(.*)/)[1]
+}
 
 const fragmentItemsWithRestocks = `
     fragment ItemsWithRestocks on Item {

@@ -3,7 +3,11 @@ module.exports = {
   // Please don't change this file manually but run `prisma generate` to update it.
   // For more information, please read the docs: https://www.prisma.io/docs/prisma-client/
 
-/* GraphQL */ `type AggregateItem {
+/* GraphQL */ `type AggregateCupboard {
+  count: Int!
+}
+
+type AggregateItem {
   count: Int!
 }
 
@@ -15,10 +19,166 @@ type BatchPayload {
   count: Long!
 }
 
+type Cupboard {
+  id: ID!
+  title: String!
+  urlSlug: String!
+  items(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Item!]
+}
+
+type CupboardConnection {
+  pageInfo: PageInfo!
+  edges: [CupboardEdge]!
+  aggregate: AggregateCupboard!
+}
+
+input CupboardCreateInput {
+  title: String!
+  urlSlug: String!
+  items: ItemCreateManyWithoutCupboardInput
+}
+
+input CupboardCreateOneWithoutItemsInput {
+  create: CupboardCreateWithoutItemsInput
+  connect: CupboardWhereUniqueInput
+}
+
+input CupboardCreateWithoutItemsInput {
+  title: String!
+  urlSlug: String!
+}
+
+type CupboardEdge {
+  node: Cupboard!
+  cursor: String!
+}
+
+enum CupboardOrderByInput {
+  id_ASC
+  id_DESC
+  title_ASC
+  title_DESC
+  urlSlug_ASC
+  urlSlug_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type CupboardPreviousValues {
+  id: ID!
+  title: String!
+  urlSlug: String!
+}
+
+type CupboardSubscriptionPayload {
+  mutation: MutationType!
+  node: Cupboard
+  updatedFields: [String!]
+  previousValues: CupboardPreviousValues
+}
+
+input CupboardSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: CupboardWhereInput
+  AND: [CupboardSubscriptionWhereInput!]
+  OR: [CupboardSubscriptionWhereInput!]
+  NOT: [CupboardSubscriptionWhereInput!]
+}
+
+input CupboardUpdateInput {
+  title: String
+  urlSlug: String
+  items: ItemUpdateManyWithoutCupboardInput
+}
+
+input CupboardUpdateManyMutationInput {
+  title: String
+  urlSlug: String
+}
+
+input CupboardUpdateOneRequiredWithoutItemsInput {
+  create: CupboardCreateWithoutItemsInput
+  update: CupboardUpdateWithoutItemsDataInput
+  upsert: CupboardUpsertWithoutItemsInput
+  connect: CupboardWhereUniqueInput
+}
+
+input CupboardUpdateWithoutItemsDataInput {
+  title: String
+  urlSlug: String
+}
+
+input CupboardUpsertWithoutItemsInput {
+  update: CupboardUpdateWithoutItemsDataInput!
+  create: CupboardCreateWithoutItemsInput!
+}
+
+input CupboardWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  title: String
+  title_not: String
+  title_in: [String!]
+  title_not_in: [String!]
+  title_lt: String
+  title_lte: String
+  title_gt: String
+  title_gte: String
+  title_contains: String
+  title_not_contains: String
+  title_starts_with: String
+  title_not_starts_with: String
+  title_ends_with: String
+  title_not_ends_with: String
+  urlSlug: String
+  urlSlug_not: String
+  urlSlug_in: [String!]
+  urlSlug_not_in: [String!]
+  urlSlug_lt: String
+  urlSlug_lte: String
+  urlSlug_gt: String
+  urlSlug_gte: String
+  urlSlug_contains: String
+  urlSlug_not_contains: String
+  urlSlug_starts_with: String
+  urlSlug_not_starts_with: String
+  urlSlug_ends_with: String
+  urlSlug_not_ends_with: String
+  items_every: ItemWhereInput
+  items_some: ItemWhereInput
+  items_none: ItemWhereInput
+  AND: [CupboardWhereInput!]
+  OR: [CupboardWhereInput!]
+  NOT: [CupboardWhereInput!]
+}
+
+input CupboardWhereUniqueInput {
+  id: ID
+  urlSlug: String
+}
+
 scalar DateTime
 
 type Item {
   id: ID!
+  cupboard: Cupboard!
   name: String!
   maxOnHand: Int!
   unit: String!
@@ -32,6 +192,19 @@ type ItemConnection {
 }
 
 input ItemCreateInput {
+  cupboard: CupboardCreateOneWithoutItemsInput!
+  name: String!
+  maxOnHand: Int!
+  unit: String!
+  restocks: RestockCreateManyInput
+}
+
+input ItemCreateManyWithoutCupboardInput {
+  create: [ItemCreateWithoutCupboardInput!]
+  connect: [ItemWhereUniqueInput!]
+}
+
+input ItemCreateWithoutCupboardInput {
   name: String!
   maxOnHand: Int!
   unit: String!
@@ -65,6 +238,62 @@ type ItemPreviousValues {
   unit: String!
 }
 
+input ItemScalarWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  name: String
+  name_not: String
+  name_in: [String!]
+  name_not_in: [String!]
+  name_lt: String
+  name_lte: String
+  name_gt: String
+  name_gte: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  maxOnHand: Int
+  maxOnHand_not: Int
+  maxOnHand_in: [Int!]
+  maxOnHand_not_in: [Int!]
+  maxOnHand_lt: Int
+  maxOnHand_lte: Int
+  maxOnHand_gt: Int
+  maxOnHand_gte: Int
+  unit: String
+  unit_not: String
+  unit_in: [String!]
+  unit_not_in: [String!]
+  unit_lt: String
+  unit_lte: String
+  unit_gt: String
+  unit_gte: String
+  unit_contains: String
+  unit_not_contains: String
+  unit_starts_with: String
+  unit_not_starts_with: String
+  unit_ends_with: String
+  unit_not_ends_with: String
+  AND: [ItemScalarWhereInput!]
+  OR: [ItemScalarWhereInput!]
+  NOT: [ItemScalarWhereInput!]
+}
+
 type ItemSubscriptionPayload {
   mutation: MutationType!
   node: Item
@@ -84,16 +313,58 @@ input ItemSubscriptionWhereInput {
 }
 
 input ItemUpdateInput {
+  cupboard: CupboardUpdateOneRequiredWithoutItemsInput
   name: String
   maxOnHand: Int
   unit: String
   restocks: RestockUpdateManyInput
 }
 
+input ItemUpdateManyDataInput {
+  name: String
+  maxOnHand: Int
+  unit: String
+}
+
 input ItemUpdateManyMutationInput {
   name: String
   maxOnHand: Int
   unit: String
+}
+
+input ItemUpdateManyWithoutCupboardInput {
+  create: [ItemCreateWithoutCupboardInput!]
+  delete: [ItemWhereUniqueInput!]
+  connect: [ItemWhereUniqueInput!]
+  set: [ItemWhereUniqueInput!]
+  disconnect: [ItemWhereUniqueInput!]
+  update: [ItemUpdateWithWhereUniqueWithoutCupboardInput!]
+  upsert: [ItemUpsertWithWhereUniqueWithoutCupboardInput!]
+  deleteMany: [ItemScalarWhereInput!]
+  updateMany: [ItemUpdateManyWithWhereNestedInput!]
+}
+
+input ItemUpdateManyWithWhereNestedInput {
+  where: ItemScalarWhereInput!
+  data: ItemUpdateManyDataInput!
+}
+
+input ItemUpdateWithoutCupboardDataInput {
+  name: String
+  maxOnHand: Int
+  unit: String
+  restocks: RestockUpdateManyInput
+}
+
+input ItemUpdateWithWhereUniqueWithoutCupboardInput {
+  where: ItemWhereUniqueInput!
+  data: ItemUpdateWithoutCupboardDataInput!
+}
+
+input ItemUpsertWithWhereUniqueWithoutCupboardInput {
+  where: ItemWhereUniqueInput!
+  update: ItemUpdateWithoutCupboardDataInput!
+  create: ItemCreateWithoutCupboardInput!
 }
 
 input ItemWhereInput {
@@ -111,6 +382,7 @@ input ItemWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
+  cupboard: CupboardWhereInput
   name: String
   name_not: String
   name_in: [String!]
@@ -162,6 +434,12 @@ input ItemWhereUniqueInput {
 scalar Long
 
 type Mutation {
+  createCupboard(data: CupboardCreateInput!): Cupboard!
+  updateCupboard(data: CupboardUpdateInput!, where: CupboardWhereUniqueInput!): Cupboard
+  updateManyCupboards(data: CupboardUpdateManyMutationInput!, where: CupboardWhereInput): BatchPayload!
+  upsertCupboard(where: CupboardWhereUniqueInput!, create: CupboardCreateInput!, update: CupboardUpdateInput!): Cupboard!
+  deleteCupboard(where: CupboardWhereUniqueInput!): Cupboard
+  deleteManyCupboards(where: CupboardWhereInput): BatchPayload!
   createItem(data: ItemCreateInput!): Item!
   updateItem(data: ItemUpdateInput!, where: ItemWhereUniqueInput!): Item
   updateManyItems(data: ItemUpdateManyMutationInput!, where: ItemWhereInput): BatchPayload!
@@ -191,6 +469,9 @@ type PageInfo {
 }
 
 type Query {
+  cupboard(where: CupboardWhereUniqueInput!): Cupboard
+  cupboards(where: CupboardWhereInput, orderBy: CupboardOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Cupboard]!
+  cupboardsConnection(where: CupboardWhereInput, orderBy: CupboardOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): CupboardConnection!
   item(where: ItemWhereUniqueInput!): Item
   items(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Item]!
   itemsConnection(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ItemConnection!
@@ -402,6 +683,7 @@ input RestockWhereInput {
 }
 
 type Subscription {
+  cupboard(where: CupboardSubscriptionWhereInput): CupboardSubscriptionPayload
   item(where: ItemSubscriptionWhereInput): ItemSubscriptionPayload
   restock(where: RestockSubscriptionWhereInput): RestockSubscriptionPayload
 }

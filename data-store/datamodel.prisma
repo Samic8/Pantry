@@ -1,5 +1,13 @@
+type Cupboard {
+  id: ID! @unique
+  title: String!
+  urlSlug: String! @unique
+  items: [Item]
+}
+
 type Item {
   id: ID! @unique
+  cupboard: Cupboard!
   name: String!
   maxOnHand: Int!
   unit: String!

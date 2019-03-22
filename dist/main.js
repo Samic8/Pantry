@@ -4488,7 +4488,7 @@ function _Browser_load(url)
 var author$project$Main$Initialise = function (a) {
 	return {$: 'Initialise', a: a};
 };
-var author$project$Main$PantryResult = F2(
+var author$project$Main$CupboardResult = F2(
 	function (title, itemsResponse) {
 		return {itemsResponse: itemsResponse, title: title};
 	});
@@ -4985,9 +4985,9 @@ var author$project$Main$mapItems = A6(
 	A2(elm$json$Json$Decode$field, 'unit', elm$json$Json$Decode$string));
 var elm$json$Json$Decode$list = _Json_decodeList;
 var elm$json$Json$Decode$map2 = _Json_map2;
-var author$project$Main$pantryDecoder = A3(
+var author$project$Main$cupboardDecoder = A3(
 	elm$json$Json$Decode$map2,
-	author$project$Main$PantryResult,
+	author$project$Main$CupboardResult,
 	A2(elm$json$Json$Decode$field, 'title', elm$json$Json$Decode$string),
 	A2(
 		elm$json$Json$Decode$field,
@@ -5879,8 +5879,8 @@ var author$project$Main$init = function (_n0) {
 		{barDragingItemId: '', barDragingLeft: elm$core$Maybe$Nothing, barDragingWidth: elm$core$Maybe$Nothing, filterPercentage: 100, hasChanges: false, items: _List_Nil, mouseMoveFocus: elm$core$Maybe$Nothing, title: ''},
 		elm$http$Http$get(
 			{
-				expect: A2(elm$http$Http$expectJson, author$project$Main$Initialise, author$project$Main$pantryDecoder),
-				url: 'http://localhost:8000/pantry'
+				expect: A2(elm$http$Http$expectJson, author$project$Main$Initialise, author$project$Main$cupboardDecoder),
+				url: 'http://localhost:8000/cupboard'
 			}));
 };
 var author$project$Main$OnBarMouseUp = {$: 'OnBarMouseUp'};
@@ -6758,19 +6758,19 @@ var author$project$Main$update = F2(
 			case 'Initialise':
 				var result = msg.a;
 				if (result.$ === 'Ok') {
-					var pantry = result.a;
+					var cupboard = result.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
 							{
 								items: A2(
 									elm$core$List$append,
-									author$project$Main$transformItemsReponse(pantry.itemsResponse),
+									author$project$Main$transformItemsReponse(cupboard.itemsResponse),
 									_List_fromArray(
 										[
 											author$project$Main$getNewItem('new-item')
 										])),
-								title: pantry.title
+								title: cupboard.title
 							}),
 						elm$core$Platform$Cmd$none);
 				} else {
@@ -6839,7 +6839,7 @@ var author$project$Main$update = F2(
 														A2(elm$core$Maybe$withDefault, '', item.userEstimateRunOut)))
 												]))),
 									expect: A2(elm$http$Http$expectJson, author$project$Main$GotNewItem, author$project$Main$mapItems),
-									url: 'http://localhost:8000/pantry/new-item'
+									url: 'http://localhost:8000/cupboard/new-item'
 								})
 							])));
 			case 'GotNewItem':
@@ -6934,7 +6934,7 @@ var author$project$Main$update = F2(
 											},
 											model.items)))),
 							expect: A2(elm$http$Http$expectJson, author$project$Main$GotNewItem, author$project$Main$mapItems),
-							url: 'http://localhost:8000/pantry/items'
+							url: 'http://localhost:8000/cupboard/items'
 						}));
 			default:
 				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);

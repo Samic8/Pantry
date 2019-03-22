@@ -86,8 +86,8 @@ init _ =
       , mouseMoveFocus = Nothing
       }
     , Http.get
-        { url = "http://localhost:8000/pantry"
-        , expect = Http.expectJson Initialise pantryDecoder
+        { url = "http://localhost:8000/cupboard"
+        , expect = Http.expectJson Initialise cupboardDecoder
         }
     )
 
@@ -100,13 +100,13 @@ type alias ItemResponse =
     { id : String, name : String, estimateOnHand : Int, maxOnHand : Int, unit : String }
 
 
-type alias PantryResult =
+type alias CupboardResult =
     { title : String, itemsResponse : ItemsResponse }
 
 
-pantryDecoder : Json.Decoder PantryResult
-pantryDecoder =
-    Json.map2 PantryResult
+cupboardDecoder : Json.Decoder CupboardResult
+cupboardDecoder =
+    Json.map2 CupboardResult
         (Json.field "title" Json.string)
         (Json.field "items" (Json.list mapItems))
 
@@ -166,7 +166,7 @@ toStringValue mouseMove =
 
 
 type Msg
-    = Initialise (Result Http.Error PantryResult)
+    = Initialise (Result Http.Error CupboardResult)
     | ModifyTitle String
     | ModifyEstimateOnHand Id String
     | ModifyMaxOnHand Id String
@@ -187,8 +187,8 @@ update msg model =
     case msg of
         Initialise result ->
             case result of
-                Ok pantry ->
-                    ( { model | title = pantry.title, items = List.append (transformItemsReponse pantry.itemsResponse) [ getNewItem "new-item" ] }, Cmd.none )
+                Ok cupboard ->
+                    ( { model | title = cupboard.title, items = List.append (transformItemsReponse cupboard.itemsResponse) [ getNewItem "new-item" ] }, Cmd.none )
 
                 Err _ ->
                     ( model, Cmd.none )
@@ -213,7 +213,7 @@ update msg model =
             , Cmd.batch
                 [ focusElement
                 , Http.post
-                    { url = "http://localhost:8000/pantry/new-item"
+                    { url = "http://localhost:8000/cupboard/new-item"
                     , body =
                         Http.jsonBody
                             (Encode.object
@@ -264,7 +264,7 @@ update msg model =
         ConfirmChanges ->
             ( model
             , Http.post
-                { url = "http://localhost:8000/pantry/items"
+                { url = "http://localhost:8000/cupboard/items"
                 , body = Http.jsonBody (Encode.list Encode.object (buildEncodedItemList (model.items |> List.filter (\item -> item.wasUpdated == True))))
                 , expect = Http.expectJson GotNewItem mapItems
                 }

@@ -22,8 +22,16 @@ app.get('/cupboard', async (req, res) => {
     const viewItems = items.map(buildItemFromResponse);
     
     return res.json({
-        title: `Sam's Kitchen Pantry`,
+        title: cupboard.title,
         items: viewItems,
+    });
+});
+
+app.post('/cupboard', async (req, res) => {
+    const urlSlug = getUrlSlugFromReferer(req.headers.referer);
+    const cupboard = await prisma.updateCupboard({ data: { title: req.body.title }, where: { urlSlug } });
+    res.json({
+        title: cupboard.title
     });
 });
 

@@ -7,7 +7,7 @@ import DOM exposing (Rectangle, boundingClientRect, offsetLeft, offsetParent, of
 import Debug
 import Html exposing (Attribute, Html, button, div, h1, header, img, input, label, li, section, span, text, ul)
 import Html.Attributes exposing (class, classList, id, placeholder, src, style, tabindex, value)
-import Html.Events exposing (keyCode, on, onClick, onInput, onMouseDown, onMouseUp, onSubmit)
+import Html.Events exposing (keyCode, on, onBlur, onClick, onInput, onMouseDown, onMouseUp, onSubmit)
 import Http
 import Json.Decode as Json
 import Json.Encode as Encode
@@ -168,6 +168,8 @@ toStringValue mouseMove =
 type Msg
     = Initialise (Result Http.Error CupboardResult)
     | ModifyTitle String
+    | SaveTitle
+    | GotTitle (Result Http.Error String)
     | ModifyEstimateOnHand Id String
     | ModifyMaxOnHand Id String
     | ModifyName Id String
@@ -195,6 +197,23 @@ update msg model =
 
         ModifyTitle newTitle ->
             ( { model | title = newTitle }, Cmd.none )
+
+        SaveTitle ->
+            ( model
+            , Http.post
+                { url = "http://localhost:8000/cupboard"
+                , body = Http.jsonBody (Encode.object [ ( "title", Encode.string model.title ) ])
+                , expect = Http.expectJson GotTitle (Json.field "title" Json.string)
+                }
+            )
+
+        GotTitle result ->
+            case result of
+                Ok newTitle ->
+                    ( { model | title = newTitle }, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
 
         ModifyName id newName ->
             ( updateModel model id newName Name, Cmd.none )
@@ -403,7 +422,7 @@ view model =
                 , span [ class "header__logo__line" ] []
                 , span [] [ text "try" ]
                 ]
-            , input [ onInput ModifyTitle, value model.title, class "header__title" ] []
+            , input [ onInput ModifyTitle, onBlur SaveTitle, value model.title, class "header__title", placeholder "Enter Cupboard Title" ] []
             ]
         , section [ class "mainContent" ]
             [ section [ class "filters" ]

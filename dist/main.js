@@ -6433,6 +6433,9 @@ var author$project$Main$FilterBarMove = {$: 'FilterBarMove'};
 var author$project$Main$GotNewItem = function (a) {
 	return {$: 'GotNewItem', a: a};
 };
+var author$project$Main$GotTitle = function (a) {
+	return {$: 'GotTitle', a: a};
+};
 var author$project$Main$MaxOnHand = {$: 'MaxOnHand'};
 var author$project$Main$Name = {$: 'Name'};
 var elm$core$Basics$neq = _Utils_notEqual;
@@ -6783,6 +6786,37 @@ var author$project$Main$update = F2(
 						model,
 						{title: newTitle}),
 					elm$core$Platform$Cmd$none);
+			case 'SaveTitle':
+				return _Utils_Tuple2(
+					model,
+					elm$http$Http$post(
+						{
+							body: elm$http$Http$jsonBody(
+								elm$json$Json$Encode$object(
+									_List_fromArray(
+										[
+											_Utils_Tuple2(
+											'title',
+											elm$json$Json$Encode$string(model.title))
+										]))),
+							expect: A2(
+								elm$http$Http$expectJson,
+								author$project$Main$GotTitle,
+								A2(elm$json$Json$Decode$field, 'title', elm$json$Json$Decode$string)),
+							url: 'http://localhost:8000/cupboard'
+						}));
+			case 'GotTitle':
+				var result = msg.a;
+				if (result.$ === 'Ok') {
+					var newTitle = result.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{title: newTitle}),
+						elm$core$Platform$Cmd$none);
+				} else {
+					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+				}
 			case 'ModifyName':
 				var id = msg.a;
 				var newName = msg.b;
@@ -6878,10 +6912,10 @@ var author$project$Main$update = F2(
 					elm$core$Platform$Cmd$none);
 			case 'BarDragingMouseMove':
 				var mouseMove = msg.a;
-				var _n3 = model.mouseMoveFocus;
-				if (_n3.$ === 'Just') {
-					if (_n3.a.$ === 'EstimateOnHandMove') {
-						var _n4 = _n3.a;
+				var _n4 = model.mouseMoveFocus;
+				if (_n4.$ === 'Just') {
+					if (_n4.a.$ === 'EstimateOnHandMove') {
+						var _n5 = _n4.a;
 						var id = model.barDragingItemId;
 						return _Utils_Tuple2(
 							A4(
@@ -6892,7 +6926,7 @@ var author$project$Main$update = F2(
 								author$project$Main$EstimateOnHand),
 							elm$core$Platform$Cmd$none);
 					} else {
-						var _n5 = _n3.a;
+						var _n6 = _n4.a;
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
@@ -6948,6 +6982,7 @@ var author$project$Main$OnFilterBarMouseDown = F2(
 	function (a, b) {
 		return {$: 'OnFilterBarMouseDown', a: a, b: b};
 	});
+var author$project$Main$SaveTitle = {$: 'SaveTitle'};
 var author$project$Main$calcEstimateRemainingPercentage = function (item) {
 	return (item.estimateOnHand / item.maxOnHand) * 100;
 };
@@ -7480,6 +7515,12 @@ var elm$html$Html$h1 = _VirtualDom_node('h1');
 var elm$html$Html$header = _VirtualDom_node('header');
 var elm$html$Html$section = _VirtualDom_node('section');
 var elm$html$Html$ul = _VirtualDom_node('ul');
+var elm$html$Html$Events$onBlur = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'blur',
+		elm$json$Json$Decode$succeed(msg));
+};
 var author$project$Main$view = function (model) {
 	return A2(
 		elm$html$Html$div,
@@ -7529,8 +7570,10 @@ var author$project$Main$view = function (model) {
 						_List_fromArray(
 							[
 								elm$html$Html$Events$onInput(author$project$Main$ModifyTitle),
+								elm$html$Html$Events$onBlur(author$project$Main$SaveTitle),
 								elm$html$Html$Attributes$value(model.title),
-								elm$html$Html$Attributes$class('header__title')
+								elm$html$Html$Attributes$class('header__title'),
+								elm$html$Html$Attributes$placeholder('Enter Cupboard Title')
 							]),
 						_List_Nil)
 					])),

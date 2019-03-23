@@ -1,6 +1,7 @@
 x (A) Don't count as new restock if it happens on the same day
 x (A) Create unqiue urls for pantries
-(A) Only create restock records for changed items (if users changes from current amount and back it will send to server)
+x (A) Only create restock records for changed items (if users changes from current amount and back it will send to server)
+(B) Allow changing of restocks that are updated on the same day (but don't recreate new restock)
 (C) Estimates could be calculated in shorted period other then days (e.g hours)
 (C) Better validation for initial estimation run out date 
 

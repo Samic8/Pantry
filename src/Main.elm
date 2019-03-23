@@ -46,7 +46,7 @@ type alias Item =
     , unit : String
     , isNew : Maybe Bool
     , userEstimateRunOut : Maybe String
-    , wasUpdated : Bool
+    , initialEstimateOnHand : Maybe Int
     }
 
 
@@ -123,7 +123,7 @@ mapItems =
 
 getNewItem : Id -> Item
 getNewItem id =
-    { id = id, name = "", estimateOnHand = 0, maxOnHand = 500, unit = "g", isNew = Just True, userEstimateRunOut = Just "4 weeks", wasUpdated = False }
+    { id = id, name = "", estimateOnHand = 0, maxOnHand = 500, unit = "g", isNew = Just True, userEstimateRunOut = Just "4 weeks", initialEstimateOnHand = Nothing }
 
 
 
@@ -284,13 +284,27 @@ update msg model =
             ( model
             , Http.post
                 { url = "http://localhost:8000/cupboard/items"
-                , body = Http.jsonBody (Encode.list Encode.object (buildEncodedItemList (model.items |> List.filter (\item -> item.wasUpdated == True))))
+                , body = Http.jsonBody (Encode.list Encode.object (buildEncodedItemList (model.items |> filterOutUnchanged)))
                 , expect = Http.expectJson GotNewItem mapItems
                 }
             )
 
         NoOp ->
             ( model, Cmd.none )
+
+
+filterOutUnchanged : Items -> List Item
+filterOutUnchanged items =
+    List.filter
+        (\item ->
+            case item.initialEstimateOnHand of
+                Just initialEstimateOnHand ->
+                    initialEstimateOnHand /= item.estimateOnHand
+
+                Nothing ->
+                    True
+        )
+        items
 
 
 buildEncodedItemList : Items -> List (List ( String, Encode.Value ))
@@ -323,7 +337,7 @@ transformItemsReponse itemsResponse =
 
 transformItemResponse : ItemResponse -> Item
 transformItemResponse itemResponse =
-    Item itemResponse.id itemResponse.name itemResponse.estimateOnHand itemResponse.maxOnHand itemResponse.unit Nothing Nothing False
+    Item itemResponse.id itemResponse.name itemResponse.estimateOnHand itemResponse.maxOnHand itemResponse.unit Nothing Nothing (Just itemResponse.estimateOnHand)
 
 
 buildNewEstimateFromMouseMove : Model -> Id -> Float -> String
@@ -389,16 +403,16 @@ updateItem item newVal id prop =
     if item.id == id then
         case prop of
             EstimateOnHand ->
-                { item | estimateOnHand = newVal |> parseOnHand, wasUpdated = True }
+                { item | estimateOnHand = newVal |> parseOnHand }
 
             MaxOnHand ->
-                { item | maxOnHand = newVal |> parseOnHand, wasUpdated = True }
+                { item | maxOnHand = newVal |> parseOnHand }
 
             Name ->
-                { item | name = newVal, wasUpdated = True }
+                { item | name = newVal }
 
             EstimateTime ->
-                { item | userEstimateRunOut = Just newVal, wasUpdated = True }
+                { item | userEstimateRunOut = Just newVal }
 
     else
         item

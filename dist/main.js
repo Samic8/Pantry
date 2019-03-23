@@ -6525,6 +6525,20 @@ var author$project$Main$buildNewEstimateFromMouseMove = F3(
 		return elm$core$String$fromInt(
 			elm$core$Basics$round(itemMaxOnHand * percentageFloat));
 	});
+var author$project$Main$filterOutUnchanged = function (items) {
+	return A2(
+		elm$core$List$filter,
+		function (item) {
+			var _n0 = item.initialEstimateOnHand;
+			if (_n0.$ === 'Just') {
+				var initialEstimateOnHand = _n0.a;
+				return !_Utils_eq(initialEstimateOnHand, item.estimateOnHand);
+			} else {
+				return true;
+			}
+		},
+		items);
+};
 var author$project$Main$NoOp = {$: 'NoOp'};
 var elm$browser$Browser$Dom$focus = _Browser_call('focus');
 var elm$core$Basics$composeL = F3(
@@ -6561,20 +6575,29 @@ var author$project$Main$getNewItem = function (id) {
 	return {
 		estimateOnHand: 0,
 		id: id,
+		initialEstimateOnHand: elm$core$Maybe$Nothing,
 		isNew: elm$core$Maybe$Just(true),
 		maxOnHand: 500,
 		name: '',
 		unit: 'g',
-		userEstimateRunOut: elm$core$Maybe$Just('4 weeks'),
-		wasUpdated: false
+		userEstimateRunOut: elm$core$Maybe$Just('4 weeks')
 	};
 };
 var author$project$Main$Item = F8(
-	function (id, name, estimateOnHand, maxOnHand, unit, isNew, userEstimateRunOut, wasUpdated) {
-		return {estimateOnHand: estimateOnHand, id: id, isNew: isNew, maxOnHand: maxOnHand, name: name, unit: unit, userEstimateRunOut: userEstimateRunOut, wasUpdated: wasUpdated};
+	function (id, name, estimateOnHand, maxOnHand, unit, isNew, userEstimateRunOut, initialEstimateOnHand) {
+		return {estimateOnHand: estimateOnHand, id: id, initialEstimateOnHand: initialEstimateOnHand, isNew: isNew, maxOnHand: maxOnHand, name: name, unit: unit, userEstimateRunOut: userEstimateRunOut};
 	});
 var author$project$Main$transformItemResponse = function (itemResponse) {
-	return A8(author$project$Main$Item, itemResponse.id, itemResponse.name, itemResponse.estimateOnHand, itemResponse.maxOnHand, itemResponse.unit, elm$core$Maybe$Nothing, elm$core$Maybe$Nothing, false);
+	return A8(
+		author$project$Main$Item,
+		itemResponse.id,
+		itemResponse.name,
+		itemResponse.estimateOnHand,
+		itemResponse.maxOnHand,
+		itemResponse.unit,
+		elm$core$Maybe$Nothing,
+		elm$core$Maybe$Nothing,
+		elm$core$Maybe$Just(itemResponse.estimateOnHand));
 };
 var elm$core$List$append = F2(
 	function (xs, ys) {
@@ -6654,26 +6677,23 @@ var author$project$Main$updateItem = F4(
 					return _Utils_update(
 						item,
 						{
-							estimateOnHand: author$project$Main$parseOnHand(newVal),
-							wasUpdated: true
+							estimateOnHand: author$project$Main$parseOnHand(newVal)
 						});
 				case 'MaxOnHand':
 					return _Utils_update(
 						item,
 						{
-							maxOnHand: author$project$Main$parseOnHand(newVal),
-							wasUpdated: true
+							maxOnHand: author$project$Main$parseOnHand(newVal)
 						});
 				case 'Name':
 					return _Utils_update(
 						item,
-						{name: newVal, wasUpdated: true});
+						{name: newVal});
 				default:
 					return _Utils_update(
 						item,
 						{
-							userEstimateRunOut: elm$core$Maybe$Just(newVal),
-							wasUpdated: true
+							userEstimateRunOut: elm$core$Maybe$Just(newVal)
 						});
 			}
 		} else {
@@ -6961,12 +6981,7 @@ var author$project$Main$update = F2(
 									elm$json$Json$Encode$list,
 									elm$json$Json$Encode$object,
 									author$project$Main$buildEncodedItemList(
-										A2(
-											elm$core$List$filter,
-											function (item) {
-												return item.wasUpdated;
-											},
-											model.items)))),
+										author$project$Main$filterOutUnchanged(model.items)))),
 							expect: A2(elm$http$Http$expectJson, author$project$Main$GotNewItem, author$project$Main$mapItems),
 							url: 'http://localhost:8000/cupboard/items'
 						}));

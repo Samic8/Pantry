@@ -11,3 +11,4 @@ Design
 
 Road-map Ideas
 - Use affiliation marketing to generate collection of low items and add them to a shopping cart online
+- Use web hooks to allow real time collaboration (e.g one user updates the other uses see the updates)

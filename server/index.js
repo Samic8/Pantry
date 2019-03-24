@@ -38,7 +38,7 @@ app.post('/cupboard', async (req, res) => {
 app.post('/cupboard/items', async (req, res) => {
     const urlSlug = getUrlSlugFromReferer(req.headers.referer);
     const itemUpdates = req.body.map(async item => {
-        const [previousRestock] = await prisma.item({ id: item.id, cupboard: { connect: { urlSlug } } }).restocks();
+        const [previousRestock] = await prisma.item({ id: item.id }).restocks();
         const today = moment();
         const data = {
             name: item.name,

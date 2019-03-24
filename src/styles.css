@@ -19,6 +19,7 @@
     --color-alias-quantity-excessive: var(--color-green);
     --color-alias-quantity-remaining: var(--color-purple);
     --color-alias-quantity-remaining-low: var(--color-red);
+    --color-alias-quantity-unit-background: var(--color-grey-light);
     --color-alias-new-item-help-text: var(--color-blue-darkest);
 
     --input-border: var(--input-border-size) dashed var(--color-blue-dark);
@@ -33,6 +34,8 @@
     --border-radius: 5px;
     --row-columns: 240px 210px 1fr;
     --edit-transition: .2s background-color ease;
+    --outside-list-container-offset: 10px;
+    --right-outside-list-row: calc((var(--list-container-side-padding) + var(--outside-list-container-offset)) * -1);
 }
 
 body {
@@ -149,9 +152,8 @@ body {
 .row__confirmTick {
     --height: 48px;
     --width: 55px;
-    --extra-offset: 10px;
     position: absolute;
-    right: calc((var(--list-container-side-padding) + var(--width) + var(--extra-offset)) * -1);
+    right: calc(var(--right-outside-list-row) - var(--width));
     cursor: pointer;
     border-radius: 50%;
     width: var(--width);
@@ -201,6 +203,16 @@ body {
 
 .row__confirmTick--allwaysHidden {
     display: none;
+}
+
+/* Row Before Restock */
+.row__beforeRestock.inputBox {
+    --width: 106px;
+    position: absolute;
+    right: calc(var(--right-outside-list-row) - var(--width));
+    width: var(--width);
+    box-sizing: border-box;
+    border: 1px solid var(--color-alias-quantity-unit-background);
 }
 
 /* InputBox */
@@ -273,7 +285,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--color-grey-light);
+    background-color: var(--color-alias-quantity-unit-background);
     height: 100%;
     margin-left: auto;
 }

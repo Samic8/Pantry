@@ -7522,6 +7522,41 @@ var author$project$Main$toRow = function (item) {
 								elm$html$Html$Attributes$src('/src/svg/tick.svg')
 							]),
 						_List_Nil)
+					])),
+				A2(
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('row__beforeRestock inputBox quantity'),
+						A2(elm$html$Html$Attributes$style, 'display', 'none')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$input,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('quantity__edit inputBox__innerEdit'),
+								elm$html$Html$Attributes$value('0')
+							]),
+						_List_Nil),
+						A2(
+						elm$html$Html$span,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('quantity__unit')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$input,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('quantity__unit__innerEdit inputBox__innerEdit'),
+										elm$html$Html$Attributes$value('g')
+									]),
+								_List_Nil)
+							]))
 					]))
 			]));
 };

@@ -526,6 +526,12 @@ toRow item =
             ]
             [ img [ src "/src/svg/tick.svg" ] []
             ]
+        , div [ class "row__beforeRestock inputBox quantity", style "display" "none" ]
+            [ input [ class "quantity__edit inputBox__innerEdit", value "0" ] []
+            , span [ class "quantity__unit" ]
+                [ input [ class "quantity__unit__innerEdit inputBox__innerEdit", value "g" ] []
+                ]
+            ]
         ]
 
 

@@ -447,7 +447,10 @@ type Mutation {
   deleteItem(where: ItemWhereUniqueInput!): Item
   deleteManyItems(where: ItemWhereInput): BatchPayload!
   createRestock(data: RestockCreateInput!): Restock!
+  updateRestock(data: RestockUpdateInput!, where: RestockWhereUniqueInput!): Restock
   updateManyRestocks(data: RestockUpdateManyMutationInput!, where: RestockWhereInput): BatchPayload!
+  upsertRestock(where: RestockWhereUniqueInput!, create: RestockCreateInput!, update: RestockUpdateInput!): Restock!
+  deleteRestock(where: RestockWhereUniqueInput!): Restock
   deleteManyRestocks(where: RestockWhereInput): BatchPayload!
 }
 
@@ -475,12 +478,14 @@ type Query {
   item(where: ItemWhereUniqueInput!): Item
   items(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Item]!
   itemsConnection(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ItemConnection!
+  restock(where: RestockWhereUniqueInput!): Restock
   restocks(where: RestockWhereInput, orderBy: RestockOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Restock]!
   restocksConnection(where: RestockWhereInput, orderBy: RestockOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): RestockConnection!
   node(id: ID!): Node
 }
 
 type Restock {
+  id: ID!
   date: DateTime!
   newOnHand: Int!
   previousRestock: Restock
@@ -506,10 +511,12 @@ input RestockCreateInput {
 
 input RestockCreateManyInput {
   create: [RestockCreateInput!]
+  connect: [RestockWhereUniqueInput!]
 }
 
 input RestockCreateOneInput {
   create: RestockCreateInput
+  connect: RestockWhereUniqueInput
 }
 
 type RestockEdge {
@@ -518,6 +525,8 @@ type RestockEdge {
 }
 
 enum RestockOrderByInput {
+  id_ASC
+  id_DESC
   date_ASC
   date_DESC
   newOnHand_ASC
@@ -528,8 +537,6 @@ enum RestockOrderByInput {
   didRunOut_DESC
   leftOverFromPrevious_ASC
   leftOverFromPrevious_DESC
-  id_ASC
-  id_DESC
   createdAt_ASC
   createdAt_DESC
   updatedAt_ASC
@@ -537,6 +544,7 @@ enum RestockOrderByInput {
 }
 
 type RestockPreviousValues {
+  id: ID!
   date: DateTime!
   newOnHand: Int!
   userEstimateRunOut: DateTime
@@ -545,6 +553,20 @@ type RestockPreviousValues {
 }
 
 input RestockScalarWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
   date: DateTime
   date_not: DateTime
   date_in: [DateTime!]
@@ -608,6 +630,24 @@ input RestockSubscriptionWhereInput {
   NOT: [RestockSubscriptionWhereInput!]
 }
 
+input RestockUpdateDataInput {
+  date: DateTime
+  newOnHand: Int
+  previousRestock: RestockUpdateOneInput
+  userEstimateRunOut: DateTime
+  didRunOut: DateTime
+  leftOverFromPrevious: Int
+}
+
+input RestockUpdateInput {
+  date: DateTime
+  newOnHand: Int
+  previousRestock: RestockUpdateOneInput
+  userEstimateRunOut: DateTime
+  didRunOut: DateTime
+  leftOverFromPrevious: Int
+}
+
 input RestockUpdateManyDataInput {
   date: DateTime
   newOnHand: Int
@@ -618,6 +658,12 @@ input RestockUpdateManyDataInput {
 
 input RestockUpdateManyInput {
   create: [RestockCreateInput!]
+  update: [RestockUpdateWithWhereUniqueNestedInput!]
+  upsert: [RestockUpsertWithWhereUniqueNestedInput!]
+  delete: [RestockWhereUniqueInput!]
+  connect: [RestockWhereUniqueInput!]
+  set: [RestockWhereUniqueInput!]
+  disconnect: [RestockWhereUniqueInput!]
   deleteMany: [RestockScalarWhereInput!]
   updateMany: [RestockUpdateManyWithWhereNestedInput!]
 }
@@ -635,7 +681,46 @@ input RestockUpdateManyWithWhereNestedInput {
   data: RestockUpdateManyDataInput!
 }
 
+input RestockUpdateOneInput {
+  create: RestockCreateInput
+  update: RestockUpdateDataInput
+  upsert: RestockUpsertNestedInput
+  delete: Boolean
+  disconnect: Boolean
+  connect: RestockWhereUniqueInput
+}
+
+input RestockUpdateWithWhereUniqueNestedInput {
+  where: RestockWhereUniqueInput!
+  data: RestockUpdateDataInput!
+}
+
+input RestockUpsertNestedInput {
+  update: RestockUpdateDataInput!
+  create: RestockCreateInput!
+}
+
+input RestockUpsertWithWhereUniqueNestedInput {
+  where: RestockWhereUniqueInput!
+  update: RestockUpdateDataInput!
+  create: RestockCreateInput!
+}
+
 input RestockWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
   date: DateTime
   date_not: DateTime
   date_in: [DateTime!]
@@ -680,6 +765,10 @@ input RestockWhereInput {
   AND: [RestockWhereInput!]
   OR: [RestockWhereInput!]
   NOT: [RestockWhereInput!]
+}
+
+input RestockWhereUniqueInput {
+  id: ID
 }
 
 type Subscription {

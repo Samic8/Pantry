@@ -37,8 +37,10 @@ app.post('/cupboard', async (req, res) => {
 
 app.post('/cupboard/items', async (req, res) => {
     const urlSlug = getUrlSlugFromReferer(req.headers.referer);
-    const itemUpdates = req.body.map(async item => {
-        const [previousRestock] = await prisma.item({ id: item.id }).restocks();
+    const cupboardItems = await prisma.cupboard({ urlSlug }).items().$fragment(fragmentItemsWithRestocks);
+    const itemUpdates = req.body.map(item => {
+        const updatePromises = [];
+        const [previousRestock] = cupboardItems.find(({id}) => id === item.id).restocks;
         const today = moment();
         const data = {
             name: item.name,
@@ -57,17 +59,24 @@ app.post('/cupboard/items', async (req, res) => {
                     leftOverFromPrevious: 0,
                 }
             ];
+        } else {
+            updatePromises.push(prisma.updateRestock({
+                data: { newOnHand: item.onHand },
+                where: { id: previousRestock.id }
+            }));
         }
         
-        return await prisma.updateItem({
+        updatePromises.push(prisma.updateItem({
             data,
             where: {
                 id: item.id,
             }
-        });
+        }));
+
+        return updatePromises;
     });
 
-    await Promise.all(itemUpdates);
+    await Promise.all(_.flatten(itemUpdates));
     const items = await prisma.cupboard({ urlSlug }).items().$fragment(fragmentItemsWithRestocks);
     res.json(items.map(buildItemFromResponse));
 });
@@ -139,6 +148,7 @@ const fragmentItemsWithRestocks = `
         unit
         maxOnHand
         restocks {
+            id
             date
             newOnHand
             userEstimateRunOut

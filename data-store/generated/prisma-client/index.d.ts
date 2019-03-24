@@ -84,6 +84,7 @@ export interface Prisma {
       last?: Int;
     }
   ) => ItemConnectionPromise;
+  restock: (where: RestockWhereUniqueInput) => RestockPromise;
   restocks: (
     args?: {
       where?: RestockWhereInput;
@@ -145,9 +146,20 @@ export interface Prisma {
   deleteItem: (where: ItemWhereUniqueInput) => ItemPromise;
   deleteManyItems: (where?: ItemWhereInput) => BatchPayloadPromise;
   createRestock: (data: RestockCreateInput) => RestockPromise;
+  updateRestock: (
+    args: { data: RestockUpdateInput; where: RestockWhereUniqueInput }
+  ) => RestockPromise;
   updateManyRestocks: (
     args: { data: RestockUpdateManyMutationInput; where?: RestockWhereInput }
   ) => BatchPayloadPromise;
+  upsertRestock: (
+    args: {
+      where: RestockWhereUniqueInput;
+      create: RestockCreateInput;
+      update: RestockUpdateInput;
+    }
+  ) => RestockPromise;
+  deleteRestock: (where: RestockWhereUniqueInput) => RestockPromise;
   deleteManyRestocks: (where?: RestockWhereInput) => BatchPayloadPromise;
 
   /**
@@ -192,6 +204,8 @@ export type ItemOrderByInput =
   | "updatedAt_DESC";
 
 export type RestockOrderByInput =
+  | "id_ASC"
+  | "id_DESC"
   | "date_ASC"
   | "date_DESC"
   | "newOnHand_ASC"
@@ -202,8 +216,6 @@ export type RestockOrderByInput =
   | "didRunOut_DESC"
   | "leftOverFromPrevious_ASC"
   | "leftOverFromPrevious_DESC"
-  | "id_ASC"
-  | "id_DESC"
   | "createdAt_ASC"
   | "createdAt_DESC"
   | "updatedAt_ASC"
@@ -223,10 +235,11 @@ export type CupboardOrderByInput =
 
 export type MutationType = "CREATED" | "UPDATED" | "DELETED";
 
-export interface CupboardUpdateInput {
-  title?: String;
-  urlSlug?: String;
-  items?: ItemUpdateManyWithoutCupboardInput;
+export interface ItemUpdateWithoutCupboardDataInput {
+  name?: String;
+  maxOnHand?: Int;
+  unit?: String;
+  restocks?: RestockUpdateManyInput;
 }
 
 export type CupboardWhereUniqueInput = AtLeastOne<{
@@ -234,28 +247,87 @@ export type CupboardWhereUniqueInput = AtLeastOne<{
   urlSlug?: String;
 }>;
 
-export interface ItemUpdateManyDataInput {
+export interface CupboardCreateInput {
+  title: String;
+  urlSlug: String;
+  items?: ItemCreateManyWithoutCupboardInput;
+}
+
+export interface ItemScalarWhereInput {
+  id?: ID_Input;
+  id_not?: ID_Input;
+  id_in?: ID_Input[] | ID_Input;
+  id_not_in?: ID_Input[] | ID_Input;
+  id_lt?: ID_Input;
+  id_lte?: ID_Input;
+  id_gt?: ID_Input;
+  id_gte?: ID_Input;
+  id_contains?: ID_Input;
+  id_not_contains?: ID_Input;
+  id_starts_with?: ID_Input;
+  id_not_starts_with?: ID_Input;
+  id_ends_with?: ID_Input;
+  id_not_ends_with?: ID_Input;
   name?: String;
+  name_not?: String;
+  name_in?: String[] | String;
+  name_not_in?: String[] | String;
+  name_lt?: String;
+  name_lte?: String;
+  name_gt?: String;
+  name_gte?: String;
+  name_contains?: String;
+  name_not_contains?: String;
+  name_starts_with?: String;
+  name_not_starts_with?: String;
+  name_ends_with?: String;
+  name_not_ends_with?: String;
   maxOnHand?: Int;
+  maxOnHand_not?: Int;
+  maxOnHand_in?: Int[] | Int;
+  maxOnHand_not_in?: Int[] | Int;
+  maxOnHand_lt?: Int;
+  maxOnHand_lte?: Int;
+  maxOnHand_gt?: Int;
+  maxOnHand_gte?: Int;
   unit?: String;
+  unit_not?: String;
+  unit_in?: String[] | String;
+  unit_not_in?: String[] | String;
+  unit_lt?: String;
+  unit_lte?: String;
+  unit_gt?: String;
+  unit_gte?: String;
+  unit_contains?: String;
+  unit_not_contains?: String;
+  unit_starts_with?: String;
+  unit_not_starts_with?: String;
+  unit_ends_with?: String;
+  unit_not_ends_with?: String;
+  AND?: ItemScalarWhereInput[] | ItemScalarWhereInput;
+  OR?: ItemScalarWhereInput[] | ItemScalarWhereInput;
+  NOT?: ItemScalarWhereInput[] | ItemScalarWhereInput;
 }
 
-export interface ItemUpsertWithWhereUniqueWithoutCupboardInput {
-  where: ItemWhereUniqueInput;
-  update: ItemUpdateWithoutCupboardDataInput;
-  create: ItemCreateWithoutCupboardInput;
+export interface ItemCreateManyWithoutCupboardInput {
+  create?: ItemCreateWithoutCupboardInput[] | ItemCreateWithoutCupboardInput;
+  connect?: ItemWhereUniqueInput[] | ItemWhereUniqueInput;
 }
 
-export interface ItemUpdateManyWithWhereNestedInput {
-  where: ItemScalarWhereInput;
-  data: ItemUpdateManyDataInput;
+export interface RestockUpdateDataInput {
+  date?: DateTimeInput;
+  newOnHand?: Int;
+  previousRestock?: RestockUpdateOneInput;
+  userEstimateRunOut?: DateTimeInput;
+  didRunOut?: DateTimeInput;
+  leftOverFromPrevious?: Int;
 }
 
-export interface ItemUpdateWithoutCupboardDataInput {
-  name?: String;
-  maxOnHand?: Int;
-  unit?: String;
-  restocks?: RestockUpdateManyInput;
+export interface ItemCreateWithoutCupboardInput {
+  name: String;
+  maxOnHand: Int;
+  unit: String;
+  restocks?: RestockCreateManyInput;
 }
 
 export interface CupboardWhereInput {
@@ -307,6 +379,11 @@ export interface CupboardWhereInput {
   AND?: CupboardWhereInput[] | CupboardWhereInput;
   OR?: CupboardWhereInput[] | CupboardWhereInput;
   NOT?: CupboardWhereInput[] | CupboardWhereInput;
+}
+
+export interface RestockCreateManyInput {
+  create?: RestockCreateInput[] | RestockCreateInput;
+  connect?: RestockWhereUniqueInput[] | RestockWhereUniqueInput;
 }
 
 export interface ItemWhereInput {
@@ -369,10 +446,13 @@ export interface ItemWhereInput {
   NOT?: ItemWhereInput[] | ItemWhereInput;
 }
 
-export interface CupboardCreateInput {
-  title: String;
-  urlSlug: String;
-  items?: ItemCreateManyWithoutCupboardInput;
+export interface RestockCreateInput {
+  date: DateTimeInput;
+  newOnHand: Int;
+  previousRestock?: RestockCreateOneInput;
+  userEstimateRunOut?: DateTimeInput;
+  didRunOut?: DateTimeInput;
+  leftOverFromPrevious?: Int;
 }
 
 export interface RestockUpdateManyMutationInput {
@@ -383,126 +463,26 @@ export interface RestockUpdateManyMutationInput {
   leftOverFromPrevious?: Int;
 }
 
-export interface ItemCreateManyWithoutCupboardInput {
-  create?: ItemCreateWithoutCupboardInput[] | ItemCreateWithoutCupboardInput;
-  connect?: ItemWhereUniqueInput[] | ItemWhereUniqueInput;
-}
-
-export interface CupboardUpsertWithoutItemsInput {
-  update: CupboardUpdateWithoutItemsDataInput;
-  create: CupboardCreateWithoutItemsInput;
-}
-
-export interface ItemCreateWithoutCupboardInput {
-  name: String;
-  maxOnHand: Int;
-  unit: String;
-  restocks?: RestockCreateManyInput;
-}
-
-export interface CupboardUpdateOneRequiredWithoutItemsInput {
-  create?: CupboardCreateWithoutItemsInput;
-  update?: CupboardUpdateWithoutItemsDataInput;
-  upsert?: CupboardUpsertWithoutItemsInput;
-  connect?: CupboardWhereUniqueInput;
-}
-
-export interface RestockCreateManyInput {
-  create?: RestockCreateInput[] | RestockCreateInput;
-}
-
-export type ItemWhereUniqueInput = AtLeastOne<{
-  id: ID_Input;
-}>;
-
-export interface RestockCreateInput {
-  date: DateTimeInput;
-  newOnHand: Int;
-  previousRestock?: RestockCreateOneInput;
-  userEstimateRunOut?: DateTimeInput;
-  didRunOut?: DateTimeInput;
-  leftOverFromPrevious?: Int;
-}
-
-export interface CupboardCreateOneWithoutItemsInput {
-  create?: CupboardCreateWithoutItemsInput;
-  connect?: CupboardWhereUniqueInput;
-}
-
 export interface RestockCreateOneInput {
   create?: RestockCreateInput;
+  connect?: RestockWhereUniqueInput;
 }
 
-export interface CupboardUpdateManyMutationInput {
+export interface ItemUpdateManyMutationInput {
+  name?: String;
+  maxOnHand?: Int;
+  unit?: String;
+}
+
+export interface CupboardUpdateInput {
   title?: String;
   urlSlug?: String;
+  items?: ItemUpdateManyWithoutCupboardInput;
 }
 
-export interface ItemScalarWhereInput {
-  id?: ID_Input;
-  id_not?: ID_Input;
-  id_in?: ID_Input[] | ID_Input;
-  id_not_in?: ID_Input[] | ID_Input;
-  id_lt?: ID_Input;
-  id_lte?: ID_Input;
-  id_gt?: ID_Input;
-  id_gte?: ID_Input;
-  id_contains?: ID_Input;
-  id_not_contains?: ID_Input;
-  id_starts_with?: ID_Input;
-  id_not_starts_with?: ID_Input;
-  id_ends_with?: ID_Input;
-  id_not_ends_with?: ID_Input;
-  name?: String;
-  name_not?: String;
-  name_in?: String[] | String;
-  name_not_in?: String[] | String;
-  name_lt?: String;
-  name_lte?: String;
-  name_gt?: String;
-  name_gte?: String;
-  name_contains?: String;
-  name_not_contains?: String;
-  name_starts_with?: String;
-  name_not_starts_with?: String;
-  name_ends_with?: String;
-  name_not_ends_with?: String;
-  maxOnHand?: Int;
-  maxOnHand_not?: Int;
-  maxOnHand_in?: Int[] | Int;
-  maxOnHand_not_in?: Int[] | Int;
-  maxOnHand_lt?: Int;
-  maxOnHand_lte?: Int;
-  maxOnHand_gt?: Int;
-  maxOnHand_gte?: Int;
-  unit?: String;
-  unit_not?: String;
-  unit_in?: String[] | String;
-  unit_not_in?: String[] | String;
-  unit_lt?: String;
-  unit_lte?: String;
-  unit_gt?: String;
-  unit_gte?: String;
-  unit_contains?: String;
-  unit_not_contains?: String;
-  unit_starts_with?: String;
-  unit_not_starts_with?: String;
-  unit_ends_with?: String;
-  unit_not_ends_with?: String;
-  AND?: ItemScalarWhereInput[] | ItemScalarWhereInput;
-  OR?: ItemScalarWhereInput[] | ItemScalarWhereInput;
-  NOT?: ItemScalarWhereInput[] | ItemScalarWhereInput;
-}
-
-export interface ItemSubscriptionWhereInput {
-  mutation_in?: MutationType[] | MutationType;
-  updatedFields_contains?: String;
-  updatedFields_contains_every?: String[] | String;
-  updatedFields_contains_some?: String[] | String;
-  node?: ItemWhereInput;
-  AND?: ItemSubscriptionWhereInput[] | ItemSubscriptionWhereInput;
-  OR?: ItemSubscriptionWhereInput[] | ItemSubscriptionWhereInput;
-  NOT?: ItemSubscriptionWhereInput[] | ItemSubscriptionWhereInput;
+export interface CupboardUpdateWithoutItemsDataInput {
+  title?: String;
+  urlSlug?: String;
 }
 
 export interface ItemUpdateManyWithoutCupboardInput {
@@ -523,26 +503,83 @@ export interface ItemUpdateManyWithoutCupboardInput {
     | ItemUpdateManyWithWhereNestedInput;
 }
 
-export interface ItemUpdateManyMutationInput {
-  name?: String;
-  maxOnHand?: Int;
-  unit?: String;
-}
+export type ItemWhereUniqueInput = AtLeastOne<{
+  id: ID_Input;
+}>;
 
 export interface ItemUpdateWithWhereUniqueWithoutCupboardInput {
   where: ItemWhereUniqueInput;
   data: ItemUpdateWithoutCupboardDataInput;
 }
 
-export interface ItemUpdateInput {
-  cupboard?: CupboardUpdateOneRequiredWithoutItemsInput;
-  name?: String;
-  maxOnHand?: Int;
-  unit?: String;
-  restocks?: RestockUpdateManyInput;
+export interface CupboardCreateWithoutItemsInput {
+  title: String;
+  urlSlug: String;
+}
+
+export interface ItemUpdateManyWithWhereNestedInput {
+  where: ItemScalarWhereInput;
+  data: ItemUpdateManyDataInput;
+}
+
+export type RestockWhereUniqueInput = AtLeastOne<{
+  id: ID_Input;
+}>;
+
+export interface RestockUpdateManyInput {
+  create?: RestockCreateInput[] | RestockCreateInput;
+  update?:
+    | RestockUpdateWithWhereUniqueNestedInput[]
+    | RestockUpdateWithWhereUniqueNestedInput;
+  upsert?:
+    | RestockUpsertWithWhereUniqueNestedInput[]
+    | RestockUpsertWithWhereUniqueNestedInput;
+  delete?: RestockWhereUniqueInput[] | RestockWhereUniqueInput;
+  connect?: RestockWhereUniqueInput[] | RestockWhereUniqueInput;
+  set?: RestockWhereUniqueInput[] | RestockWhereUniqueInput;
+  disconnect?: RestockWhereUniqueInput[] | RestockWhereUniqueInput;
+  deleteMany?: RestockScalarWhereInput[] | RestockScalarWhereInput;
+  updateMany?:
+    | RestockUpdateManyWithWhereNestedInput[]
+    | RestockUpdateManyWithWhereNestedInput;
+}
+
+export interface CupboardUpdateManyMutationInput {
+  title?: String;
+  urlSlug?: String;
+}
+
+export interface RestockUpdateWithWhereUniqueNestedInput {
+  where: RestockWhereUniqueInput;
+  data: RestockUpdateDataInput;
+}
+
+export interface ItemSubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: ItemWhereInput;
+  AND?: ItemSubscriptionWhereInput[] | ItemSubscriptionWhereInput;
+  OR?: ItemSubscriptionWhereInput[] | ItemSubscriptionWhereInput;
+  NOT?: ItemSubscriptionWhereInput[] | ItemSubscriptionWhereInput;
 }
 
 export interface RestockWhereInput {
+  id?: ID_Input;
+  id_not?: ID_Input;
+  id_in?: ID_Input[] | ID_Input;
+  id_not_in?: ID_Input[] | ID_Input;
+  id_lt?: ID_Input;
+  id_lte?: ID_Input;
+  id_gt?: ID_Input;
+  id_gte?: ID_Input;
+  id_contains?: ID_Input;
+  id_not_contains?: ID_Input;
+  id_starts_with?: ID_Input;
+  id_not_starts_with?: ID_Input;
+  id_ends_with?: ID_Input;
+  id_not_ends_with?: ID_Input;
   date?: DateTimeInput;
   date_not?: DateTimeInput;
   date_in?: DateTimeInput[] | DateTimeInput;
@@ -589,12 +626,57 @@ export interface RestockWhereInput {
   NOT?: RestockWhereInput[] | RestockWhereInput;
 }
 
-export interface ItemCreateInput {
-  cupboard: CupboardCreateOneWithoutItemsInput;
-  name: String;
-  maxOnHand: Int;
-  unit: String;
-  restocks?: RestockCreateManyInput;
+export interface RestockUpdateInput {
+  date?: DateTimeInput;
+  newOnHand?: Int;
+  previousRestock?: RestockUpdateOneInput;
+  userEstimateRunOut?: DateTimeInput;
+  didRunOut?: DateTimeInput;
+  leftOverFromPrevious?: Int;
+}
+
+export interface RestockUpdateOneInput {
+  create?: RestockCreateInput;
+  update?: RestockUpdateDataInput;
+  upsert?: RestockUpsertNestedInput;
+  delete?: Boolean;
+  disconnect?: Boolean;
+  connect?: RestockWhereUniqueInput;
+}
+
+export interface CupboardUpdateOneRequiredWithoutItemsInput {
+  create?: CupboardCreateWithoutItemsInput;
+  update?: CupboardUpdateWithoutItemsDataInput;
+  upsert?: CupboardUpsertWithoutItemsInput;
+  connect?: CupboardWhereUniqueInput;
+}
+
+export interface RestockUpsertNestedInput {
+  update: RestockUpdateDataInput;
+  create: RestockCreateInput;
+}
+
+export interface CupboardCreateOneWithoutItemsInput {
+  create?: CupboardCreateWithoutItemsInput;
+  connect?: CupboardWhereUniqueInput;
+}
+
+export interface RestockUpsertWithWhereUniqueNestedInput {
+  where: RestockWhereUniqueInput;
+  update: RestockUpdateDataInput;
+  create: RestockCreateInput;
+}
+
+export interface ItemUpdateManyDataInput {
+  name?: String;
+  maxOnHand?: Int;
+  unit?: String;
+}
+
+export interface ItemUpsertWithWhereUniqueWithoutCupboardInput {
+  where: ItemWhereUniqueInput;
+  update: ItemUpdateWithoutCupboardDataInput;
+  create: ItemCreateWithoutCupboardInput;
 }
 
 export interface RestockUpdateManyDataInput {
@@ -611,6 +693,20 @@ export interface RestockUpdateManyWithWhereNestedInput {
 }
 
 export interface RestockScalarWhereInput {
+  id?: ID_Input;
+  id_not?: ID_Input;
+  id_in?: ID_Input[] | ID_Input;
+  id_not_in?: ID_Input[] | ID_Input;
+  id_lt?: ID_Input;
+  id_lte?: ID_Input;
+  id_gt?: ID_Input;
+  id_gte?: ID_Input;
+  id_contains?: ID_Input;
+  id_not_contains?: ID_Input;
+  id_starts_with?: ID_Input;
+  id_not_starts_with?: ID_Input;
+  id_ends_with?: ID_Input;
+  id_not_ends_with?: ID_Input;
   date?: DateTimeInput;
   date_not?: DateTimeInput;
   date_in?: DateTimeInput[] | DateTimeInput;
@@ -656,14 +752,6 @@ export interface RestockScalarWhereInput {
   NOT?: RestockScalarWhereInput[] | RestockScalarWhereInput;
 }
 
-export interface RestockUpdateManyInput {
-  create?: RestockCreateInput[] | RestockCreateInput;
-  deleteMany?: RestockScalarWhereInput[] | RestockScalarWhereInput;
-  updateMany?:
-    | RestockUpdateManyWithWhereNestedInput[]
-    | RestockUpdateManyWithWhereNestedInput;
-}
-
 export interface RestockSubscriptionWhereInput {
   mutation_in?: MutationType[] | MutationType;
   updatedFields_contains?: String;
@@ -675,14 +763,25 @@ export interface RestockSubscriptionWhereInput {
   NOT?: RestockSubscriptionWhereInput[] | RestockSubscriptionWhereInput;
 }
 
-export interface CupboardCreateWithoutItemsInput {
-  title: String;
-  urlSlug: String;
+export interface ItemCreateInput {
+  cupboard: CupboardCreateOneWithoutItemsInput;
+  name: String;
+  maxOnHand: Int;
+  unit: String;
+  restocks?: RestockCreateManyInput;
 }
 
-export interface CupboardUpdateWithoutItemsDataInput {
-  title?: String;
-  urlSlug?: String;
+export interface ItemUpdateInput {
+  cupboard?: CupboardUpdateOneRequiredWithoutItemsInput;
+  name?: String;
+  maxOnHand?: Int;
+  unit?: String;
+  restocks?: RestockUpdateManyInput;
+}
+
+export interface CupboardUpsertWithoutItemsInput {
+  update: CupboardUpdateWithoutItemsDataInput;
+  create: CupboardCreateWithoutItemsInput;
 }
 
 export interface CupboardSubscriptionWhereInput {
@@ -701,6 +800,7 @@ export interface NodeNode {
 }
 
 export interface RestockPreviousValues {
+  id: ID_Output;
   date: DateTimeOutput;
   newOnHand: Int;
   userEstimateRunOut?: DateTimeOutput;
@@ -711,6 +811,7 @@ export interface RestockPreviousValues {
 export interface RestockPreviousValuesPromise
   extends Promise<RestockPreviousValues>,
     Fragmentable {
+  id: () => Promise<ID_Output>;
   date: () => Promise<DateTimeOutput>;
   newOnHand: () => Promise<Int>;
   userEstimateRunOut: () => Promise<DateTimeOutput>;
@@ -721,6 +822,7 @@ export interface RestockPreviousValuesPromise
 export interface RestockPreviousValuesSubscription
   extends Promise<AsyncIterator<RestockPreviousValues>>,
     Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
   date: () => Promise<AsyncIterator<DateTimeOutput>>;
   newOnHand: () => Promise<AsyncIterator<Int>>;
   userEstimateRunOut: () => Promise<AsyncIterator<DateTimeOutput>>;
@@ -858,25 +960,20 @@ export interface AggregateRestockSubscription
   count: () => Promise<AsyncIterator<Int>>;
 }
 
-export interface RestockConnection {
-  pageInfo: PageInfo;
-  edges: RestockEdge[];
+export interface BatchPayload {
+  count: Long;
 }
 
-export interface RestockConnectionPromise
-  extends Promise<RestockConnection>,
+export interface BatchPayloadPromise
+  extends Promise<BatchPayload>,
     Fragmentable {
-  pageInfo: <T = PageInfoPromise>() => T;
-  edges: <T = FragmentableArray<RestockEdge>>() => T;
-  aggregate: <T = AggregateRestockPromise>() => T;
+  count: () => Promise<Long>;
 }
 
-export interface RestockConnectionSubscription
-  extends Promise<AsyncIterator<RestockConnection>>,
+export interface BatchPayloadSubscription
+  extends Promise<AsyncIterator<BatchPayload>>,
     Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<RestockEdgeSubscription>>>() => T;
-  aggregate: <T = AggregateRestockSubscription>() => T;
+  count: () => Promise<AsyncIterator<Long>>;
 }
 
 export interface CupboardConnection {
@@ -900,29 +997,25 @@ export interface CupboardConnectionSubscription
   aggregate: <T = AggregateCupboardSubscription>() => T;
 }
 
-export interface RestockSubscriptionPayload {
-  mutation: MutationType;
-  node: Restock;
-  updatedFields: String[];
-  previousValues: RestockPreviousValues;
+export interface RestockConnection {
+  pageInfo: PageInfo;
+  edges: RestockEdge[];
 }
 
-export interface RestockSubscriptionPayloadPromise
-  extends Promise<RestockSubscriptionPayload>,
+export interface RestockConnectionPromise
+  extends Promise<RestockConnection>,
     Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = RestockPromise>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = RestockPreviousValuesPromise>() => T;
+  pageInfo: <T = PageInfoPromise>() => T;
+  edges: <T = FragmentableArray<RestockEdge>>() => T;
+  aggregate: <T = AggregateRestockPromise>() => T;
 }
 
-export interface RestockSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<RestockSubscriptionPayload>>,
+export interface RestockConnectionSubscription
+  extends Promise<AsyncIterator<RestockConnection>>,
     Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = RestockSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = RestockPreviousValuesSubscription>() => T;
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<RestockEdgeSubscription>>>() => T;
+  aggregate: <T = AggregateRestockSubscription>() => T;
 }
 
 export interface Cupboard {
@@ -1073,6 +1166,7 @@ export interface ItemSubscriptionPayloadSubscription
 }
 
 export interface Restock {
+  id: ID_Output;
   date: DateTimeOutput;
   newOnHand: Int;
   userEstimateRunOut?: DateTimeOutput;
@@ -1081,6 +1175,7 @@ export interface Restock {
 }
 
 export interface RestockPromise extends Promise<Restock>, Fragmentable {
+  id: () => Promise<ID_Output>;
   date: () => Promise<DateTimeOutput>;
   newOnHand: () => Promise<Int>;
   previousRestock: <T = RestockPromise>() => T;
@@ -1092,6 +1187,7 @@ export interface RestockPromise extends Promise<Restock>, Fragmentable {
 export interface RestockSubscription
   extends Promise<AsyncIterator<Restock>>,
     Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
   date: () => Promise<AsyncIterator<DateTimeOutput>>;
   newOnHand: () => Promise<AsyncIterator<Int>>;
   previousRestock: <T = RestockSubscription>() => T;
@@ -1154,20 +1250,29 @@ export interface AggregateItemSubscription
   count: () => Promise<AsyncIterator<Int>>;
 }
 
-export interface BatchPayload {
-  count: Long;
+export interface RestockSubscriptionPayload {
+  mutation: MutationType;
+  node: Restock;
+  updatedFields: String[];
+  previousValues: RestockPreviousValues;
 }
 
-export interface BatchPayloadPromise
-  extends Promise<BatchPayload>,
+export interface RestockSubscriptionPayloadPromise
+  extends Promise<RestockSubscriptionPayload>,
     Fragmentable {
-  count: () => Promise<Long>;
+  mutation: () => Promise<MutationType>;
+  node: <T = RestockPromise>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = RestockPreviousValuesPromise>() => T;
 }
 
-export interface BatchPayloadSubscription
-  extends Promise<AsyncIterator<BatchPayload>>,
+export interface RestockSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<RestockSubscriptionPayload>>,
     Fragmentable {
-  count: () => Promise<AsyncIterator<Long>>;
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = RestockSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = RestockPreviousValuesSubscription>() => T;
 }
 
 /*

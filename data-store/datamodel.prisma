@@ -15,6 +15,7 @@ type Item {
 }
 
 type Restock {
+  id: ID! @unique
   date: DateTime!
   newOnHand: Int!
   previousRestock: Restock

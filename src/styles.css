@@ -393,3 +393,8 @@ body {
     margin-right: var(--input-padding-left);
     text-align: left;
 }
+
+/* Utility Classes */
+.hidden {
+    display: none;
+}

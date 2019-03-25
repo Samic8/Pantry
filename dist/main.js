@@ -6426,6 +6426,7 @@ var author$project$Main$subscriptions = function (model) {
 		return elm$core$Platform$Sub$none;
 	}
 };
+var author$project$Main$BeforeRestock = {$: 'BeforeRestock'};
 var author$project$Main$EstimateOnHand = {$: 'EstimateOnHand'};
 var author$project$Main$EstimateOnHandMove = {$: 'EstimateOnHandMove'};
 var author$project$Main$EstimateTime = {$: 'EstimateTime'};
@@ -6472,7 +6473,10 @@ var author$project$Main$buildEncodedItemList = function (items) {
 					elm$json$Json$Encode$int(item.estimateOnHand)),
 					_Utils_Tuple2(
 					'unit',
-					elm$json$Json$Encode$string(item.unit))
+					elm$json$Json$Encode$string(item.unit)),
+					_Utils_Tuple2(
+					'beforeRestock',
+					elm$json$Json$Encode$int(item.beforeRestock))
 				]);
 		},
 		A2(
@@ -6525,17 +6529,21 @@ var author$project$Main$buildNewEstimateFromMouseMove = F3(
 		return elm$core$String$fromInt(
 			elm$core$Basics$round(itemMaxOnHand * percentageFloat));
 	});
+var author$project$Main$hasEstimateOnHandChanged = F2(
+	function (item, _default) {
+		var _n0 = item.initialEstimateOnHand;
+		if (_n0.$ === 'Just') {
+			var initialEstimateOnHand = _n0.a;
+			return !_Utils_eq(initialEstimateOnHand, item.estimateOnHand);
+		} else {
+			return _default;
+		}
+	});
 var author$project$Main$filterOutUnchanged = function (items) {
 	return A2(
 		elm$core$List$filter,
 		function (item) {
-			var _n0 = item.initialEstimateOnHand;
-			if (_n0.$ === 'Just') {
-				var initialEstimateOnHand = _n0.a;
-				return !_Utils_eq(initialEstimateOnHand, item.estimateOnHand);
-			} else {
-				return true;
-			}
+			return A2(author$project$Main$hasEstimateOnHandChanged, item, true);
 		},
 		items);
 };
@@ -6573,6 +6581,7 @@ var author$project$Main$focusElement = A2(
 	elm$browser$Browser$Dom$focus('new-item-name-input'));
 var author$project$Main$getNewItem = function (id) {
 	return {
+		beforeRestock: 0,
 		estimateOnHand: 0,
 		id: id,
 		initialEstimateOnHand: elm$core$Maybe$Nothing,
@@ -6583,12 +6592,12 @@ var author$project$Main$getNewItem = function (id) {
 		userEstimateRunOut: elm$core$Maybe$Just('4 weeks')
 	};
 };
-var author$project$Main$Item = F8(
-	function (id, name, estimateOnHand, maxOnHand, unit, isNew, userEstimateRunOut, initialEstimateOnHand) {
-		return {estimateOnHand: estimateOnHand, id: id, initialEstimateOnHand: initialEstimateOnHand, isNew: isNew, maxOnHand: maxOnHand, name: name, unit: unit, userEstimateRunOut: userEstimateRunOut};
+var author$project$Main$Item = F9(
+	function (id, name, estimateOnHand, maxOnHand, unit, isNew, userEstimateRunOut, initialEstimateOnHand, beforeRestock) {
+		return {beforeRestock: beforeRestock, estimateOnHand: estimateOnHand, id: id, initialEstimateOnHand: initialEstimateOnHand, isNew: isNew, maxOnHand: maxOnHand, name: name, unit: unit, userEstimateRunOut: userEstimateRunOut};
 	});
 var author$project$Main$transformItemResponse = function (itemResponse) {
-	return A8(
+	return A9(
 		author$project$Main$Item,
 		itemResponse.id,
 		itemResponse.name,
@@ -6597,7 +6606,8 @@ var author$project$Main$transformItemResponse = function (itemResponse) {
 		itemResponse.unit,
 		elm$core$Maybe$Nothing,
 		elm$core$Maybe$Nothing,
-		elm$core$Maybe$Just(itemResponse.estimateOnHand));
+		elm$core$Maybe$Just(itemResponse.estimateOnHand),
+		0);
 };
 var elm$core$List$append = F2(
 	function (xs, ys) {
@@ -6663,7 +6673,7 @@ var author$project$Main$isItemNew = F2(
 			},
 			A2(author$project$Main$getItemFromId, items, id));
 	});
-var author$project$Main$parseOnHand = function (stringVal) {
+var author$project$Main$parseValueToInt = function (stringVal) {
 	return A2(
 		elm$core$Maybe$withDefault,
 		0,
@@ -6677,23 +6687,29 @@ var author$project$Main$updateItem = F4(
 					return _Utils_update(
 						item,
 						{
-							estimateOnHand: author$project$Main$parseOnHand(newVal)
+							estimateOnHand: author$project$Main$parseValueToInt(newVal)
 						});
 				case 'MaxOnHand':
 					return _Utils_update(
 						item,
 						{
-							maxOnHand: author$project$Main$parseOnHand(newVal)
+							maxOnHand: author$project$Main$parseValueToInt(newVal)
 						});
 				case 'Name':
 					return _Utils_update(
 						item,
 						{name: newVal});
-				default:
+				case 'EstimateTime':
 					return _Utils_update(
 						item,
 						{
 							userEstimateRunOut: elm$core$Maybe$Just(newVal)
+						});
+				default:
+					return _Utils_update(
+						item,
+						{
+							beforeRestock: author$project$Main$parseValueToInt(newVal)
 						});
 			}
 		} else {
@@ -6860,6 +6876,12 @@ var author$project$Main$update = F2(
 				var newTime = msg.b;
 				return _Utils_Tuple2(
 					A4(author$project$Main$updateModel, model, id, newTime, author$project$Main$EstimateTime),
+					elm$core$Platform$Cmd$none);
+			case 'ModifyBeforeRestock':
+				var id = msg.a;
+				var newBeforeRestock = msg.b;
+				return _Utils_Tuple2(
+					A4(author$project$Main$updateModel, model, id, newBeforeRestock, author$project$Main$BeforeRestock),
 					elm$core$Platform$Cmd$none);
 			case 'SaveNewItem':
 				var item = msg.a;
@@ -7093,6 +7115,10 @@ var author$project$Main$onLeverMouseDown = function (msg) {
 			debois$elm_dom$DOM$parentElement(
 				debois$elm_dom$DOM$parentElement(debois$elm_dom$DOM$boundingClientRect))));
 };
+var author$project$Main$ModifyBeforeRestock = F2(
+	function (a, b) {
+		return {$: 'ModifyBeforeRestock', a: a, b: b};
+	});
 var author$project$Main$ModifyEstimateOnHand = F2(
 	function (a, b) {
 		return {$: 'ModifyEstimateOnHand', a: a, b: b};
@@ -7528,7 +7554,13 @@ var author$project$Main$toRow = function (item) {
 				_List_fromArray(
 					[
 						elm$html$Html$Attributes$class('row__beforeRestock inputBox quantity'),
-						A2(elm$html$Html$Attributes$style, 'display', 'none')
+						elm$html$Html$Attributes$classList(
+						_List_fromArray(
+							[
+								_Utils_Tuple2(
+								'hidden',
+								!A2(author$project$Main$hasEstimateOnHandChanged, item, false))
+							]))
 					]),
 				_List_fromArray(
 					[
@@ -7537,7 +7569,10 @@ var author$project$Main$toRow = function (item) {
 						_List_fromArray(
 							[
 								elm$html$Html$Attributes$class('quantity__edit inputBox__innerEdit'),
-								elm$html$Html$Attributes$value('0')
+								elm$html$Html$Attributes$value(
+								elm$core$String$fromInt(item.beforeRestock)),
+								elm$html$Html$Events$onInput(
+								author$project$Main$ModifyBeforeRestock(item.id))
 							]),
 						_List_Nil),
 						A2(

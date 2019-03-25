@@ -47,6 +47,7 @@ type alias Item =
     , isNew : Maybe Bool
     , userEstimateRunOut : Maybe String
     , initialEstimateOnHand : Maybe Int
+    , beforeRestock : Int
     }
 
 
@@ -55,6 +56,7 @@ type Prop
     | MaxOnHand
     | Name
     | EstimateTime
+    | BeforeRestock
 
 
 type MouseMoveFocus
@@ -123,7 +125,7 @@ mapItems =
 
 getNewItem : Id -> Item
 getNewItem id =
-    { id = id, name = "", estimateOnHand = 0, maxOnHand = 500, unit = "g", isNew = Just True, userEstimateRunOut = Just "4 weeks", initialEstimateOnHand = Nothing }
+    { id = id, name = "", estimateOnHand = 0, maxOnHand = 500, unit = "g", isNew = Just True, userEstimateRunOut = Just "4 weeks", initialEstimateOnHand = Nothing, beforeRestock = 0 }
 
 
 
@@ -174,6 +176,7 @@ type Msg
     | ModifyMaxOnHand Id String
     | ModifyName Id String
     | ModifyEstimateTime Id String
+    | ModifyBeforeRestock Id String
     | SaveNewItem Item
     | GotNewItem (Result Http.Error ItemResponse)
     | OnBarMouseDown Id Float Rectangle
@@ -226,6 +229,9 @@ update msg model =
 
         ModifyEstimateTime id newTime ->
             ( updateModel model id newTime EstimateTime, Cmd.none )
+
+        ModifyBeforeRestock id newBeforeRestock ->
+            ( updateModel model id newBeforeRestock BeforeRestock, Cmd.none )
 
         SaveNewItem item ->
             ( updateSaveNewModel model item.id
@@ -295,16 +301,7 @@ update msg model =
 
 filterOutUnchanged : Items -> List Item
 filterOutUnchanged items =
-    List.filter
-        (\item ->
-            case item.initialEstimateOnHand of
-                Just initialEstimateOnHand ->
-                    initialEstimateOnHand /= item.estimateOnHand
-
-                Nothing ->
-                    True
-        )
-        items
+    List.filter (\item -> hasEstimateOnHandChanged item True) items
 
 
 buildEncodedItemList : Items -> List (List ( String, Encode.Value ))
@@ -317,6 +314,7 @@ buildEncodedItemList items =
                 , ( "maxOnHand", Encode.int item.maxOnHand )
                 , ( "onHand", Encode.int item.estimateOnHand )
                 , ( "unit", Encode.string item.unit )
+                , ( "beforeRestock", Encode.int item.beforeRestock )
                 ]
             )
 
@@ -337,7 +335,7 @@ transformItemsReponse itemsResponse =
 
 transformItemResponse : ItemResponse -> Item
 transformItemResponse itemResponse =
-    Item itemResponse.id itemResponse.name itemResponse.estimateOnHand itemResponse.maxOnHand itemResponse.unit Nothing Nothing (Just itemResponse.estimateOnHand)
+    Item itemResponse.id itemResponse.name itemResponse.estimateOnHand itemResponse.maxOnHand itemResponse.unit Nothing Nothing (Just itemResponse.estimateOnHand) 0
 
 
 buildNewEstimateFromMouseMove : Model -> Id -> Float -> String
@@ -403,10 +401,10 @@ updateItem item newVal id prop =
     if item.id == id then
         case prop of
             EstimateOnHand ->
-                { item | estimateOnHand = newVal |> parseOnHand }
+                { item | estimateOnHand = newVal |> parseValueToInt }
 
             MaxOnHand ->
-                { item | maxOnHand = newVal |> parseOnHand }
+                { item | maxOnHand = newVal |> parseValueToInt }
 
             Name ->
                 { item | name = newVal }
@@ -414,12 +412,15 @@ updateItem item newVal id prop =
             EstimateTime ->
                 { item | userEstimateRunOut = Just newVal }
 
+            BeforeRestock ->
+                { item | beforeRestock = newVal |> parseValueToInt }
+
     else
         item
 
 
-parseOnHand : String -> Int
-parseOnHand stringVal =
+parseValueToInt : String -> Int
+parseValueToInt stringVal =
     Maybe.withDefault 0 (stringVal |> String.toInt)
 
 
@@ -526,8 +527,8 @@ toRow item =
             ]
             [ img [ src "/src/svg/tick.svg" ] []
             ]
-        , div [ class "row__beforeRestock inputBox quantity", style "display" "none" ]
-            [ input [ class "quantity__edit inputBox__innerEdit", value "0" ] []
+        , div [ class "row__beforeRestock inputBox quantity", classList [ ( "hidden", hasEstimateOnHandChanged item False == False ) ] ]
+            [ input [ class "quantity__edit inputBox__innerEdit", value (item.beforeRestock |> String.fromInt), onInput (ModifyBeforeRestock item.id) ] []
             , span [ class "quantity__unit" ]
                 [ input [ class "quantity__unit__innerEdit inputBox__innerEdit", value "g" ] []
                 ]
@@ -647,3 +648,13 @@ calcEstimateRemainingPercentage item =
 isOverstocked : Item -> Bool
 isOverstocked item =
     calcEstimateRemainingPercentage item > 100
+
+
+hasEstimateOnHandChanged : Item -> Bool -> Bool
+hasEstimateOnHandChanged item default =
+    case item.initialEstimateOnHand of
+        Just initialEstimateOnHand ->
+            initialEstimateOnHand /= item.estimateOnHand
+
+        Nothing ->
+            default

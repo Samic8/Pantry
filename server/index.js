@@ -41,7 +41,7 @@ app.post('/cupboard/items', async (req, res) => {
     const itemUpdates = req.body.map(item => {
         const updatePromises = [];
         const [previousRestock] = cupboardItems.find(({id}) => id === item.id).restocks;
-        const today = moment();
+        const today = getToday();
         const data = {
             name: item.name,
             maxOnHand: item.maxOnHand,
@@ -55,8 +55,7 @@ app.post('/cupboard/items', async (req, res) => {
                     date: today,
                     newOnHand: item.onHand,
                     didRunOut: today,
-                    // TODO add way in UI for user to specifiy how much was left over
-                    leftOverFromPrevious: 0,
+                    beforeRestock: item.beforeRestock,
                 }
             ];
         } else {
@@ -92,9 +91,9 @@ app.post('/cupboard/new-item', async (req, res) => {
         restocks: {
             create: [
                 {
-                    date: new Date(),
+                    date: getToday(),
                     newOnHand: onHand,
-                    userEstimateRunOut: moment().add(timeValue, timeUnit).toDate(),
+                    userEstimateRunOut: getToday().add(timeValue, timeUnit).toDate(),
                 }
             ]
         },
@@ -121,24 +120,29 @@ function buildEstimateOnHand({maxOnHand, restocks}) {
 
     const withoutInitial = restocks.slice(1);
     const averageDays = _.mean(withoutInitial.map((restock, index) => {
-        const totalDays = moment(restock.didRunOut).diff(restock.date, 'days');
-        const amount = restocks[index].newOnHand;
+        const previousRestock = restocks[index];
+        const totalDays = moment(previousRestock.date ).diff(restocks.didRunOut, 'days');
+        const amount = previousRestock.newOnHand - restock.beforeRestock;
         // Time to run out of maxOnHand based on this rate
         return (maxOnHand / amount) * Math.max(1, totalDays);
     }));
 
-    const daysElapsedSinceRestock = moment().diff(restocks[restocks.length - 1].date, 'days');
+    const daysElapsedSinceRestock = getToday().diff(restocks[restocks.length - 1].date, 'days');
     return Math.max(0, Math.round(((averageDays - daysElapsedSinceRestock) / averageDays) * maxOnHand));
 }
 
 function buildEstimateOnHandForIntialRestock({date, userEstimateRunOut, newOnHand}) {
     const totalDays = moment(userEstimateRunOut).diff(date, 'days');
-    const daysElapsedSinceRestock = moment().diff(date, 'days');
+    const daysElapsedSinceRestock = getToday().diff(date, 'days');
     return Math.round(newOnHand - (newOnHand * (daysElapsedSinceRestock / totalDays)));
 }
 
 function getUrlSlugFromReferer(referer) {
     return referer.match(/cupboard\/(.*)/)[1]
+}
+
+function getToday() {
+    return moment().add(45, 'days');
 }
 
 const fragmentItemsWithRestocks = `
@@ -153,7 +157,7 @@ const fragmentItemsWithRestocks = `
             newOnHand
             userEstimateRunOut
             didRunOut
-            leftOverFromPrevious
+            beforeRestock
         }
     }
 `;

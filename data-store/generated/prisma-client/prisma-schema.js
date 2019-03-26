@@ -491,7 +491,7 @@ type Restock {
   previousRestock: Restock
   userEstimateRunOut: DateTime
   didRunOut: DateTime
-  leftOverFromPrevious: Int
+  beforeRestock: Int
 }
 
 type RestockConnection {
@@ -506,7 +506,7 @@ input RestockCreateInput {
   previousRestock: RestockCreateOneInput
   userEstimateRunOut: DateTime
   didRunOut: DateTime
-  leftOverFromPrevious: Int
+  beforeRestock: Int
 }
 
 input RestockCreateManyInput {
@@ -535,8 +535,8 @@ enum RestockOrderByInput {
   userEstimateRunOut_DESC
   didRunOut_ASC
   didRunOut_DESC
-  leftOverFromPrevious_ASC
-  leftOverFromPrevious_DESC
+  beforeRestock_ASC
+  beforeRestock_DESC
   createdAt_ASC
   createdAt_DESC
   updatedAt_ASC
@@ -549,7 +549,7 @@ type RestockPreviousValues {
   newOnHand: Int!
   userEstimateRunOut: DateTime
   didRunOut: DateTime
-  leftOverFromPrevious: Int
+  beforeRestock: Int
 }
 
 input RestockScalarWhereInput {
@@ -599,14 +599,14 @@ input RestockScalarWhereInput {
   didRunOut_lte: DateTime
   didRunOut_gt: DateTime
   didRunOut_gte: DateTime
-  leftOverFromPrevious: Int
-  leftOverFromPrevious_not: Int
-  leftOverFromPrevious_in: [Int!]
-  leftOverFromPrevious_not_in: [Int!]
-  leftOverFromPrevious_lt: Int
-  leftOverFromPrevious_lte: Int
-  leftOverFromPrevious_gt: Int
-  leftOverFromPrevious_gte: Int
+  beforeRestock: Int
+  beforeRestock_not: Int
+  beforeRestock_in: [Int!]
+  beforeRestock_not_in: [Int!]
+  beforeRestock_lt: Int
+  beforeRestock_lte: Int
+  beforeRestock_gt: Int
+  beforeRestock_gte: Int
   AND: [RestockScalarWhereInput!]
   OR: [RestockScalarWhereInput!]
   NOT: [RestockScalarWhereInput!]
@@ -636,7 +636,7 @@ input RestockUpdateDataInput {
   previousRestock: RestockUpdateOneInput
   userEstimateRunOut: DateTime
   didRunOut: DateTime
-  leftOverFromPrevious: Int
+  beforeRestock: Int
 }
 
 input RestockUpdateInput {
@@ -645,7 +645,7 @@ input RestockUpdateInput {
   previousRestock: RestockUpdateOneInput
   userEstimateRunOut: DateTime
   didRunOut: DateTime
-  leftOverFromPrevious: Int
+  beforeRestock: Int
 }
 
 input RestockUpdateManyDataInput {
@@ -653,7 +653,7 @@ input RestockUpdateManyDataInput {
   newOnHand: Int
   userEstimateRunOut: DateTime
   didRunOut: DateTime
-  leftOverFromPrevious: Int
+  beforeRestock: Int
 }
 
 input RestockUpdateManyInput {
@@ -673,7 +673,7 @@ input RestockUpdateManyMutationInput {
   newOnHand: Int
   userEstimateRunOut: DateTime
   didRunOut: DateTime
-  leftOverFromPrevious: Int
+  beforeRestock: Int
 }
 
 input RestockUpdateManyWithWhereNestedInput {
@@ -754,14 +754,14 @@ input RestockWhereInput {
   didRunOut_lte: DateTime
   didRunOut_gt: DateTime
   didRunOut_gte: DateTime
-  leftOverFromPrevious: Int
-  leftOverFromPrevious_not: Int
-  leftOverFromPrevious_in: [Int!]
-  leftOverFromPrevious_not_in: [Int!]
-  leftOverFromPrevious_lt: Int
-  leftOverFromPrevious_lte: Int
-  leftOverFromPrevious_gt: Int
-  leftOverFromPrevious_gte: Int
+  beforeRestock: Int
+  beforeRestock_not: Int
+  beforeRestock_in: [Int!]
+  beforeRestock_not_in: [Int!]
+  beforeRestock_lt: Int
+  beforeRestock_lte: Int
+  beforeRestock_gt: Int
+  beforeRestock_gte: Int
   AND: [RestockWhereInput!]
   OR: [RestockWhereInput!]
   NOT: [RestockWhereInput!]

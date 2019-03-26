@@ -2,7 +2,8 @@ x (A) Don't count as new restock if it happens on the same day
 x (A) Create unique urls for pantries
 x (A) Only create restock records for changed items (if users changes from current amount and back it will send to server)
 x (B) Allow changing of restocks that are updated on the same day (but don't recreate new restock)
-(A) Implement specifying if ran out or top up
+x (A) Implement specifying if ran out or top up
+(A) Add before restock help text + Disable unit input for before restock
 (C) Improve estimates e.g could be calculated in shorted period other then days (e.g hours)
 (C) Add validation for initial estimation run out date
 

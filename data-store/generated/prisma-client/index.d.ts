@@ -214,8 +214,8 @@ export type RestockOrderByInput =
   | "userEstimateRunOut_DESC"
   | "didRunOut_ASC"
   | "didRunOut_DESC"
-  | "leftOverFromPrevious_ASC"
-  | "leftOverFromPrevious_DESC"
+  | "beforeRestock_ASC"
+  | "beforeRestock_DESC"
   | "createdAt_ASC"
   | "createdAt_DESC"
   | "updatedAt_ASC"
@@ -320,7 +320,7 @@ export interface RestockUpdateDataInput {
   previousRestock?: RestockUpdateOneInput;
   userEstimateRunOut?: DateTimeInput;
   didRunOut?: DateTimeInput;
-  leftOverFromPrevious?: Int;
+  beforeRestock?: Int;
 }
 
 export interface ItemCreateWithoutCupboardInput {
@@ -452,7 +452,7 @@ export interface RestockCreateInput {
   previousRestock?: RestockCreateOneInput;
   userEstimateRunOut?: DateTimeInput;
   didRunOut?: DateTimeInput;
-  leftOverFromPrevious?: Int;
+  beforeRestock?: Int;
 }
 
 export interface RestockUpdateManyMutationInput {
@@ -460,7 +460,7 @@ export interface RestockUpdateManyMutationInput {
   newOnHand?: Int;
   userEstimateRunOut?: DateTimeInput;
   didRunOut?: DateTimeInput;
-  leftOverFromPrevious?: Int;
+  beforeRestock?: Int;
 }
 
 export interface RestockCreateOneInput {
@@ -613,14 +613,14 @@ export interface RestockWhereInput {
   didRunOut_lte?: DateTimeInput;
   didRunOut_gt?: DateTimeInput;
   didRunOut_gte?: DateTimeInput;
-  leftOverFromPrevious?: Int;
-  leftOverFromPrevious_not?: Int;
-  leftOverFromPrevious_in?: Int[] | Int;
-  leftOverFromPrevious_not_in?: Int[] | Int;
-  leftOverFromPrevious_lt?: Int;
-  leftOverFromPrevious_lte?: Int;
-  leftOverFromPrevious_gt?: Int;
-  leftOverFromPrevious_gte?: Int;
+  beforeRestock?: Int;
+  beforeRestock_not?: Int;
+  beforeRestock_in?: Int[] | Int;
+  beforeRestock_not_in?: Int[] | Int;
+  beforeRestock_lt?: Int;
+  beforeRestock_lte?: Int;
+  beforeRestock_gt?: Int;
+  beforeRestock_gte?: Int;
   AND?: RestockWhereInput[] | RestockWhereInput;
   OR?: RestockWhereInput[] | RestockWhereInput;
   NOT?: RestockWhereInput[] | RestockWhereInput;
@@ -632,7 +632,7 @@ export interface RestockUpdateInput {
   previousRestock?: RestockUpdateOneInput;
   userEstimateRunOut?: DateTimeInput;
   didRunOut?: DateTimeInput;
-  leftOverFromPrevious?: Int;
+  beforeRestock?: Int;
 }
 
 export interface RestockUpdateOneInput {
@@ -684,7 +684,7 @@ export interface RestockUpdateManyDataInput {
   newOnHand?: Int;
   userEstimateRunOut?: DateTimeInput;
   didRunOut?: DateTimeInput;
-  leftOverFromPrevious?: Int;
+  beforeRestock?: Int;
 }
 
 export interface RestockUpdateManyWithWhereNestedInput {
@@ -739,14 +739,14 @@ export interface RestockScalarWhereInput {
   didRunOut_lte?: DateTimeInput;
   didRunOut_gt?: DateTimeInput;
   didRunOut_gte?: DateTimeInput;
-  leftOverFromPrevious?: Int;
-  leftOverFromPrevious_not?: Int;
-  leftOverFromPrevious_in?: Int[] | Int;
-  leftOverFromPrevious_not_in?: Int[] | Int;
-  leftOverFromPrevious_lt?: Int;
-  leftOverFromPrevious_lte?: Int;
-  leftOverFromPrevious_gt?: Int;
-  leftOverFromPrevious_gte?: Int;
+  beforeRestock?: Int;
+  beforeRestock_not?: Int;
+  beforeRestock_in?: Int[] | Int;
+  beforeRestock_not_in?: Int[] | Int;
+  beforeRestock_lt?: Int;
+  beforeRestock_lte?: Int;
+  beforeRestock_gt?: Int;
+  beforeRestock_gte?: Int;
   AND?: RestockScalarWhereInput[] | RestockScalarWhereInput;
   OR?: RestockScalarWhereInput[] | RestockScalarWhereInput;
   NOT?: RestockScalarWhereInput[] | RestockScalarWhereInput;
@@ -805,7 +805,7 @@ export interface RestockPreviousValues {
   newOnHand: Int;
   userEstimateRunOut?: DateTimeOutput;
   didRunOut?: DateTimeOutput;
-  leftOverFromPrevious?: Int;
+  beforeRestock?: Int;
 }
 
 export interface RestockPreviousValuesPromise
@@ -816,7 +816,7 @@ export interface RestockPreviousValuesPromise
   newOnHand: () => Promise<Int>;
   userEstimateRunOut: () => Promise<DateTimeOutput>;
   didRunOut: () => Promise<DateTimeOutput>;
-  leftOverFromPrevious: () => Promise<Int>;
+  beforeRestock: () => Promise<Int>;
 }
 
 export interface RestockPreviousValuesSubscription
@@ -827,7 +827,7 @@ export interface RestockPreviousValuesSubscription
   newOnHand: () => Promise<AsyncIterator<Int>>;
   userEstimateRunOut: () => Promise<AsyncIterator<DateTimeOutput>>;
   didRunOut: () => Promise<AsyncIterator<DateTimeOutput>>;
-  leftOverFromPrevious: () => Promise<AsyncIterator<Int>>;
+  beforeRestock: () => Promise<AsyncIterator<Int>>;
 }
 
 export interface CupboardEdge {
@@ -1171,7 +1171,7 @@ export interface Restock {
   newOnHand: Int;
   userEstimateRunOut?: DateTimeOutput;
   didRunOut?: DateTimeOutput;
-  leftOverFromPrevious?: Int;
+  beforeRestock?: Int;
 }
 
 export interface RestockPromise extends Promise<Restock>, Fragmentable {
@@ -1181,7 +1181,7 @@ export interface RestockPromise extends Promise<Restock>, Fragmentable {
   previousRestock: <T = RestockPromise>() => T;
   userEstimateRunOut: () => Promise<DateTimeOutput>;
   didRunOut: () => Promise<DateTimeOutput>;
-  leftOverFromPrevious: () => Promise<Int>;
+  beforeRestock: () => Promise<Int>;
 }
 
 export interface RestockSubscription
@@ -1193,7 +1193,7 @@ export interface RestockSubscription
   previousRestock: <T = RestockSubscription>() => T;
   userEstimateRunOut: () => Promise<AsyncIterator<DateTimeOutput>>;
   didRunOut: () => Promise<AsyncIterator<DateTimeOutput>>;
-  leftOverFromPrevious: () => Promise<AsyncIterator<Int>>;
+  beforeRestock: () => Promise<AsyncIterator<Int>>;
 }
 
 export interface RestockEdge {

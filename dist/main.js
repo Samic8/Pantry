@@ -7733,6 +7733,16 @@ var author$project$Main$view = function (model) {
 													]),
 												_List_Nil)
 											]))
+									])),
+								A2(
+								elm$html$Html$div,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('filters__beforeRestock')
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('Before Restock')
 									]))
 							])),
 						A2(

@@ -28,6 +28,7 @@
     --column-gap: 13px;
     --input-padding-left: 16px;
     --input-height: 48px;
+    --bar-height: var(--input-height);
     --input-border-size: 1px;
     --list-container-width: 740px;
     --list-container-side-padding: 42px;
@@ -36,6 +37,7 @@
     --edit-transition: .2s background-color ease;
     --outside-list-container-offset: 10px;
     --right-outside-list-row: calc((var(--list-container-side-padding) + var(--outside-list-container-offset)) * -1);
+    --filter-bar-top-bottom-padding: 12px;
 }
 
 body {
@@ -87,11 +89,12 @@ body {
 }
 
 .filters {
+    position: relative;
     display: grid;
     grid-template-columns: var(--row-columns);
     grid-gap: var(--column-gap);
     width: var(--list-container-width);
-    padding: 12px var(--list-container-side-padding);
+    padding: var(--filter-bar-top-bottom-padding) var(--list-container-side-padding);
 }
 
 .filters__confirmButton {
@@ -111,6 +114,31 @@ body {
     display: none;
 }
 
+.filters__confirmButton:hover, .filters__confirmButton:focus {
+    background-color: var(--color-alias-input-focus-background);
+}
+
+.filters__beforeRestock {
+    position: absolute;
+    top: calc(((var(--filter-bar-top-bottom-padding) * 2) + var(--bar-height)) / 2);
+    right: calc(-1 * var(--outside-list-container-offset));
+    transform: translate(100%, -50%);
+}
+
+.filters__beforeRestock::after {
+    --height: 35px;
+    --offset: 10px;
+    position: absolute;
+    display: block;
+    content: '';
+    width: 1px;
+    height: var(--height);
+    background-color: var(--color-black);
+    left: 50%;
+    bottom: calc((var(--height) + var(--offset)) * -1);
+    transform: translateX(-50%);
+}
+
 /* Filter Bar */
 .filterBar {
     grid-column: 3;
@@ -126,9 +154,6 @@ body {
     background-color: var(--color-grey-darkest);
 }
 
-.filters__confirmButton:hover, .filters__confirmButton:focus {
-    background-color: var(--color-alias-input-focus-background);
-}
 
 /* List Container */
 .listContainer {
@@ -307,7 +332,7 @@ body {
     display: flex;
     position: relative;
     background-color: var(--color-white);
-    height: var(--input-height);
+    height: var(--bar-height);
 }
 
 .bar--hidden {

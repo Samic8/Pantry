@@ -457,6 +457,7 @@ view model =
                             []
                         ]
                     ]
+                , div [ class "filters__beforeRestock" ] [ text "Before Restock" ]
                 ]
             , ul [ class "listContainer" ] (model.items |> filterUsingPercentage model |> List.map toRow)
             ]

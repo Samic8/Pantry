@@ -6,6 +6,7 @@ x (A) Save every X seconds automatically
 (C) Add validation for initial estimation run out date
 (C) Prevent shifting content when clicking setting button
 (C) onbeforeunload if scheduled save has not happened
+(D) Use html.lazy
 
 Bugs
 - When estimate on hand and max on hand is 0 the row dies

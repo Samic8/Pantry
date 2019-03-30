@@ -12,6 +12,11 @@
             "type": "npm",
             "script": "server",
             "problemMatcher": []
+        },
+        {
+            "type": "npm",
+            "script": "make:client:dev",
+            "problemMatcher": []
         }
     ]
 }

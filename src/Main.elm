@@ -524,7 +524,10 @@ view model =
                     ]
                 , div [ class "centerBoth" ] [ img [ class "filters__settingsCog", src "/src/svg/cog.svg", onClick ToggleSettings ] [] ]
                 ]
-            , ul [ class "listContainer" ] (model.items |> filterUsingPercentage model |> List.map (\item -> toRow item model.restockMode model.settings))
+            , div [ class "listContainer" ]
+                [ div [ class "listContainer__header" ] buildListHeader
+                , ul [ class "listContainer__rows" ] (buildRows model)
+                ]
             ]
         ]
 
@@ -544,6 +547,19 @@ shouldIncludeItemInView model item =
 
     else
         False
+
+
+buildListHeader : List (Html Msg)
+buildListHeader =
+    [ span [] [ text "Item" ]
+    , span [] [ text "Estimate Run Out" ]
+    , span [] [ text "Estimated Remaining Today" ]
+    ]
+
+
+buildRows : Model -> List (Html Msg)
+buildRows model =
+    model.items |> filterUsingPercentage model |> List.map (\item -> toRow item model.restockMode model.settings)
 
 
 toRow : Item -> Toggle -> Toggle -> Html Msg

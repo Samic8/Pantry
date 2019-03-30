@@ -159,13 +159,25 @@ body {
 
 /* List Container */
 .listContainer {
-    padding: 32px var(--list-container-side-padding);
+    padding: var(--column-gap) var(--list-container-side-padding) 32px;
     background-color: var(--color-alias-list-container);
     border-radius: var(--border-radius);
-    list-style-type: none;
+}
+
+.listContainer__header {
+    position: sticky;
+    display: grid;
+    grid-template-columns: var(--list-row-columns);
+    margin-bottom: var(--column-gap);
+    grid-gap: var(--column-gap);
+}
+
+.listContainer__rows {
     display: grid;
     grid-gap: var(--row-gap);
+    list-style-type: none;
     margin-top: 0;
+    padding: 0;
 }
 
 .row {

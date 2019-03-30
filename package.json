@@ -15,10 +15,13 @@
     "prisma": "^1.28.5",
     "prisma-client-lib": "^1.28.5"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "uglify-js": "^3.5.2"
+  },
   "scripts": {
-    "make:dev": "elm make src/Main.elm --output=dist/main.js",
-    "make:server": "cd ./data-store; prisma deploy; cd ..; node ./server/index.js"
+    "make:client:dev": "elm make src/Main.elm --output=dist/elm.js",
+    "make:client:production": "./optimize.sh src/Main.elm",
+    "start:server": "cd ./data-store; prisma deploy; cd ..; node ./server/index.js"
   },
   "repository": {
     "type": "git",

@@ -3,7 +3,12 @@ x (A) Create unique urls for pantries
 x (A) Only create restock records for changed items (if users changes from current amount and back it will send to server)
 x (B) Allow changing of restocks that are updated on the same day (but don't recreate new restock)
 x (A) Implement specifying if ran out or top up
-(A) Add before restock help text + Disable unit input for before restock
+(A) Disable restock until user turns it on
+(A) Save every X seconds automatically
+(A) Hide max on hand by default
+(A) Add headers / Make sticky
+(A) Modify create item experience
+(B) Remove before restock
 (C) Improve estimates e.g could be calculated in shorted period other then days (e.g hours)
 (C) Add validation for initial estimation run out date
 
@@ -15,3 +20,5 @@ x (A) Add way of specifying if restock ran out or is top up
 Road-map Ideas
 - Use affiliation marketing to generate collection of low items and add them to a shopping cart online
 - Use web hooks to allow real time collaboration (e.g one user updates the other uses see the updates)
+- Use typescript on the node backend
+- Write unit tests for backend

@@ -21,5 +21,6 @@ Road-map Ideas
 - Use affiliation marketing to generate collection of low items and add them to a shopping cart online
 - Use web hooks to allow real time collaboration (e.g one user updates the other uses see the updates)
 - Show estimated days in 'weeks' when goes past 7 days
+- Undo restocks that happened today
 - Use typescript on the node backend
 - Write unit tests for backend

@@ -1,12 +1,3 @@
-x (A) Don't count as new restock if it happens on the same day
-x (A) Create unique urls for pantries
-x (A) Only create restock records for changed items (if users changes from current amount and back it will send to server)
-x (B) Allow changing of restocks that are updated on the same day (but don't recreate new restock)
-x (A) Implement specifying if ran out or top up
-x (A) Disable restock until user turns it on
-x (B) Remove before restock
-x (A) Hide max on hand by default
-x (A) Show estimate days instead of quantity
 (A) Add headers / Make sticky
 (A) Save every X seconds automatically
 (A) Modify create item experience

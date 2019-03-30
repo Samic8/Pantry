@@ -6,7 +6,7 @@ import Browser.Events
 import DOM exposing (Rectangle, boundingClientRect, offsetLeft, offsetParent, offsetWidth, parentElement, target)
 import Debug
 import Html exposing (Attribute, Html, button, div, h1, header, img, input, label, li, section, span, text, ul)
-import Html.Attributes exposing (class, classList, id, placeholder, src, style, tabindex, value)
+import Html.Attributes exposing (class, classList, disabled, id, placeholder, src, style, tabindex, value)
 import Html.Events exposing (keyCode, on, onBlur, onClick, onInput, onMouseDown, onMouseUp, onSubmit)
 import Http
 import Json.Decode as Json
@@ -64,6 +64,11 @@ type MouseMoveFocus
     | EstimateOnHandMove
 
 
+type RestockMode
+    = On
+    | Off
+
+
 type alias Model =
     { title : String
     , items : Items
@@ -73,6 +78,7 @@ type alias Model =
     , barDragingLeft : Maybe Float
     , filterPercentage : Int
     , mouseMoveFocus : Maybe MouseMoveFocus
+    , restockMode : RestockMode
     }
 
 
@@ -86,6 +92,7 @@ init _ =
       , barDragingLeft = Nothing
       , filterPercentage = 100
       , mouseMoveFocus = Nothing
+      , restockMode = Off
       }
     , Http.get
         { url = "http://localhost:8000/cupboard"
@@ -183,7 +190,7 @@ type Msg
     | OnBarMouseUp
     | BarDragingMouseMove Float
     | OnFilterBarMouseDown Float Rectangle
-    | ConfirmChanges
+    | ToggleRestockMode
     | NoOp
 
 
@@ -222,7 +229,12 @@ update msg model =
             ( updateModel model id newName Name, Cmd.none )
 
         ModifyEstimateOnHand id newEstimate ->
-            ( updateModel model id newEstimate EstimateOnHand, Cmd.none )
+            case model.restockMode of
+                On ->
+                    ( updateModel model id newEstimate EstimateOnHand, Cmd.none )
+
+                Off ->
+                    ( model, Cmd.none )
 
         ModifyMaxOnHand id newMax ->
             ( updateModel model id newMax MaxOnHand, Cmd.none )
@@ -269,32 +281,48 @@ update msg model =
             ( { model | barDragingWidth = Nothing, barDragingLeft = Nothing, barDragingItemId = "", mouseMoveFocus = Nothing }, Cmd.none )
 
         BarDragingMouseMove mouseMove ->
-            case model.mouseMoveFocus of
-                Just EstimateOnHandMove ->
-                    let
-                        id =
-                            model.barDragingItemId
-                    in
-                    ( updateModel model id (buildNewEstimateFromMouseMove model id mouseMove) EstimateOnHand, Cmd.none )
+            case model.restockMode of
+                On ->
+                    case model.mouseMoveFocus of
+                        Just EstimateOnHandMove ->
+                            let
+                                id =
+                                    model.barDragingItemId
+                            in
+                            ( updateModel model id (buildNewEstimateFromMouseMove model id mouseMove) EstimateOnHand, Cmd.none )
 
-                Just FilterBarMove ->
-                    ( { model | filterPercentage = round (buildPercentageFromMouseMove model mouseMove * 100) }, Cmd.none )
+                        Just FilterBarMove ->
+                            ( { model | filterPercentage = round (buildPercentageFromMouseMove model mouseMove * 100) }, Cmd.none )
 
-                Nothing ->
+                        Nothing ->
+                            ( model, Cmd.none )
+
+                Off ->
                     ( model, Cmd.none )
 
         OnFilterBarMouseDown barWidth barLeft ->
             ( { model | barDragingWidth = Just barWidth, barDragingLeft = Just barLeft.left, mouseMoveFocus = Just FilterBarMove }, Cmd.none )
 
-        ConfirmChanges ->
-            ( model
-            , Http.post
-                { url = "http://localhost:8000/cupboard/items"
-                , body = Http.jsonBody (Encode.list Encode.object (buildEncodedItemList (model.items |> filterOutUnchanged)))
-                , expect = Http.expectJson GotNewItem mapItems
-                }
+        ToggleRestockMode ->
+            ( { model
+                | restockMode =
+                    if model.restockMode == On then
+                        Off
+
+                    else
+                        On
+              }
+            , Cmd.none
             )
 
+        -- SaveChangedItems ->
+        --     ( model
+        --     , Http.post
+        --         { url = "http://localhost:8000/cupboard/items"
+        --         , body = Http.jsonBody (Encode.list Encode.object (buildEncodedItemList (model.items |> filterOutUnchanged)))
+        --         , expect = Http.expectJson GotNewItem mapItems
+        --         }
+        --     )
         NoOp ->
             ( model, Cmd.none )
 
@@ -442,11 +470,18 @@ view model =
         , section [ class "mainContent" ]
             [ section [ class "filters" ]
                 [ button
-                    [ class "filters__confirmButton"
-                    , classList [ ( "filters__confirmButton--hide", model.hasChanges == False ) ]
-                    , onClick ConfirmChanges
+                    [ class "filters__button"
+                    , classList [ ( "filters__button--grey", model.restockMode == On ) ]
+                    , onClick ToggleRestockMode
                     ]
-                    [ text "Confirm" ]
+                    [ text
+                        (if model.restockMode == Off then
+                            "Restock"
+
+                         else
+                            "Exit Restock"
+                        )
+                    ]
                 , div [ class "filterBar bar" ]
                     [ div [ class "bar__used filterBar__used" ] []
                     , div [ class "bar__mainPercentage filterBar__mainPercentage", style "width" ((model.filterPercentage |> String.fromInt) ++ "%") ]
@@ -459,7 +494,7 @@ view model =
                     ]
                 , div [ class "filters__beforeRestock" ] [ text "Before Restock" ]
                 ]
-            , ul [ class "listContainer" ] (model.items |> filterUsingPercentage model |> List.map toRow)
+            , ul [ class "listContainer" ] (model.items |> filterUsingPercentage model |> List.map (\item -> toRow item model.restockMode))
             ]
         ]
 
@@ -481,8 +516,8 @@ shouldIncludeItemInView model item =
         False
 
 
-toRow : Item -> Html Msg
-toRow item =
+toRow : Item -> RestockMode -> Html Msg
+toRow item restockMode =
     li [ class "row" ]
         [ input
             [ class "inputBox"
@@ -499,15 +534,22 @@ toRow item =
             ]
             []
         , div [ class "quantity inputBox", classList [ ( "inputBox--covered", shouldCoverInputBox item ) ] ]
-            [ input [ class "quantity__edit inputBox__innerEdit", classList [ ( "quantity__edit--excessive", isOverstocked item ) ], onInput (ModifyEstimateOnHand item.id), value (item.estimateOnHand |> String.fromInt) ] []
+            [ input
+                [ class "quantity__edit inputBox__innerEdit"
+                , classList [ ( "quantity__edit--excessive", isOverstocked item ) ]
+                , onInput (ModifyEstimateOnHand item.id)
+                , value (item.estimateOnHand |> String.fromInt)
+                , disabled (restockMode == Off)
+                ]
+                []
             , span [] [ text "/" ]
             , input [ class "quantity__edit inputBox__innerEdit", onInput (ModifyMaxOnHand item.id), value (item.maxOnHand |> String.fromInt) ] [ text (item.maxOnHand |> String.fromInt) ]
             , span [ class "quantity__unit" ] [ input [ class "quantity__unit__innerEdit inputBox__innerEdit", value item.unit ] [] ]
             ]
-        , div [ class "bar", classList [ ( "bar--hidden", item.isNew == Just True ) ] ]
+        , div [ class "bar", classList [ ( "bar--hidden", item.isNew == Just True ), ( "bar--disabled", restockMode == Off ) ] ]
             [ div [ class "bar__used bar__quantityUsed", onClick (ModifyEstimateOnHand item.id (item.maxOnHand |> String.fromInt)) ] []
             , div [ class "bar__quantityExcessive", style "width" (buildQuantityExcessiveWidth item) ] []
-            , div [ classList (quanitiyLeftClassList item), style "width" (buildQuantityRemainingWidth item) ]
+            , div [ classList (quantityLeftClassList item), style "width" (buildQuantityRemainingWidth item) ]
                 [ div
                     [ class "bar__mainPercentage__lever"
                     , on "mousedown" (onLeverMouseDown (OnBarMouseDown item.id))
@@ -610,8 +652,8 @@ getPlaceholderText item =
             ""
 
 
-quanitiyLeftClassList : Item -> List ( String, Bool )
-quanitiyLeftClassList item =
+quantityLeftClassList : Item -> List ( String, Bool )
+quantityLeftClassList item =
     [ ( "bar__mainPercentage bar__quantityRemaining", True )
     , ( "bar__quantityRemaining--low", calcEstimateRemainingPercentage item <= 20 )
     , ( "bar__quantityRemaining--excessive", isQuantityExcessive item )

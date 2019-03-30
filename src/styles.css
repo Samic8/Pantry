@@ -97,7 +97,7 @@ body {
     padding: var(--filter-bar-top-bottom-padding) var(--list-container-side-padding);
 }
 
-.filters__confirmButton {
+.filters__button {
     grid-column: 2;
     width: 100%;
     border: var(--input-border);
@@ -110,11 +110,12 @@ body {
     cursor: pointer;
 }
 
-.filters__confirmButton--hide {
-    display: none;
+.filters__button--grey {
+    border-color: var(--color-grey-darkest);
+    color: var(--color-grey-darkest);
 }
 
-.filters__confirmButton:hover, .filters__confirmButton:focus {
+.filters__button:hover, .filters__button:focus {
     background-color: var(--color-alias-input-focus-background);
 }
 
@@ -279,14 +280,14 @@ body {
     min-width: 0;
 }
 
-.inputBox__innerEdit:hover, .inputBox__innerEdit:focus {
+.inputBox__innerEdit:hover:not(:disabled), .inputBox__innerEdit:focus:not(:disabled) {
     transition: var(--edit-transition);
     border: var(--input-border);
     background-color: var(--color-alias-input-focus-background);
     outline: 0;
 }
 
-/* Quanitiy */
+/* quantity */
 :root {
     --quantity-edit-height: 31px;
 }
@@ -323,8 +324,8 @@ body {
 }
 
 :root {
-    --quanitiy-used-index: 0;
-    --qaunitiy-bar-index: calc(var(--quanitiy-used-index) + 1);
+    --quantity-used-index: 0;
+    --quantity-bar-index: calc(var(--quantity-used-index) + 1);
 }
 
 /* Bar */
@@ -343,23 +344,30 @@ body {
     position: relative;
     margin-left: auto;
     border-radius: var(--border-radius) 0 var(--border-radius) 0;
-    z-index: var(--qaunitiy-bar-index);
+    z-index: var(--quantity-bar-index);
 }
 
 .bar__mainPercentage__lever {
+    --cursor: ew-resize;
+    --opacity: 0;
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0px;
     width: 10px;
-    opacity: 0;
+    opacity: var(--opacity);
     background-color: black;
     z-index: 2;
-    cursor: ew-resize;
+    cursor: var(--cursor);
 }
 
 .bar__mainPercentage__lever:hover {
-    opacity: .2;
+    --opacity: .2;
+}
+
+.bar--disabled .bar__mainPercentage__lever:hover {
+    --opacity: 0;
+    --cursor: default;
 }
 
 .bar__used {
@@ -373,16 +381,25 @@ body {
 
 /* Quantity Bar */
 .bar__quantityUsed:hover {
+    --border: var(--input-border-size) dashed var(--color-blue-dark); 
+    --background-color: var(--color-blue-light);
+    --cursor: pointer;
     transition: var(--edit-transition);
-    border: var(--input-border-size) dashed var(--color-blue-dark);
-    background-color: var(--color-blue-light);
-    cursor: pointer;
-    z-index: var(--quanitiy-used-index);
+    border: var(--border);
+    background-color: var(--background-color);
+    cursor: var(--cursor);
+    z-index: var(--quantity-used-index);
+}
+
+.bar--disabled .bar__quantityUsed:hover {
+    --border: none;
+    --background-color: var(--color-white);
+    --cursor: default;
 }
 
 .bar__quantityExcessive {
     background-color: var(--color-alias-quantity-excessive);
-    z-index: var(--qaunitiy-bar-index);
+    z-index: var(--quantity-bar-index);
     border-top-left-radius: var(--border-radius);
 }
 

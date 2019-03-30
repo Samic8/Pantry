@@ -4488,6 +4488,7 @@ function _Browser_load(url)
 var author$project$Main$Initialise = function (a) {
 	return {$: 'Initialise', a: a};
 };
+var author$project$Main$Off = {$: 'Off'};
 var author$project$Main$CupboardResult = F2(
 	function (title, itemsResponse) {
 		return {itemsResponse: itemsResponse, title: title};
@@ -5876,7 +5877,7 @@ var elm$http$Http$get = function (r) {
 };
 var author$project$Main$init = function (_n0) {
 	return _Utils_Tuple2(
-		{barDragingItemId: '', barDragingLeft: elm$core$Maybe$Nothing, barDragingWidth: elm$core$Maybe$Nothing, filterPercentage: 100, hasChanges: false, items: _List_Nil, mouseMoveFocus: elm$core$Maybe$Nothing, title: ''},
+		{barDragingItemId: '', barDragingLeft: elm$core$Maybe$Nothing, barDragingWidth: elm$core$Maybe$Nothing, filterPercentage: 100, hasChanges: false, items: _List_Nil, mouseMoveFocus: elm$core$Maybe$Nothing, restockMode: author$project$Main$Off, title: ''},
 		elm$http$Http$get(
 			{
 				expect: A2(elm$http$Http$expectJson, author$project$Main$Initialise, author$project$Main$cupboardDecoder),
@@ -6439,55 +6440,7 @@ var author$project$Main$GotTitle = function (a) {
 };
 var author$project$Main$MaxOnHand = {$: 'MaxOnHand'};
 var author$project$Main$Name = {$: 'Name'};
-var elm$core$Basics$neq = _Utils_notEqual;
-var elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
-var elm$json$Json$Encode$int = _Json_wrap;
-var elm$json$Json$Encode$string = _Json_wrap;
-var author$project$Main$buildEncodedItemList = function (items) {
-	return A2(
-		elm$core$List$map,
-		function (item) {
-			return _List_fromArray(
-				[
-					_Utils_Tuple2(
-					'id',
-					elm$json$Json$Encode$string(item.id)),
-					_Utils_Tuple2(
-					'name',
-					elm$json$Json$Encode$string(item.name)),
-					_Utils_Tuple2(
-					'maxOnHand',
-					elm$json$Json$Encode$int(item.maxOnHand)),
-					_Utils_Tuple2(
-					'onHand',
-					elm$json$Json$Encode$int(item.estimateOnHand)),
-					_Utils_Tuple2(
-					'unit',
-					elm$json$Json$Encode$string(item.unit)),
-					_Utils_Tuple2(
-					'beforeRestock',
-					elm$json$Json$Encode$int(item.beforeRestock))
-				]);
-		},
-		A2(
-			elm$core$List$filter,
-			function (item) {
-				return !_Utils_eq(
-					item.isNew,
-					elm$core$Maybe$Just(true));
-			},
-			items));
-};
+var author$project$Main$On = {$: 'On'};
 var elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
 		if (maybe.$ === 'Just') {
@@ -6502,6 +6455,17 @@ var author$project$Main$buildPercentageFromMouseMove = F2(
 		var pixelsFromRight = (A2(elm$core$Maybe$withDefault, 0, model.barDragingLeft) + A2(elm$core$Maybe$withDefault, 0, model.barDragingWidth)) - mouseMove;
 		var percentageFloat = pixelsFromRight / A2(elm$core$Maybe$withDefault, 0, model.barDragingWidth);
 		return percentageFloat;
+	});
+var elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
 	});
 var author$project$Main$getItemFromId = F2(
 	function (items, id) {
@@ -6529,24 +6493,6 @@ var author$project$Main$buildNewEstimateFromMouseMove = F3(
 		return elm$core$String$fromInt(
 			elm$core$Basics$round(itemMaxOnHand * percentageFloat));
 	});
-var author$project$Main$hasEstimateOnHandChanged = F2(
-	function (item, _default) {
-		var _n0 = item.initialEstimateOnHand;
-		if (_n0.$ === 'Just') {
-			var initialEstimateOnHand = _n0.a;
-			return !_Utils_eq(initialEstimateOnHand, item.estimateOnHand);
-		} else {
-			return _default;
-		}
-	});
-var author$project$Main$filterOutUnchanged = function (items) {
-	return A2(
-		elm$core$List$filter,
-		function (item) {
-			return A2(author$project$Main$hasEstimateOnHandChanged, item, true);
-		},
-		items);
-};
 var author$project$Main$NoOp = {$: 'NoOp'};
 var elm$browser$Browser$Dom$focus = _Browser_call('focus');
 var elm$core$Basics$composeL = F3(
@@ -6609,6 +6555,7 @@ var author$project$Main$transformItemResponse = function (itemResponse) {
 		elm$core$Maybe$Just(itemResponse.estimateOnHand),
 		0);
 };
+var elm$core$Basics$neq = _Utils_notEqual;
 var elm$core$List$append = F2(
 	function (xs, ys) {
 		if (!ys.b) {
@@ -6769,15 +6716,7 @@ var elm$http$Http$post = function (r) {
 	return elm$http$Http$request(
 		{body: r.body, expect: r.expect, headers: _List_Nil, method: 'POST', timeout: elm$core$Maybe$Nothing, tracker: elm$core$Maybe$Nothing, url: r.url});
 };
-var elm$json$Json$Encode$list = F2(
-	function (func, entries) {
-		return _Json_wrap(
-			A3(
-				elm$core$List$foldl,
-				_Json_addEntry(func),
-				_Json_emptyArray(_Utils_Tuple0),
-				entries));
-	});
+var elm$json$Json$Encode$int = _Json_wrap;
 var elm$json$Json$Encode$object = function (pairs) {
 	return _Json_wrap(
 		A3(
@@ -6791,6 +6730,7 @@ var elm$json$Json$Encode$object = function (pairs) {
 			_Json_emptyObject(_Utils_Tuple0),
 			pairs));
 };
+var elm$json$Json$Encode$string = _Json_wrap;
 var author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -6862,9 +6802,14 @@ var author$project$Main$update = F2(
 			case 'ModifyEstimateOnHand':
 				var id = msg.a;
 				var newEstimate = msg.b;
-				return _Utils_Tuple2(
-					A4(author$project$Main$updateModel, model, id, newEstimate, author$project$Main$EstimateOnHand),
-					elm$core$Platform$Cmd$none);
+				var _n3 = model.restockMode;
+				if (_n3.$ === 'On') {
+					return _Utils_Tuple2(
+						A4(author$project$Main$updateModel, model, id, newEstimate, author$project$Main$EstimateOnHand),
+						elm$core$Platform$Cmd$none);
+				} else {
+					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+				}
 			case 'ModifyMaxOnHand':
 				var id = msg.a;
 				var newMax = msg.b;
@@ -6954,29 +6899,34 @@ var author$project$Main$update = F2(
 					elm$core$Platform$Cmd$none);
 			case 'BarDragingMouseMove':
 				var mouseMove = msg.a;
-				var _n4 = model.mouseMoveFocus;
-				if (_n4.$ === 'Just') {
-					if (_n4.a.$ === 'EstimateOnHandMove') {
-						var _n5 = _n4.a;
-						var id = model.barDragingItemId;
-						return _Utils_Tuple2(
-							A4(
-								author$project$Main$updateModel,
-								model,
-								id,
-								A3(author$project$Main$buildNewEstimateFromMouseMove, model, id, mouseMove),
-								author$project$Main$EstimateOnHand),
-							elm$core$Platform$Cmd$none);
+				var _n5 = model.restockMode;
+				if (_n5.$ === 'On') {
+					var _n6 = model.mouseMoveFocus;
+					if (_n6.$ === 'Just') {
+						if (_n6.a.$ === 'EstimateOnHandMove') {
+							var _n7 = _n6.a;
+							var id = model.barDragingItemId;
+							return _Utils_Tuple2(
+								A4(
+									author$project$Main$updateModel,
+									model,
+									id,
+									A3(author$project$Main$buildNewEstimateFromMouseMove, model, id, mouseMove),
+									author$project$Main$EstimateOnHand),
+								elm$core$Platform$Cmd$none);
+						} else {
+							var _n8 = _n6.a;
+							return _Utils_Tuple2(
+								_Utils_update(
+									model,
+									{
+										filterPercentage: elm$core$Basics$round(
+											A2(author$project$Main$buildPercentageFromMouseMove, model, mouseMove) * 100)
+									}),
+								elm$core$Platform$Cmd$none);
+						}
 					} else {
-						var _n6 = _n4.a;
-						return _Utils_Tuple2(
-							_Utils_update(
-								model,
-								{
-									filterPercentage: elm$core$Basics$round(
-										A2(author$project$Main$buildPercentageFromMouseMove, model, mouseMove) * 100)
-								}),
-							elm$core$Platform$Cmd$none);
+						return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 					}
 				} else {
 					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
@@ -6993,25 +6943,18 @@ var author$project$Main$update = F2(
 							mouseMoveFocus: elm$core$Maybe$Just(author$project$Main$FilterBarMove)
 						}),
 					elm$core$Platform$Cmd$none);
-			case 'ConfirmChanges':
+			case 'ToggleRestockMode':
 				return _Utils_Tuple2(
-					model,
-					elm$http$Http$post(
+					_Utils_update(
+						model,
 						{
-							body: elm$http$Http$jsonBody(
-								A2(
-									elm$json$Json$Encode$list,
-									elm$json$Json$Encode$object,
-									author$project$Main$buildEncodedItemList(
-										author$project$Main$filterOutUnchanged(model.items)))),
-							expect: A2(elm$http$Http$expectJson, author$project$Main$GotNewItem, author$project$Main$mapItems),
-							url: 'http://localhost:8000/cupboard/items'
-						}));
+							restockMode: _Utils_eq(model.restockMode, author$project$Main$On) ? author$project$Main$Off : author$project$Main$On
+						}),
+					elm$core$Platform$Cmd$none);
 			default:
 				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 		}
 	});
-var author$project$Main$ConfirmChanges = {$: 'ConfirmChanges'};
 var author$project$Main$ModifyTitle = function (a) {
 	return {$: 'ModifyTitle', a: a};
 };
@@ -7020,6 +6963,7 @@ var author$project$Main$OnFilterBarMouseDown = F2(
 		return {$: 'OnFilterBarMouseDown', a: a, b: b};
 	});
 var author$project$Main$SaveTitle = {$: 'SaveTitle'};
+var author$project$Main$ToggleRestockMode = {$: 'ToggleRestockMode'};
 var author$project$Main$calcEstimateRemainingPercentage = function (item) {
 	return (item.estimateOnHand / item.maxOnHand) * 100;
 };
@@ -7200,6 +7144,16 @@ var author$project$Main$getPlaceholderText = function (item) {
 		return '';
 	}
 };
+var author$project$Main$hasEstimateOnHandChanged = F2(
+	function (item, _default) {
+		var _n0 = item.initialEstimateOnHand;
+		if (_n0.$ === 'Just') {
+			var initialEstimateOnHand = _n0.a;
+			return !_Utils_eq(initialEstimateOnHand, item.estimateOnHand);
+		} else {
+			return _default;
+		}
+	});
 var author$project$Main$onConfirmKeyDown = F2(
 	function (key, item) {
 		return (key === 13) ? author$project$Main$SaveNewItem(item) : author$project$Main$NoOp;
@@ -7222,7 +7176,7 @@ var author$project$Main$onKeyDown = function (tagger) {
 		'keydown',
 		A2(elm$json$Json$Decode$map, tagger, elm$html$Html$Events$keyCode));
 };
-var author$project$Main$quanitiyLeftClassList = function (item) {
+var author$project$Main$quantityLeftClassList = function (item) {
 	return _List_fromArray(
 		[
 			_Utils_Tuple2('bar__mainPercentage bar__quantityRemaining', true),
@@ -7268,6 +7222,15 @@ var elm$html$Html$Attributes$classList = function (classes) {
 				elm$core$Tuple$first,
 				A2(elm$core$List$filter, elm$core$Tuple$second, classes))));
 };
+var elm$json$Json$Encode$bool = _Json_wrap;
+var elm$html$Html$Attributes$boolProperty = F2(
+	function (key, bool) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			elm$json$Json$Encode$bool(bool));
+	});
+var elm$html$Html$Attributes$disabled = elm$html$Html$Attributes$boolProperty('disabled');
 var elm$html$Html$Attributes$id = elm$html$Html$Attributes$stringProperty('id');
 var elm$html$Html$Attributes$placeholder = elm$html$Html$Attributes$stringProperty('placeholder');
 var elm$html$Html$Attributes$src = function (url) {
@@ -7318,283 +7281,289 @@ var elm$html$Html$Events$onInput = function (tagger) {
 			elm$html$Html$Events$alwaysStop,
 			A2(elm$json$Json$Decode$map, tagger, elm$html$Html$Events$targetValue)));
 };
-var author$project$Main$toRow = function (item) {
-	return A2(
-		elm$html$Html$li,
-		_List_fromArray(
-			[
-				elm$html$Html$Attributes$class('row')
-			]),
-		_List_fromArray(
-			[
-				A2(
-				elm$html$Html$input,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('inputBox'),
-						elm$html$Html$Attributes$id(
-						_Utils_eq(
-							item.isNew,
-							elm$core$Maybe$Just(true)) ? 'new-item-name-input' : ''),
-						elm$html$Html$Events$onInput(
-						author$project$Main$ModifyName(item.id)),
-						elm$html$Html$Attributes$value(item.name),
-						elm$html$Html$Attributes$placeholder(
-						author$project$Main$getPlaceholderText(item))
-					]),
-				_List_Nil),
-				A2(
-				elm$html$Html$div,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('quantity inputBox'),
-						elm$html$Html$Attributes$classList(
-						_List_fromArray(
-							[
-								_Utils_Tuple2(
-								'inputBox--covered',
-								author$project$Main$shouldCoverInputBox(item))
-							]))
-					]),
-				_List_fromArray(
-					[
-						A2(
-						elm$html$Html$input,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$class('quantity__edit inputBox__innerEdit'),
-								elm$html$Html$Attributes$classList(
-								_List_fromArray(
-									[
-										_Utils_Tuple2(
-										'quantity__edit--excessive',
-										author$project$Main$isOverstocked(item))
-									])),
-								elm$html$Html$Events$onInput(
-								author$project$Main$ModifyEstimateOnHand(item.id)),
-								elm$html$Html$Attributes$value(
-								elm$core$String$fromInt(item.estimateOnHand))
-							]),
-						_List_Nil),
-						A2(
-						elm$html$Html$span,
-						_List_Nil,
-						_List_fromArray(
-							[
-								elm$html$Html$text('/')
-							])),
-						A2(
-						elm$html$Html$input,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$class('quantity__edit inputBox__innerEdit'),
-								elm$html$Html$Events$onInput(
-								author$project$Main$ModifyMaxOnHand(item.id)),
-								elm$html$Html$Attributes$value(
-								elm$core$String$fromInt(item.maxOnHand))
-							]),
-						_List_fromArray(
-							[
-								elm$html$Html$text(
-								elm$core$String$fromInt(item.maxOnHand))
-							])),
-						A2(
-						elm$html$Html$span,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$class('quantity__unit')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								elm$html$Html$input,
-								_List_fromArray(
-									[
-										elm$html$Html$Attributes$class('quantity__unit__innerEdit inputBox__innerEdit'),
-										elm$html$Html$Attributes$value(item.unit)
-									]),
-								_List_Nil)
-							]))
-					])),
-				A2(
-				elm$html$Html$div,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('bar'),
-						elm$html$Html$Attributes$classList(
-						_List_fromArray(
-							[
-								_Utils_Tuple2(
-								'bar--hidden',
-								_Utils_eq(
-									item.isNew,
-									elm$core$Maybe$Just(true)))
-							]))
-					]),
-				_List_fromArray(
-					[
-						A2(
-						elm$html$Html$div,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$class('bar__used bar__quantityUsed'),
-								elm$html$Html$Events$onClick(
-								A2(
-									author$project$Main$ModifyEstimateOnHand,
-									item.id,
-									elm$core$String$fromInt(item.maxOnHand)))
-							]),
-						_List_Nil),
-						A2(
-						elm$html$Html$div,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$class('bar__quantityExcessive'),
-								A2(
-								elm$html$Html$Attributes$style,
-								'width',
-								author$project$Main$buildQuantityExcessiveWidth(item))
-							]),
-						_List_Nil),
-						A2(
-						elm$html$Html$div,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$classList(
-								author$project$Main$quanitiyLeftClassList(item)),
-								A2(
-								elm$html$Html$Attributes$style,
-								'width',
-								author$project$Main$buildQuantityRemainingWidth(item))
-							]),
-						_List_fromArray(
-							[
-								A2(
-								elm$html$Html$div,
-								_List_fromArray(
-									[
-										elm$html$Html$Attributes$class('bar__mainPercentage__lever'),
-										A2(
-										elm$html$Html$Events$on,
-										'mousedown',
-										author$project$Main$onLeverMouseDown(
-											author$project$Main$OnBarMouseDown(item.id)))
-									]),
-								_List_Nil)
-							]))
-					])),
-				A2(
-				elm$html$Html$div,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('inputBox time'),
-						elm$html$Html$Attributes$classList(
-						_List_fromArray(
-							[
-								_Utils_Tuple2(
-								'time--hidden',
-								_Utils_eq(item.isNew, elm$core$Maybe$Nothing) || _Utils_eq(
-									item.isNew,
-									elm$core$Maybe$Just(false))),
-								_Utils_Tuple2(
-								'inputBox--covered',
-								author$project$Main$shouldCoverInputBox(item))
-							]))
-					]),
-				_List_fromArray(
-					[
-						A2(
-						elm$html$Html$div,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$class('time__helpText')
-							]),
-						_List_fromArray(
-							[
-								elm$html$Html$text('Estimate')
-							])),
-						A2(
-						elm$html$Html$input,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$class('time__input inputBox__innerEdit'),
-								elm$html$Html$Attributes$value(
-								A2(elm$core$Maybe$withDefault, '', item.userEstimateRunOut)),
-								elm$html$Html$Events$onInput(
-								author$project$Main$ModifyEstimateTime(item.id))
-							]),
-						_List_Nil)
-					])),
-				A2(
-				elm$html$Html$div,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$classList(
-						author$project$Main$getConfirmTickClassList(item)),
-						elm$html$Html$Events$onClick(
-						author$project$Main$SaveNewItem(item)),
-						author$project$Main$onKeyDown(
-						function (key) {
-							return A2(author$project$Main$onConfirmKeyDown, key, item);
-						}),
-						elm$html$Html$Attributes$tabindex(0)
-					]),
-				_List_fromArray(
-					[
-						A2(
-						elm$html$Html$img,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$src('/src/svg/tick.svg')
-							]),
-						_List_Nil)
-					])),
-				A2(
-				elm$html$Html$div,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('row__beforeRestock inputBox quantity'),
-						elm$html$Html$Attributes$classList(
-						_List_fromArray(
-							[
-								_Utils_Tuple2(
-								'hidden',
-								!A2(author$project$Main$hasEstimateOnHandChanged, item, false))
-							]))
-					]),
-				_List_fromArray(
-					[
-						A2(
-						elm$html$Html$input,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$class('quantity__edit inputBox__innerEdit'),
-								elm$html$Html$Attributes$value(
-								elm$core$String$fromInt(item.beforeRestock)),
-								elm$html$Html$Events$onInput(
-								author$project$Main$ModifyBeforeRestock(item.id))
-							]),
-						_List_Nil),
-						A2(
-						elm$html$Html$span,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$class('quantity__unit')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								elm$html$Html$input,
-								_List_fromArray(
-									[
-										elm$html$Html$Attributes$class('quantity__unit__innerEdit inputBox__innerEdit'),
-										elm$html$Html$Attributes$value('g')
-									]),
-								_List_Nil)
-							]))
-					]))
-			]));
-};
+var author$project$Main$toRow = F2(
+	function (item, restockMode) {
+		return A2(
+			elm$html$Html$li,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('row')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$input,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('inputBox'),
+							elm$html$Html$Attributes$id(
+							_Utils_eq(
+								item.isNew,
+								elm$core$Maybe$Just(true)) ? 'new-item-name-input' : ''),
+							elm$html$Html$Events$onInput(
+							author$project$Main$ModifyName(item.id)),
+							elm$html$Html$Attributes$value(item.name),
+							elm$html$Html$Attributes$placeholder(
+							author$project$Main$getPlaceholderText(item))
+						]),
+					_List_Nil),
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('quantity inputBox'),
+							elm$html$Html$Attributes$classList(
+							_List_fromArray(
+								[
+									_Utils_Tuple2(
+									'inputBox--covered',
+									author$project$Main$shouldCoverInputBox(item))
+								]))
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$html$Html$input,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('quantity__edit inputBox__innerEdit'),
+									elm$html$Html$Attributes$classList(
+									_List_fromArray(
+										[
+											_Utils_Tuple2(
+											'quantity__edit--excessive',
+											author$project$Main$isOverstocked(item))
+										])),
+									elm$html$Html$Events$onInput(
+									author$project$Main$ModifyEstimateOnHand(item.id)),
+									elm$html$Html$Attributes$value(
+									elm$core$String$fromInt(item.estimateOnHand)),
+									elm$html$Html$Attributes$disabled(
+									_Utils_eq(restockMode, author$project$Main$Off))
+								]),
+							_List_Nil),
+							A2(
+							elm$html$Html$span,
+							_List_Nil,
+							_List_fromArray(
+								[
+									elm$html$Html$text('/')
+								])),
+							A2(
+							elm$html$Html$input,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('quantity__edit inputBox__innerEdit'),
+									elm$html$Html$Events$onInput(
+									author$project$Main$ModifyMaxOnHand(item.id)),
+									elm$html$Html$Attributes$value(
+									elm$core$String$fromInt(item.maxOnHand))
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text(
+									elm$core$String$fromInt(item.maxOnHand))
+								])),
+							A2(
+							elm$html$Html$span,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('quantity__unit')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									elm$html$Html$input,
+									_List_fromArray(
+										[
+											elm$html$Html$Attributes$class('quantity__unit__innerEdit inputBox__innerEdit'),
+											elm$html$Html$Attributes$value(item.unit)
+										]),
+									_List_Nil)
+								]))
+						])),
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('bar'),
+							elm$html$Html$Attributes$classList(
+							_List_fromArray(
+								[
+									_Utils_Tuple2(
+									'bar--hidden',
+									_Utils_eq(
+										item.isNew,
+										elm$core$Maybe$Just(true))),
+									_Utils_Tuple2(
+									'bar--disabled',
+									_Utils_eq(restockMode, author$project$Main$Off))
+								]))
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$html$Html$div,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('bar__used bar__quantityUsed'),
+									elm$html$Html$Events$onClick(
+									A2(
+										author$project$Main$ModifyEstimateOnHand,
+										item.id,
+										elm$core$String$fromInt(item.maxOnHand)))
+								]),
+							_List_Nil),
+							A2(
+							elm$html$Html$div,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('bar__quantityExcessive'),
+									A2(
+									elm$html$Html$Attributes$style,
+									'width',
+									author$project$Main$buildQuantityExcessiveWidth(item))
+								]),
+							_List_Nil),
+							A2(
+							elm$html$Html$div,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$classList(
+									author$project$Main$quantityLeftClassList(item)),
+									A2(
+									elm$html$Html$Attributes$style,
+									'width',
+									author$project$Main$buildQuantityRemainingWidth(item))
+								]),
+							_List_fromArray(
+								[
+									A2(
+									elm$html$Html$div,
+									_List_fromArray(
+										[
+											elm$html$Html$Attributes$class('bar__mainPercentage__lever'),
+											A2(
+											elm$html$Html$Events$on,
+											'mousedown',
+											author$project$Main$onLeverMouseDown(
+												author$project$Main$OnBarMouseDown(item.id)))
+										]),
+									_List_Nil)
+								]))
+						])),
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('inputBox time'),
+							elm$html$Html$Attributes$classList(
+							_List_fromArray(
+								[
+									_Utils_Tuple2(
+									'time--hidden',
+									_Utils_eq(item.isNew, elm$core$Maybe$Nothing) || _Utils_eq(
+										item.isNew,
+										elm$core$Maybe$Just(false))),
+									_Utils_Tuple2(
+									'inputBox--covered',
+									author$project$Main$shouldCoverInputBox(item))
+								]))
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$html$Html$div,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('time__helpText')
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text('Estimate')
+								])),
+							A2(
+							elm$html$Html$input,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('time__input inputBox__innerEdit'),
+									elm$html$Html$Attributes$value(
+									A2(elm$core$Maybe$withDefault, '', item.userEstimateRunOut)),
+									elm$html$Html$Events$onInput(
+									author$project$Main$ModifyEstimateTime(item.id))
+								]),
+							_List_Nil)
+						])),
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$classList(
+							author$project$Main$getConfirmTickClassList(item)),
+							elm$html$Html$Events$onClick(
+							author$project$Main$SaveNewItem(item)),
+							author$project$Main$onKeyDown(
+							function (key) {
+								return A2(author$project$Main$onConfirmKeyDown, key, item);
+							}),
+							elm$html$Html$Attributes$tabindex(0)
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$html$Html$img,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$src('/src/svg/tick.svg')
+								]),
+							_List_Nil)
+						])),
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('row__beforeRestock inputBox quantity'),
+							elm$html$Html$Attributes$classList(
+							_List_fromArray(
+								[
+									_Utils_Tuple2(
+									'hidden',
+									!A2(author$project$Main$hasEstimateOnHandChanged, item, false))
+								]))
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$html$Html$input,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('quantity__edit inputBox__innerEdit'),
+									elm$html$Html$Attributes$value(
+									elm$core$String$fromInt(item.beforeRestock)),
+									elm$html$Html$Events$onInput(
+									author$project$Main$ModifyBeforeRestock(item.id))
+								]),
+							_List_Nil),
+							A2(
+							elm$html$Html$span,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('quantity__unit')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									elm$html$Html$input,
+									_List_fromArray(
+										[
+											elm$html$Html$Attributes$class('quantity__unit__innerEdit inputBox__innerEdit'),
+											elm$html$Html$Attributes$value('g')
+										]),
+									_List_Nil)
+								]))
+						]))
+				]));
+	});
 var elm$html$Html$button = _VirtualDom_node('button');
 var elm$html$Html$h1 = _VirtualDom_node('h1');
 var elm$html$Html$header = _VirtualDom_node('header');
@@ -7682,17 +7651,20 @@ var author$project$Main$view = function (model) {
 								elm$html$Html$button,
 								_List_fromArray(
 									[
-										elm$html$Html$Attributes$class('filters__confirmButton'),
+										elm$html$Html$Attributes$class('filters__button'),
 										elm$html$Html$Attributes$classList(
 										_List_fromArray(
 											[
-												_Utils_Tuple2('filters__confirmButton--hide', !model.hasChanges)
+												_Utils_Tuple2(
+												'filters__button--grey',
+												_Utils_eq(model.restockMode, author$project$Main$On))
 											])),
-										elm$html$Html$Events$onClick(author$project$Main$ConfirmChanges)
+										elm$html$Html$Events$onClick(author$project$Main$ToggleRestockMode)
 									]),
 								_List_fromArray(
 									[
-										elm$html$Html$text('Confirm')
+										elm$html$Html$text(
+										_Utils_eq(model.restockMode, author$project$Main$Off) ? 'Restock' : 'Exit Restock')
 									])),
 								A2(
 								elm$html$Html$div,
@@ -7753,7 +7725,9 @@ var author$project$Main$view = function (model) {
 							]),
 						A2(
 							elm$core$List$map,
-							author$project$Main$toRow,
+							function (item) {
+								return A2(author$project$Main$toRow, item, model.restockMode);
+							},
 							A2(author$project$Main$filterUsingPercentage, model, model.items)))
 					]))
 			]));

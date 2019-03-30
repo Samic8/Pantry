@@ -110,14 +110,22 @@ function buildItemFromResponse(item) {
         unit: item.unit,
         maxOnHand: item.maxOnHand,
         estimateOnHand: buildEstimateOnHand(item),
+        estimateDays: buildEstimateDays(item),
     }
 }
 
-function buildEstimateOnHand({maxOnHand, restocks}) {
+function buildEstimateDays({maxOnHand, restocks}) {
     if (restocks.length === 1) {
-        return buildEstimateOnHandForIntialRestock(restocks[0]);
+        const { userEstimateRunOut, date } = restocks[0];
+        const totalDays = getTotalDaysForEstimatedRunOut({ userEstimateRunOut, date });
+        const daysRemaining = totalDays - getDaysSince({ date });
+        return Math.round(daysRemaining);
     }
 
+    return Math.round(buildMeanDays({maxOnHand, restocks}));
+}
+
+function buildMeanDays({maxOnHand, restocks}) {
     const withoutInitial = restocks.slice(1);
     const averageDays = _.mean(withoutInitial.map((restock, index) => {
         const previousRestock = restocks[index];
@@ -127,14 +135,31 @@ function buildEstimateOnHand({maxOnHand, restocks}) {
         return (maxOnHand / amount) * Math.max(1, totalDays);
     }));
 
+    return averageDays;
+}
+
+function buildEstimateOnHand({maxOnHand, restocks}) {
+    if (restocks.length === 1) {
+        return buildEstimateOnHandForInitialRestock(restocks[0]);
+    }
+
+    const averageDays = buildMeanDays({maxOnHand, restocks});
+
     const daysElapsedSinceRestock = getToday().diff(restocks[restocks.length - 1].date, 'days');
     return Math.max(0, Math.round(((averageDays - daysElapsedSinceRestock) / averageDays) * maxOnHand));
 }
 
-function buildEstimateOnHandForIntialRestock({date, userEstimateRunOut, newOnHand}) {
-    const totalDays = moment(userEstimateRunOut).diff(date, 'days');
-    const daysElapsedSinceRestock = getToday().diff(date, 'days');
-    return Math.round(newOnHand - (newOnHand * (daysElapsedSinceRestock / totalDays)));
+function buildEstimateOnHandForInitialRestock({date, userEstimateRunOut, newOnHand}) {
+    const totalDays = getTotalDaysForEstimatedRunOut({ userEstimateRunOut, date });
+    return Math.round(newOnHand - (newOnHand * (getDaysSince({ date }) / totalDays)));
+}
+
+function getTotalDaysForEstimatedRunOut({userEstimateRunOut, date}) {
+    return moment(userEstimateRunOut).diff(date, 'days');
+}
+
+function getDaysSince({ date }) {
+    return getToday().diff(date, 'days');
 }
 
 function getUrlSlugFromReferer(referer) {
@@ -142,7 +167,7 @@ function getUrlSlugFromReferer(referer) {
 }
 
 function getToday() {
-    return moment().add(45, 'days');
+    return moment();
 }
 
 const fragmentItemsWithRestocks = `

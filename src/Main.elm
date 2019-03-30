@@ -26,6 +26,10 @@ type alias Id =
     String
 
 
+type alias EstimateDays =
+    Int
+
+
 type alias EstimateOnHand =
     Int
 
@@ -41,6 +45,7 @@ type alias Items =
 type alias Item =
     { id : Id
     , name : String
+    , estimateDays : EstimateDays
     , estimateOnHand : EstimateOnHand
     , maxOnHand : MaxOnHand
     , unit : String
@@ -106,7 +111,7 @@ type alias ItemsResponse =
 
 
 type alias ItemResponse =
-    { id : String, name : String, estimateOnHand : Int, maxOnHand : Int, unit : String }
+    { id : String, name : String, estimateDays : EstimateDays, estimateOnHand : EstimateOnHand, maxOnHand : MaxOnHand, unit : String }
 
 
 type alias CupboardResult =
@@ -122,9 +127,10 @@ cupboardDecoder =
 
 mapItems : Json.Decoder ItemResponse
 mapItems =
-    Json.map5 ItemResponse
+    Json.map6 ItemResponse
         (Json.field "id" Json.string)
         (Json.field "name" Json.string)
+        (Json.field "estimateDays" Json.int)
         (Json.field "estimateOnHand" Json.int)
         (Json.field "maxOnHand" Json.int)
         (Json.field "unit" Json.string)
@@ -132,7 +138,7 @@ mapItems =
 
 getNewItem : Id -> Item
 getNewItem id =
-    Item id "" 0 500 "g" (Just True) (Just "4 weeks") Nothing
+    Item id "" 0 0 500 "g" (Just True) (Just "4 weeks") Nothing
 
 
 
@@ -362,7 +368,7 @@ transformItemsReponse itemsResponse =
 
 transformItemResponse : ItemResponse -> Item
 transformItemResponse itemResponse =
-    Item itemResponse.id itemResponse.name itemResponse.estimateOnHand itemResponse.maxOnHand itemResponse.unit Nothing Nothing (Just itemResponse.estimateOnHand)
+    Item itemResponse.id itemResponse.name itemResponse.estimateDays itemResponse.estimateOnHand itemResponse.maxOnHand itemResponse.unit Nothing Nothing (Just itemResponse.estimateOnHand)
 
 
 buildNewEstimateFromMouseMove : Model -> Id -> Float -> String
@@ -534,11 +540,11 @@ toRow item restockMode settings =
                 [ class "quantity__edit inputBox__innerEdit"
                 , classList [ ( "quantity__edit--excessive", isOverstocked item ) ]
                 , onInput (ModifyEstimateOnHand item.id)
-                , value (item.estimateOnHand |> String.fromInt)
+                , value (item.estimateDays |> String.fromInt)
                 , disabled (restockMode == Off)
                 ]
                 []
-            , span [ class "quantity__unit" ] [ input [ class "quantity__unit__innerEdit inputBox__innerEdit", value item.unit ] [] ]
+            , span [ class "quantity__unit" ] [ text "Days" ]
             ]
         , div [ class "bar", classList [ ( "bar--hidden", item.isNew == Just True ), ( "bar--disabled", restockMode == Off ) ] ]
             [ div [ class "bar__used bar__quantityUsed", onClick (ModifyEstimateOnHand item.id (item.maxOnHand |> String.fromInt)) ] []

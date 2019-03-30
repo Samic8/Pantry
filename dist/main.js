@@ -4493,9 +4493,9 @@ var author$project$Main$CupboardResult = F2(
 	function (title, itemsResponse) {
 		return {itemsResponse: itemsResponse, title: title};
 	});
-var author$project$Main$ItemResponse = F5(
-	function (id, name, estimateOnHand, maxOnHand, unit) {
-		return {estimateOnHand: estimateOnHand, id: id, maxOnHand: maxOnHand, name: name, unit: unit};
+var author$project$Main$ItemResponse = F6(
+	function (id, name, estimateDays, estimateOnHand, maxOnHand, unit) {
+		return {estimateDays: estimateDays, estimateOnHand: estimateOnHand, id: id, maxOnHand: maxOnHand, name: name, unit: unit};
 	});
 var elm$core$Array$branchFactor = 32;
 var elm$core$Array$Array_elm_builtin = F4(
@@ -4974,13 +4974,14 @@ var elm$json$Json$Decode$errorToStringHelp = F2(
 	});
 var elm$json$Json$Decode$field = _Json_decodeField;
 var elm$json$Json$Decode$int = _Json_decodeInt;
-var elm$json$Json$Decode$map5 = _Json_map5;
+var elm$json$Json$Decode$map6 = _Json_map6;
 var elm$json$Json$Decode$string = _Json_decodeString;
-var author$project$Main$mapItems = A6(
-	elm$json$Json$Decode$map5,
+var author$project$Main$mapItems = A7(
+	elm$json$Json$Decode$map6,
 	author$project$Main$ItemResponse,
 	A2(elm$json$Json$Decode$field, 'id', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'name', elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$field, 'estimateDays', elm$json$Json$Decode$int),
 	A2(elm$json$Json$Decode$field, 'estimateOnHand', elm$json$Json$Decode$int),
 	A2(elm$json$Json$Decode$field, 'maxOnHand', elm$json$Json$Decode$int),
 	A2(elm$json$Json$Decode$field, 'unit', elm$json$Json$Decode$string));
@@ -6523,15 +6524,16 @@ var author$project$Main$focusElement = A2(
 		return author$project$Main$NoOp;
 	},
 	elm$browser$Browser$Dom$focus('new-item-name-input'));
-var author$project$Main$Item = F8(
-	function (id, name, estimateOnHand, maxOnHand, unit, isNew, userEstimateRunOut, initialEstimateOnHand) {
-		return {estimateOnHand: estimateOnHand, id: id, initialEstimateOnHand: initialEstimateOnHand, isNew: isNew, maxOnHand: maxOnHand, name: name, unit: unit, userEstimateRunOut: userEstimateRunOut};
+var author$project$Main$Item = F9(
+	function (id, name, estimateDays, estimateOnHand, maxOnHand, unit, isNew, userEstimateRunOut, initialEstimateOnHand) {
+		return {estimateDays: estimateDays, estimateOnHand: estimateOnHand, id: id, initialEstimateOnHand: initialEstimateOnHand, isNew: isNew, maxOnHand: maxOnHand, name: name, unit: unit, userEstimateRunOut: userEstimateRunOut};
 	});
 var author$project$Main$getNewItem = function (id) {
-	return A8(
+	return A9(
 		author$project$Main$Item,
 		id,
 		'',
+		0,
 		0,
 		500,
 		'g',
@@ -6540,10 +6542,11 @@ var author$project$Main$getNewItem = function (id) {
 		elm$core$Maybe$Nothing);
 };
 var author$project$Main$transformItemResponse = function (itemResponse) {
-	return A8(
+	return A9(
 		author$project$Main$Item,
 		itemResponse.id,
 		itemResponse.name,
+		itemResponse.estimateDays,
 		itemResponse.estimateOnHand,
 		itemResponse.maxOnHand,
 		itemResponse.unit,
@@ -7320,7 +7323,7 @@ var author$project$Main$toRow = F3(
 									elm$html$Html$Events$onInput(
 									author$project$Main$ModifyEstimateOnHand(item.id)),
 									elm$html$Html$Attributes$value(
-									elm$core$String$fromInt(item.estimateOnHand)),
+									elm$core$String$fromInt(item.estimateDays)),
 									elm$html$Html$Attributes$disabled(
 									_Utils_eq(restockMode, author$project$Main$Off))
 								]),
@@ -7333,14 +7336,7 @@ var author$project$Main$toRow = F3(
 								]),
 							_List_fromArray(
 								[
-									A2(
-									elm$html$Html$input,
-									_List_fromArray(
-										[
-											elm$html$Html$Attributes$class('quantity__unit__innerEdit inputBox__innerEdit'),
-											elm$html$Html$Attributes$value(item.unit)
-										]),
-									_List_Nil)
+									elm$html$Html$text('days')
 								]))
 						])),
 					A2(

@@ -6,7 +6,7 @@ x (A) Implement specifying if ran out or top up
 x (A) Disable restock until user turns it on
 x (B) Remove before restock
 x (A) Hide max on hand by default
-(A) Show estimate days instead of quantity
+x (A) Show estimate days instead of quantity
 (A) Add headers / Make sticky
 (A) Save every X seconds automatically
 (A) Modify create item experience
@@ -17,6 +17,7 @@ x (A) Hide max on hand by default
 
 Bugs
 - When estimate on hand and max on hand is 0 the row dies
+- Handle errors with message to user
 
 Design
 x (A) Add way of specifying if restock ran out or is top up
@@ -27,5 +28,6 @@ x (A) Add way of specifying if restock ran out or is top up
 Road-map Ideas
 - Use affiliation marketing to generate collection of low items and add them to a shopping cart online
 - Use web hooks to allow real time collaboration (e.g one user updates the other uses see the updates)
+- Show estimated days in 'weeks' when goes past 7 days
 - Use typescript on the node backend
 - Write unit tests for backend

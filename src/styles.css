@@ -30,10 +30,14 @@
     --input-height: 48px;
     --bar-height: var(--input-height);
     --input-border-size: 1px;
-    --list-container-width: 740px;
     --list-container-side-padding: 42px;
     --border-radius: 5px;
-    --row-columns: 240px 210px 1fr;
+    --settings-cog-size: calc(var(--list-container-side-padding) - var(--column-gap));
+    --max-on-hand-width: 120px;
+    --row-columns-settings-off: 240px 135px 225px;
+    --row-columns-settings-on: var(--row-columns-settings-off) var(--max-on-hand-width);
+    --list-row-columns: var(--row-columns-settings-off);
+    --filter-row-columns: var(--row-columns-settings-off) var(--settings-cog-size);
     --edit-transition: .2s background-color ease;
     --outside-list-container-offset: 10px;
     --right-outside-list-row: calc((var(--list-container-side-padding) + var(--outside-list-container-offset)) * -1);
@@ -45,6 +49,22 @@ body {
     font-family: 'Roboto', Arial, sans-serif;
 }
 
+/* Main Content */
+.mainContent {
+    display: grid;
+    justify-content: center;
+}
+
+/* Container */
+.container {
+    display: block;
+}
+
+.container--settingsOn {
+    --list-row-columns: var(--row-columns-settings-on);
+}
+
+/* Header */
 .header {
     display: flex;
     align-items: center;
@@ -83,18 +103,14 @@ body {
     background-color: var(--color-black);
 }
 
-.mainContent {
-    display: grid;
-    justify-content: center;
-}
-
 .filters {
     position: relative;
     display: grid;
-    grid-template-columns: var(--row-columns);
+    grid-template-columns: var(--filter-row-columns);
     grid-gap: var(--column-gap);
-    width: var(--list-container-width);
-    padding: var(--filter-bar-top-bottom-padding) var(--list-container-side-padding);
+    padding-top: var(--filter-bar-top-bottom-padding);
+    padding-bottom: var(--filter-bar-top-bottom-padding);
+    padding-left: var(--list-container-side-padding);
 }
 
 .filters__button {
@@ -119,6 +135,12 @@ body {
     background-color: var(--color-alias-input-focus-background);
 }
 
+.filters__settingsCog {
+    width: var(--settings-cog-size);
+    height: var(--settings-cog-size);
+    cursor: pointer;
+}
+
 /* Filter Bar */
 .filterBar {
     grid-column: 3;
@@ -137,7 +159,6 @@ body {
 
 /* List Container */
 .listContainer {
-    width: var(--list-container-width);
     padding: 32px var(--list-container-side-padding);
     background-color: var(--color-alias-list-container);
     border-radius: var(--border-radius);
@@ -150,7 +171,7 @@ body {
 .row {
     display: grid;
     position: relative;
-    grid-template-columns: var(--row-columns);
+    grid-template-columns: var(--list-row-columns);
     grid-gap: var(--column-gap);
 }
 
@@ -408,4 +429,10 @@ body {
 /* Utility Classes */
 .hidden {
     display: none;
+}
+
+.centerBoth {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

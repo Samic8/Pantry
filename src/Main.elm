@@ -62,7 +62,7 @@ type MouseMoveFocus
     | EstimateOnHandMove
 
 
-type RestockMode
+type Toggle
     = On
     | Off
 
@@ -76,7 +76,8 @@ type alias Model =
     , barDragingLeft : Maybe Float
     , filterPercentage : Int
     , mouseMoveFocus : Maybe MouseMoveFocus
-    , restockMode : RestockMode
+    , restockMode : Toggle
+    , settings : Toggle
     }
 
 
@@ -91,6 +92,7 @@ init _ =
       , filterPercentage = 100
       , mouseMoveFocus = Nothing
       , restockMode = Off
+      , settings = Off
       }
     , Http.get
         { url = "http://localhost:8000/cupboard"
@@ -188,6 +190,7 @@ type Msg
     | BarDragingMouseMove Float
     | OnFilterBarMouseDown Float Rectangle
     | ToggleRestockMode
+    | ToggleSettings
     | NoOp
 
 
@@ -298,16 +301,10 @@ update msg model =
             ( { model | barDragingWidth = Just barWidth, barDragingLeft = Just barLeft.left, mouseMoveFocus = Just FilterBarMove }, Cmd.none )
 
         ToggleRestockMode ->
-            ( { model
-                | restockMode =
-                    if model.restockMode == On then
-                        Off
+            ( { model | restockMode = toggleOnOff model.restockMode }, Cmd.none )
 
-                    else
-                        On
-              }
-            , Cmd.none
-            )
+        ToggleSettings ->
+            ( { model | settings = toggleOnOff model.settings }, Cmd.none )
 
         -- SaveChangedItems ->
         --     ( model
@@ -319,6 +316,15 @@ update msg model =
         --     )
         NoOp ->
             ( model, Cmd.none )
+
+
+toggleOnOff : Toggle -> Toggle
+toggleOnOff toggle =
+    if toggle == On then
+        Off
+
+    else
+        On
 
 
 filterOutUnchanged : Items -> List Item
@@ -448,7 +454,7 @@ parseValueToInt stringVal =
 
 view : Model -> Html Msg
 view model =
-    div []
+    div [ class "container", classList [ ( "container--settingsOn", model.settings == On ) ] ]
         [ header [ class "header" ]
             [ h1 [ class "header__logo" ]
                 [ span [] [ text "Pan" ]
@@ -482,8 +488,9 @@ view model =
                             []
                         ]
                     ]
+                , div [ class "centerBoth" ] [ img [ class "filters__settingsCog", src "/src/svg/cog.svg", onClick ToggleSettings ] [] ]
                 ]
-            , ul [ class "listContainer" ] (model.items |> filterUsingPercentage model |> List.map (\item -> toRow item model.restockMode))
+            , ul [ class "listContainer" ] (model.items |> filterUsingPercentage model |> List.map (\item -> toRow item model.restockMode model.settings))
             ]
         ]
 
@@ -505,8 +512,8 @@ shouldIncludeItemInView model item =
         False
 
 
-toRow : Item -> RestockMode -> Html Msg
-toRow item restockMode =
+toRow : Item -> Toggle -> Toggle -> Html Msg
+toRow item restockMode settings =
     li [ class "row" ]
         [ input
             [ class "inputBox"
@@ -531,8 +538,6 @@ toRow item restockMode =
                 , disabled (restockMode == Off)
                 ]
                 []
-            , span [] [ text "/" ]
-            , input [ class "quantity__edit inputBox__innerEdit", onInput (ModifyMaxOnHand item.id), value (item.maxOnHand |> String.fromInt) ] [ text (item.maxOnHand |> String.fromInt) ]
             , span [ class "quantity__unit" ] [ input [ class "quantity__unit__innerEdit inputBox__innerEdit", value item.unit ] [] ]
             ]
         , div [ class "bar", classList [ ( "bar--hidden", item.isNew == Just True ), ( "bar--disabled", restockMode == Off ) ] ]
@@ -549,6 +554,15 @@ toRow item restockMode =
         , div [ class "inputBox time", classList [ ( "time--hidden", item.isNew == Nothing || item.isNew == Just False ), ( "inputBox--covered", shouldCoverInputBox item ) ] ]
             [ div [ class "time__helpText" ] [ text "Estimate" ]
             , input [ class "time__input inputBox__innerEdit", value (Maybe.withDefault "" item.userEstimateRunOut), onInput (ModifyEstimateTime item.id) ] []
+            ]
+        , div [ class "quantity inputBox", classList [ ( "hidden", settings == Off ) ] ]
+            [ input
+                [ class "quantity__edit inputBox__innerEdit"
+                , onInput (ModifyMaxOnHand item.id)
+                , value (item.maxOnHand |> String.fromInt)
+                ]
+                [ text (item.maxOnHand |> String.fromInt) ]
+            , span [ class "quantity__unit" ] [ input [ class "quantity__unit__innerEdit inputBox__innerEdit", value item.unit ] [] ]
             ]
         , div
             [ classList (getConfirmTickClassList item)

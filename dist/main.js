@@ -5877,7 +5877,7 @@ var elm$http$Http$get = function (r) {
 };
 var author$project$Main$init = function (_n0) {
 	return _Utils_Tuple2(
-		{barDragingItemId: '', barDragingLeft: elm$core$Maybe$Nothing, barDragingWidth: elm$core$Maybe$Nothing, filterPercentage: 100, hasChanges: false, items: _List_Nil, mouseMoveFocus: elm$core$Maybe$Nothing, restockMode: author$project$Main$Off, title: ''},
+		{barDragingItemId: '', barDragingLeft: elm$core$Maybe$Nothing, barDragingWidth: elm$core$Maybe$Nothing, filterPercentage: 100, hasChanges: false, items: _List_Nil, mouseMoveFocus: elm$core$Maybe$Nothing, restockMode: author$project$Main$Off, settings: author$project$Main$Off, title: ''},
 		elm$http$Http$get(
 			{
 				expect: A2(elm$http$Http$expectJson, author$project$Main$Initialise, author$project$Main$cupboardDecoder),
@@ -6439,7 +6439,6 @@ var author$project$Main$GotTitle = function (a) {
 };
 var author$project$Main$MaxOnHand = {$: 'MaxOnHand'};
 var author$project$Main$Name = {$: 'Name'};
-var author$project$Main$On = {$: 'On'};
 var elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
 		if (maybe.$ === 'Just') {
@@ -6577,6 +6576,10 @@ var author$project$Main$processNewItem = F2(
 					author$project$Main$getNewItem('new-item')
 				]));
 	});
+var author$project$Main$On = {$: 'On'};
+var author$project$Main$toggleOnOff = function (toggle) {
+	return _Utils_eq(toggle, author$project$Main$On) ? author$project$Main$Off : author$project$Main$On;
+};
 var author$project$Main$transformItemsReponse = function (itemsResponse) {
 	return A2(
 		elm$core$List$map,
@@ -6933,7 +6936,15 @@ var author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{
-							restockMode: _Utils_eq(model.restockMode, author$project$Main$On) ? author$project$Main$Off : author$project$Main$On
+							restockMode: author$project$Main$toggleOnOff(model.restockMode)
+						}),
+					elm$core$Platform$Cmd$none);
+			case 'ToggleSettings':
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							settings: author$project$Main$toggleOnOff(model.settings)
 						}),
 					elm$core$Platform$Cmd$none);
 			default:
@@ -6949,6 +6960,7 @@ var author$project$Main$OnFilterBarMouseDown = F2(
 	});
 var author$project$Main$SaveTitle = {$: 'SaveTitle'};
 var author$project$Main$ToggleRestockMode = {$: 'ToggleRestockMode'};
+var author$project$Main$ToggleSettings = {$: 'ToggleSettings'};
 var author$project$Main$calcEstimateRemainingPercentage = function (item) {
 	return (item.estimateOnHand / item.maxOnHand) * 100;
 };
@@ -7252,8 +7264,8 @@ var elm$html$Html$Events$onInput = function (tagger) {
 			elm$html$Html$Events$alwaysStop,
 			A2(elm$json$Json$Decode$map, tagger, elm$html$Html$Events$targetValue)));
 };
-var author$project$Main$toRow = F2(
-	function (item, restockMode) {
+var author$project$Main$toRow = F3(
+	function (item, restockMode, settings) {
 		return A2(
 			elm$html$Html$li,
 			_List_fromArray(
@@ -7313,28 +7325,6 @@ var author$project$Main$toRow = F2(
 									_Utils_eq(restockMode, author$project$Main$Off))
 								]),
 							_List_Nil),
-							A2(
-							elm$html$Html$span,
-							_List_Nil,
-							_List_fromArray(
-								[
-									elm$html$Html$text('/')
-								])),
-							A2(
-							elm$html$Html$input,
-							_List_fromArray(
-								[
-									elm$html$Html$Attributes$class('quantity__edit inputBox__innerEdit'),
-									elm$html$Html$Events$onInput(
-									author$project$Main$ModifyMaxOnHand(item.id)),
-									elm$html$Html$Attributes$value(
-									elm$core$String$fromInt(item.maxOnHand))
-								]),
-							_List_fromArray(
-								[
-									elm$html$Html$text(
-									elm$core$String$fromInt(item.maxOnHand))
-								])),
 							A2(
 							elm$html$Html$span,
 							_List_fromArray(
@@ -7469,6 +7459,54 @@ var author$project$Main$toRow = F2(
 					elm$html$Html$div,
 					_List_fromArray(
 						[
+							elm$html$Html$Attributes$class('quantity inputBox'),
+							elm$html$Html$Attributes$classList(
+							_List_fromArray(
+								[
+									_Utils_Tuple2(
+									'hidden',
+									_Utils_eq(settings, author$project$Main$Off))
+								]))
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$html$Html$input,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('quantity__edit inputBox__innerEdit'),
+									elm$html$Html$Events$onInput(
+									author$project$Main$ModifyMaxOnHand(item.id)),
+									elm$html$Html$Attributes$value(
+									elm$core$String$fromInt(item.maxOnHand))
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text(
+									elm$core$String$fromInt(item.maxOnHand))
+								])),
+							A2(
+							elm$html$Html$span,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('quantity__unit')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									elm$html$Html$input,
+									_List_fromArray(
+										[
+											elm$html$Html$Attributes$class('quantity__unit__innerEdit inputBox__innerEdit'),
+											elm$html$Html$Attributes$value(item.unit)
+										]),
+									_List_Nil)
+								]))
+						])),
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
 							elm$html$Html$Attributes$classList(
 							author$project$Main$getConfirmTickClassList(item)),
 							elm$html$Html$Events$onClick(
@@ -7505,7 +7543,17 @@ var elm$html$Html$Events$onBlur = function (msg) {
 var author$project$Main$view = function (model) {
 	return A2(
 		elm$html$Html$div,
-		_List_Nil,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$class('container'),
+				elm$html$Html$Attributes$classList(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						'container--settingsOn',
+						_Utils_eq(model.settings, author$project$Main$On))
+					]))
+			]),
 		_List_fromArray(
 			[
 				A2(
@@ -7632,6 +7680,24 @@ var author$project$Main$view = function (model) {
 													]),
 												_List_Nil)
 											]))
+									])),
+								A2(
+								elm$html$Html$div,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('centerBoth')
+									]),
+								_List_fromArray(
+									[
+										A2(
+										elm$html$Html$img,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$class('filters__settingsCog'),
+												elm$html$Html$Attributes$src('/src/svg/cog.svg'),
+												elm$html$Html$Events$onClick(author$project$Main$ToggleSettings)
+											]),
+										_List_Nil)
 									]))
 							])),
 						A2(
@@ -7643,7 +7709,7 @@ var author$project$Main$view = function (model) {
 						A2(
 							elm$core$List$map,
 							function (item) {
-								return A2(author$project$Main$toRow, item, model.restockMode);
+								return A3(author$project$Main$toRow, item, model.restockMode, model.settings);
 							},
 							A2(author$project$Main$filterUsingPercentage, model, model.items)))
 					]))

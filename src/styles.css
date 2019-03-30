@@ -119,27 +119,6 @@ body {
     background-color: var(--color-alias-input-focus-background);
 }
 
-.filters__beforeRestock {
-    position: absolute;
-    top: calc(((var(--filter-bar-top-bottom-padding) * 2) + var(--bar-height)) / 2);
-    right: calc(-1 * var(--outside-list-container-offset));
-    transform: translate(100%, -50%);
-}
-
-.filters__beforeRestock::after {
-    --height: 35px;
-    --offset: 10px;
-    position: absolute;
-    display: block;
-    content: '';
-    width: 1px;
-    height: var(--height);
-    background-color: var(--color-black);
-    left: 50%;
-    bottom: calc((var(--height) + var(--offset)) * -1);
-    transform: translateX(-50%);
-}
-
 /* Filter Bar */
 .filterBar {
     grid-column: 3;
@@ -229,16 +208,6 @@ body {
 
 .row__confirmTick--allwaysHidden {
     display: none;
-}
-
-/* Row Before Restock */
-.row__beforeRestock.inputBox {
-    --width: 106px;
-    position: absolute;
-    right: calc(var(--right-outside-list-row) - var(--width));
-    width: var(--width);
-    box-sizing: border-box;
-    border: 1px solid var(--color-alias-quantity-unit-background);
 }
 
 /* InputBox */

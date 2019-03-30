@@ -4,11 +4,11 @@ x (A) Only create restock records for changed items (if users changes from curre
 x (B) Allow changing of restocks that are updated on the same day (but don't recreate new restock)
 x (A) Implement specifying if ran out or top up
 x (A) Disable restock until user turns it on
-(A) Save every X seconds automatically
+x (B) Remove before restock
 (A) Hide max on hand by default
 (A) Add headers / Make sticky
+(A) Save every X seconds automatically
 (A) Modify create item experience
-(B) Remove before restock
 (C) Remove focus on restock button once clicked (to avoid focus state)
 (C) Improve estimates e.g could be calculated in shorted period other then days (e.g hours)
 (C) Add validation for initial estimation run out date

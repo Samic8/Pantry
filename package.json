@@ -17,9 +17,8 @@
   },
   "devDependencies": {},
   "scripts": {
-    "format": "$(npm bin)/prettier --write '**/*.elm'",
-    "make": "elm make src/Main.elm --output=dist/main.js",
-    "server": "cd ./data-store; prisma deploy; cd ..; node ./server/index.js"
+    "make:dev": "elm make src/Main.elm --output=dist/main.js",
+    "make:server": "cd ./data-store; prisma deploy; cd ..; node ./server/index.js"
   },
   "repository": {
     "type": "git",
@@ -38,7 +37,7 @@
   },
   "lint-staged": {
     "*.{elm, css, js}": [
-      "npm run format",
+      "prettier --write",
       "git add"
     ]
   }

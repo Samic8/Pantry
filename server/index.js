@@ -36,6 +36,8 @@ app.post('/cupboard', async (req, res) => {
 });
 
 app.post('/cupboard/items', async (req, res) => {
+    if (!req.body.length) return;
+    
     const urlSlug = getUrlSlugFromReferer(req.headers.referer);
     const cupboardItems = await prisma.cupboard({ urlSlug }).items().$fragment(fragmentItemsWithRestocks);
     const itemUpdates = req.body.map(item => {

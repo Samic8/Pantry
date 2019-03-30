@@ -4,7 +4,6 @@ import Browser
 import Browser.Dom as Dom
 import Browser.Events
 import DOM exposing (Rectangle, boundingClientRect, offsetLeft, offsetParent, offsetWidth, parentElement, target)
-import Debug
 import Html exposing (Attribute, Html, button, div, h1, header, img, input, label, li, section, span, text, ul)
 import Html.Attributes exposing (class, classList, disabled, id, placeholder, src, style, tabindex, value)
 import Html.Events exposing (keyCode, on, onBlur, onClick, onInput, onMouseDown, onMouseUp, onSubmit)
@@ -12,6 +11,7 @@ import Http
 import Json.Decode as Json
 import Json.Encode as Encode
 import Task
+import Time
 
 
 main =
@@ -122,11 +122,11 @@ cupboardDecoder : Json.Decoder CupboardResult
 cupboardDecoder =
     Json.map2 CupboardResult
         (Json.field "title" Json.string)
-        (Json.field "items" (Json.list mapItems))
+        (Json.field "items" (Json.list mapItem))
 
 
-mapItems : Json.Decoder ItemResponse
-mapItems =
+mapItem : Json.Decoder ItemResponse
+mapItem =
     Json.map6 ItemResponse
         (Json.field "id" Json.string)
         (Json.field "name" Json.string)
@@ -147,15 +147,27 @@ getNewItem id =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    case model.mouseMoveFocus of
-        Just FilterBarMove ->
-            subscribeToMouseMove
+    Sub.batch
+        [ case model.mouseMoveFocus of
+            Just FilterBarMove ->
+                subscribeToMouseMove
 
-        Just EstimateOnHandMove ->
-            subscribeToMouseMove
+            Just EstimateOnHandMove ->
+                subscribeToMouseMove
 
-        Nothing ->
-            Sub.none
+            Nothing ->
+                Sub.none
+        , Time.every 5000 (always (maybeSaveChangedItems model))
+        ]
+
+
+maybeSaveChangedItems : Model -> Msg
+maybeSaveChangedItems model =
+    if List.length (model.items |> filterOutUnchanged) > 0 then
+        SaveChangedItems
+
+    else
+        NoOp
 
 
 subscribeToMouseMove : Sub Msg
@@ -197,6 +209,8 @@ type Msg
     | OnFilterBarMouseDown Float Rectangle
     | ToggleRestockMode
     | ToggleSettings
+    | SaveChangedItems
+    | GotNewItems (Result Http.Error ItemsResponse)
     | NoOp
 
 
@@ -206,7 +220,7 @@ update msg model =
         Initialise result ->
             case result of
                 Ok cupboard ->
-                    ( { model | title = cupboard.title, items = List.append (transformItemsReponse cupboard.itemsResponse) [ getNewItem "new-item" ] }, Cmd.none )
+                    ( { model | title = cupboard.title, items = buildNewItemsFromResponse cupboard.itemsResponse }, Cmd.none )
 
                 Err _ ->
                     ( model, Cmd.none )
@@ -264,7 +278,7 @@ update msg model =
                                 , ( "userEstimateRunOut", Encode.string (Maybe.withDefault "" item.userEstimateRunOut) )
                                 ]
                             )
-                    , expect = Http.expectJson GotNewItem mapItems
+                    , expect = Http.expectJson GotNewItem mapItem
                     }
                 ]
             )
@@ -312,16 +326,30 @@ update msg model =
         ToggleSettings ->
             ( { model | settings = toggleOnOff model.settings }, Cmd.none )
 
-        -- SaveChangedItems ->
-        --     ( model
-        --     , Http.post
-        --         { url = "http://localhost:8000/cupboard/items"
-        --         , body = Http.jsonBody (Encode.list Encode.object (buildEncodedItemList (model.items |> filterOutUnchanged)))
-        --         , expect = Http.expectJson GotNewItem mapItems
-        --         }
-        --     )
+        SaveChangedItems ->
+            ( model
+            , Http.post
+                { url = "http://localhost:8000/cupboard/items"
+                , body = Http.jsonBody (Encode.list Encode.object (buildEncodedItemList (model.items |> filterOutUnchanged)))
+                , expect = Http.expectJson GotNewItems (Json.list mapItem)
+                }
+            )
+
+        GotNewItems result ->
+            case result of
+                Ok itemsResponse ->
+                    ( { model | items = buildNewItemsFromResponse itemsResponse }, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
         NoOp ->
             ( model, Cmd.none )
+
+
+buildNewItemsFromResponse : ItemsResponse -> List Item
+buildNewItemsFromResponse itemsResponse =
+    List.append (transformItemsReponse itemsResponse) [ getNewItem "new-item" ]
 
 
 toggleOnOff : Toggle -> Toggle
@@ -335,7 +363,7 @@ toggleOnOff toggle =
 
 filterOutUnchanged : Items -> List Item
 filterOutUnchanged items =
-    List.filter (\item -> hasEstimateOnHandChanged item True) items
+    List.filter (\item -> hasEstimateOnHandChanged item False) items
 
 
 buildEncodedItemList : Items -> List (List ( String, Encode.Value ))

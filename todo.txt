@@ -1,10 +1,11 @@
+x (A) Save every X seconds automatically
 (A) Add headers / Make sticky
-(A) Save every X seconds automatically
 (A) Modify create item experience
 (C) Remove focus on restock button once clicked (to avoid focus state)
 (C) Improve estimates e.g could be calculated in shorted period other then days (e.g hours)
 (C) Add validation for initial estimation run out date
 (C) Prevent shifting content when clicking setting button
+(C) onbeforeunload if scheduled save has not happened
 
 Bugs
 - When estimate on hand and max on hand is 0 the row dies

@@ -10,6 +10,7 @@ x (A) Save every X seconds automatically
 
 Bugs
 - When estimate on hand and max on hand is 0 the row dies
+- Filter bar can't be moved unless in restock
 - Handle errors with message to user
 
 Design

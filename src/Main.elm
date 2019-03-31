@@ -273,7 +273,7 @@ update msg model =
                             (Encode.object
                                 [ ( "name", Encode.string item.name )
                                 , ( "maxOnHand", Encode.int item.maxOnHand )
-                                , ( "onHand", Encode.int item.estimateOnHand )
+                                , ( "onHand", Encode.int item.maxOnHand )
                                 , ( "unit", Encode.string item.unit )
                                 , ( "userEstimateRunOut", Encode.string (Maybe.withDefault "" item.userEstimateRunOut) )
                                 ]

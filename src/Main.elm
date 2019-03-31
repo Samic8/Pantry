@@ -60,6 +60,7 @@ type Prop
     | MaxOnHand
     | Name
     | EstimateTime
+    | Unit
 
 
 type MouseMoveFocus
@@ -75,7 +76,6 @@ type Toggle
 type alias Model =
     { title : String
     , items : Items
-    , hasChanges : Bool
     , barDragingItemId : String
     , barDragingWidth : Maybe Float
     , barDragingLeft : Maybe Float
@@ -90,7 +90,6 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     ( { title = ""
       , items = []
-      , hasChanges = False
       , barDragingItemId = ""
       , barDragingWidth = Nothing
       , barDragingLeft = Nothing
@@ -197,10 +196,12 @@ type Msg
     | ModifyTitle String
     | SaveTitle
     | GotTitle (Result Http.Error String)
+    | ModifyEstimateOnHandBar Id String
     | ModifyEstimateOnHand Id String
     | ModifyMaxOnHand Id String
     | ModifyName Id String
     | ModifyEstimateTime Id String
+    | ModifyUnit Id String
     | SaveNewItem Item
     | GotNewItem (Result Http.Error ItemResponse)
     | OnBarMouseDown Id Float Rectangle
@@ -246,21 +247,35 @@ update msg model =
                     ( model, Cmd.none )
 
         ModifyName id newName ->
-            ( updateModel model id newName Name, Cmd.none )
+            let
+                updatedItems =
+                    updateItems model id newName Name
+            in
+            if isItemNew model.items id then
+                ( { model | items = updatedItems, settings = On }, Cmd.none )
 
-        ModifyEstimateOnHand id newEstimate ->
+            else
+                ( { model | items = updatedItems }, Cmd.none )
+
+        ModifyEstimateOnHandBar id newEstimate ->
             case model.restockMode of
                 On ->
-                    ( updateModel model id newEstimate EstimateOnHand, Cmd.none )
+                    ( { model | items = updateItems model id newEstimate EstimateOnHand }, Cmd.none )
 
                 Off ->
                     ( model, Cmd.none )
 
+        ModifyEstimateOnHand id newEstimate ->
+            ( { model | items = updateItems model id newEstimate EstimateOnHand }, Cmd.none )
+
         ModifyMaxOnHand id newMax ->
-            ( updateModel model id newMax MaxOnHand, Cmd.none )
+            ( { model | items = updateItems model id newMax MaxOnHand }, Cmd.none )
 
         ModifyEstimateTime id newTime ->
-            ( updateModel model id newTime EstimateTime, Cmd.none )
+            ( { model | items = updateItems model id newTime EstimateTime }, Cmd.none )
+
+        ModifyUnit id newUnit ->
+            ( { model | items = updateItems model id newUnit Unit }, Cmd.none )
 
         SaveNewItem item ->
             ( updateSaveNewModel model item.id
@@ -306,7 +321,7 @@ update msg model =
                                 id =
                                     model.barDragingItemId
                             in
-                            ( updateModel model id (buildNewEstimateFromMouseMove model id mouseMove) EstimateOnHand, Cmd.none )
+                            ( { model | items = updateItems model id (buildNewEstimateFromMouseMove model id mouseMove) EstimateOnHand }, Cmd.none )
 
                         Just FilterBarMove ->
                             ( { model | filterPercentage = round (buildPercentageFromMouseMove model mouseMove * 100) }, Cmd.none )
@@ -428,14 +443,14 @@ focusElement =
     Task.attempt (\_ -> NoOp) (Dom.focus "new-item-name-input")
 
 
-updateModel : Model -> String -> String -> Prop -> Model
-updateModel model id newVal prop =
-    { model | items = model.items |> List.map (\item -> updateItem item newVal id prop), hasChanges = isItemNew model.items id }
+updateItems : Model -> String -> String -> Prop -> Items
+updateItems model id newVal prop =
+    model.items |> List.map (\item -> updateItem item newVal id prop)
 
 
 isItemNew : Items -> Id -> Bool
 isItemNew items id =
-    getItemFromId items id |> List.any (\item -> item.isNew /= Just True)
+    getItemFromId items id |> List.any (\item -> item.isNew == Just True)
 
 
 getItemFromId : Items -> Id -> Items
@@ -472,6 +487,9 @@ updateItem item newVal id prop =
 
             EstimateTime ->
                 { item | userEstimateRunOut = Just newVal }
+
+            Unit ->
+                { item | unit = newVal }
 
     else
         item
@@ -525,7 +543,7 @@ view model =
                 , div [ class "centerBoth" ] [ img [ class "filters__settingsCog", src "/src/svg/cog.svg", onClick ToggleSettings ] [] ]
                 ]
             , div [ class "listContainer" ]
-                [ div [ class "listContainer__header" ] buildListHeader
+                [ div [ class "listContainer__header" ] (buildListHeader model.settings)
                 , ul [ class "listContainer__rows" ] (buildRows model)
                 ]
             ]
@@ -549,11 +567,12 @@ shouldIncludeItemInView model item =
         False
 
 
-buildListHeader : List (Html Msg)
-buildListHeader =
+buildListHeader : Toggle -> List (Html Msg)
+buildListHeader settings =
     [ span [] [ text "Item" ]
-    , span [] [ text "Estimate Run Out" ]
+    , span [] [ text "Estimated Empty" ]
     , span [] [ text "Estimated Remaining Today" ]
+    , span [ classList [ ( "hidden", settings == Off ) ] ] [ text "Restock Quantity" ]
     ]
 
 
@@ -579,19 +598,28 @@ toRow item restockMode settings =
             , placeholder (getPlaceholderText item)
             ]
             []
-        , div [ class "quantity inputBox", classList [ ( "inputBox--covered", shouldCoverInputBox item ) ] ]
+        , div [ class "quantity inputBox", classList [ ( "hidden", item.isNew == Just True ) ] ]
             [ input
                 [ class "quantity__edit inputBox__innerEdit"
                 , classList [ ( "quantity__edit--excessive", isOverstocked item ) ]
-                , onInput (ModifyEstimateOnHand item.id)
                 , value (item.estimateDays |> String.fromInt)
-                , disabled (restockMode == Off)
+                , disabled True
                 ]
                 []
             , span [ class "quantity__unit" ] [ text "Days" ]
             ]
-        , div [ class "bar", classList [ ( "bar--hidden", item.isNew == Just True ), ( "bar--disabled", restockMode == Off ) ] ]
-            [ div [ class "bar__used bar__quantityUsed", onClick (ModifyEstimateOnHand item.id (item.maxOnHand |> String.fromInt)) ] []
+        , div [ class "quantity inputBox", classList [ ( "inputBox--covered", shouldCoverInputBox item ), ( "hidden", item.isNew /= Just True ) ] ]
+            [ input
+                [ class "quantity__edit inputBox__innerEdit"
+                , classList [ ( "quantity__edit--excessive", isOverstocked item ) ]
+                , onInput (ModifyEstimateOnHand item.id)
+                , value (item.estimateOnHand |> String.fromInt)
+                ]
+                []
+            , span [ class "quantity__unit" ] [ input [ class "quantity__unit__innerEdit inputBox__innerEdit", value item.unit, onInput (ModifyUnit item.id) ] [] ]
+            ]
+        , div [ class "bar", classList [ ( "hidden", item.isNew == Just True ), ( "bar--disabled", restockMode == Off ) ] ]
+            [ div [ class "bar__used bar__quantityUsed", onClick (ModifyEstimateOnHandBar item.id (item.maxOnHand |> String.fromInt)) ] []
             , div [ class "bar__quantityExcessive", style "width" (buildQuantityExcessiveWidth item) ] []
             , div [ classList (quantityLeftClassList item), style "width" (buildQuantityRemainingWidth item) ]
                 [ div
@@ -601,7 +629,7 @@ toRow item restockMode settings =
                     []
                 ]
             ]
-        , div [ class "inputBox time", classList [ ( "time--hidden", item.isNew == Nothing || item.isNew == Just False ), ( "inputBox--covered", shouldCoverInputBox item ) ] ]
+        , div [ class "inputBox time", classList [ ( "hidden", item.isNew == Nothing || item.isNew == Just False ), ( "inputBox--covered", shouldCoverInputBox item ) ] ]
             [ div [ class "time__helpText" ] [ text "Estimate" ]
             , input [ class "time__input inputBox__innerEdit", value (Maybe.withDefault "" item.userEstimateRunOut), onInput (ModifyEstimateTime item.id) ] []
             ]
@@ -612,7 +640,7 @@ toRow item restockMode settings =
                 , value (item.maxOnHand |> String.fromInt)
                 ]
                 [ text (item.maxOnHand |> String.fromInt) ]
-            , span [ class "quantity__unit" ] [ input [ class "quantity__unit__innerEdit inputBox__innerEdit", value item.unit ] [] ]
+            , span [ class "quantity__unit" ] [ input [ class "quantity__unit__innerEdit inputBox__innerEdit", value item.unit, onInput (ModifyUnit item.id) ] [] ]
             ]
         , div
             [ classList (getConfirmTickClassList item)

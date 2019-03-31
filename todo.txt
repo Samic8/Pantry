@@ -1,6 +1,7 @@
 x (A) Save every X seconds automatically
 x (A) Add headers / Make sticky
-(A) Modify create item experience
+x (A) Make max on hand settings open whening creating a new item
+(A) Add new create experience with shifting position to test it out
 (C) Remove focus on restock button once clicked (to avoid focus state)
 (C) Improve estimates e.g could be calculated in shorted period other then days (e.g hours)
 (C) Add validation for initial estimation run out date

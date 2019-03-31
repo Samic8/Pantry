@@ -33,8 +33,9 @@
     --list-container-side-padding: 42px;
     --border-radius: 5px;
     --settings-cog-size: calc(var(--list-container-side-padding) - var(--column-gap));
-    --max-on-hand-width: 120px;
-    --row-columns-settings-off: 240px 135px 225px;
+    --input-unit-combo-width: 150px;
+    --max-on-hand-width: var(--input-unit-combo-width);
+    --row-columns-settings-off: 240px var(--input-unit-combo-width) 225px;
     --row-columns-settings-on: var(--row-columns-settings-off) var(--max-on-hand-width);
     --list-row-columns: var(--row-columns-settings-off);
     --filter-row-columns: var(--row-columns-settings-off) var(--settings-cog-size);
@@ -324,12 +325,14 @@ body {
     justify-content: center;
     background-color: var(--color-alias-quantity-unit-background);
     height: 100%;
+    width: 77px;
+    box-sizing: border-box;
     margin-left: auto;
 }
 
 .quantity__unit__innerEdit {
-    flex: 1 1 0;
-    width: 0;
+    flex: 1 1 auto;
+    width: 100%;
     margin: 0 4px;
     background-color: var(--color-grey-light);
 }
@@ -340,10 +343,6 @@ body {
     position: relative;
     background-color: var(--color-white);
     height: var(--bar-height);
-}
-
-.bar--hidden {
-    display: none;
 }
 
 .bar__mainPercentage {
@@ -424,10 +423,6 @@ body {
 .time {
     display: flex;
     align-items: center;
-}
-
-.time--hidden {
-    display: none;
 }
 
 .time__helpText {

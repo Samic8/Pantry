@@ -1,5 +1,5 @@
 x (A) Save every X seconds automatically
-(A) Add headers / Make sticky
+x (A) Add headers / Make sticky
 (A) Modify create item experience
 (C) Remove focus on restock button once clicked (to avoid focus state)
 (C) Improve estimates e.g could be calculated in shorted period other then days (e.g hours)

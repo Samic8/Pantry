@@ -313,23 +313,23 @@ update msg model =
             ( { model | barDragingWidth = Nothing, barDragingLeft = Nothing, barDragingItemId = "", mouseMoveFocus = Nothing }, Cmd.none )
 
         BarDragingMouseMove mouseMove ->
-            case model.restockMode of
-                On ->
-                    case model.mouseMoveFocus of
-                        Just EstimateOnHandMove ->
+            case model.mouseMoveFocus of
+                Just EstimateOnHandMove ->
+                    case model.restockMode of
+                        On ->
                             let
                                 id =
                                     model.barDragingItemId
                             in
                             ( { model | items = updateItems model id (buildNewEstimateFromMouseMove model id mouseMove) EstimateOnHand }, Cmd.none )
 
-                        Just FilterBarMove ->
-                            ( { model | filterPercentage = round (buildPercentageFromMouseMove model mouseMove * 100) }, Cmd.none )
-
-                        Nothing ->
+                        Off ->
                             ( model, Cmd.none )
 
-                Off ->
+                Just FilterBarMove ->
+                    ( { model | filterPercentage = round (buildPercentageFromMouseMove model mouseMove * 100) }, Cmd.none )
+
+                Nothing ->
                     ( model, Cmd.none )
 
         OnFilterBarMouseDown barWidth barLeft ->

@@ -2,6 +2,7 @@ x (A) Save every X seconds automatically
 x (A) Add headers / Make sticky
 x (A) Make max on hand settings open whening creating a new item
 (A) Add new create experience with shifting position to test it out
+    - Seperate new item from items data set
 (C) Remove focus on restock button once clicked (to avoid focus state)
 (C) Improve estimates e.g could be calculated in shorted period other then days (e.g hours)
 (C) Add validation for initial estimation run out date
@@ -11,7 +12,7 @@ x (A) Make max on hand settings open whening creating a new item
 
 Bugs
 - When estimate on hand and max on hand is 0 the row dies
-- Filter bar can't be moved unless in restock
+x - Filter bar can't be moved unless in restock
 - Handle errors with message to user
 
 Design

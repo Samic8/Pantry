@@ -4,11 +4,11 @@ x (A) Add headers / Make sticky
 x (A) Make max on hand settings open whening creating a new item
 x (A) Add new create experience with shifting position to test it out
 x    - Seperate new item from items data set
-(C) Remove focus on restock button once clicked (to avoid focus state)
-(C) Improve estimates e.g could be calculated in shorted period other then days (e.g hours)
-(C) Add validation for initial estimation run out date
+x (A) Shift new row inputs
 (C) Prevent shifting content when clicking setting button
 (C) onbeforeunload if scheduled save has not happened
+(C) Add validation for initial estimation run out date
+(C) Remove focus on restock button once clicked (to avoid focus state)
 (D) Use html.lazy
 
 # Bugs
@@ -33,3 +33,4 @@ x (A) Add way of specifying if restock ran out or is top up
 - Undo restocks that happened today
 - Use typescript on the node backend
 - Write unit tests for backend
+- Improve estimates e.g could be calculated in shorted period other then days (e.g hours)

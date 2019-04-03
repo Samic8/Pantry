@@ -708,6 +708,9 @@ viewNewRow newItem settings items =
                 , placeholder "Add new item..."
                 ]
                 []
+            , div [ class "inputBox time", classList [ ( "inputBox--covered", newItem.name == "" ) ] ]
+                [ input [ class "time__input inputBox__innerEdit", value newItem.userEstimateRunOut, onInput ModifyNewEstimateTime ] []
+                ]
             , div [ class "quantity inputBox", classList [ ( "inputBox--covered", newItem.name == "" ) ] ]
                 [ input
                     [ class "quantity__edit inputBox__innerEdit"
@@ -716,10 +719,6 @@ viewNewRow newItem settings items =
                     ]
                     []
                 , span [ class "quantity__unit" ] [ input [ class "quantity__unit__innerEdit inputBox__innerEdit", value newItem.unit, onInput ModifyNewUnit ] [] ]
-                ]
-            , div [ class "inputBox time", classList [ ( "inputBox--covered", newItem.name == "" ) ] ]
-                [ div [ class "time__helpText" ] [ text "Estimate" ]
-                , input [ class "time__input inputBox__innerEdit", value newItem.userEstimateRunOut, onInput ModifyNewEstimateTime ] []
                 ]
             , div [ class "quantity inputBox", classList [ ( "hidden", settings == Off ) ] ]
                 [ input

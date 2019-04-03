@@ -417,10 +417,6 @@ body {
     align-items: center;
 }
 
-.time__helpText {
-    color: var(--color-alias-new-item-help-text);
-}
-
 .time__input {
     flex: 1 1 0;
     width: 0;

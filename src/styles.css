@@ -33,7 +33,7 @@
     --list-container-side-padding: 42px;
     --border-radius: 5px;
     --settings-cog-size: calc(var(--list-container-side-padding) - var(--column-gap));
-    --input-unit-combo-width: 150px;
+    --input-unit-combo-width: 160px;
     --max-on-hand-width: var(--input-unit-combo-width);
     --row-columns-settings-off: 240px var(--input-unit-combo-width) 225px;
     --row-columns-settings-on: var(--row-columns-settings-off) var(--max-on-hand-width);
@@ -239,17 +239,9 @@ body {
     }
 }
 
-.row__confirmTick--doesNotHaveName {
-    display: none;
-}
-
 .row__confirmTick--hidden {
     opacity: 0; 
     animation: .2s pushed;
-}
-
-.row__confirmTick--allwaysHidden {
-    display: none;
 }
 
 /* InputBox */

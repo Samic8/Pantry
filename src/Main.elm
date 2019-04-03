@@ -1,4 +1,4 @@
-module Main exposing (Item, Model, Msg(..), init, main, toRow, update, updateItem, view)
+module Main exposing (CupboardResult, EstimateDays, EstimateOnHand, Id, Item, ItemResponse, Items, ItemsResponse, MaxOnHand, Model, MouseMoveFocus(..), Msg(..), NewItem, Prop(..), Toggle(..), buildEncodedItemList, buildListHeader, buildNewEstimateFromMouseMove, buildNewItemHeader, buildNewItemsFromResponse, buildPercentageFromMouseMove, buildQuantityExcessiveWidth, buildQuantityRemainingWidth, buildRows, calcEstimateRemainingPercentage, cupboardDecoder, filterOutUnchanged, filterUsingPercentage, focusElement, getConfirmTickClassList, getItemFromId, hasEstimateOnHandChanged, init, isOverstocked, isQuantityExcessive, main, mapItem, maybeSaveChangedItems, mouseDecoder, newItemRowHeaderMarginTop, onConfirmKeyDown, onKeyDown, onLeverMouseDown, parseValueToInt, processNewItem, quantityLeftClassList, shouldCoverInputBox, shouldHideNewRowHeader, shouldIncludeItemInView, subscribeToMouseMove, subscriptions, toStringValue, toggleOnOff, transformItemResponse, transformItemsReponse, update, updateItem, updateItems, view, viewItemRow, viewNewRow)
 
 import Browser
 import Browser.Dom as Dom
@@ -49,9 +49,18 @@ type alias Item =
     , estimateOnHand : EstimateOnHand
     , maxOnHand : MaxOnHand
     , unit : String
-    , isNew : Maybe Bool
     , userEstimateRunOut : Maybe String
     , initialEstimateOnHand : Maybe Int
+    }
+
+
+type alias NewItem =
+    { name : String
+    , onHand : Int
+    , maxOnHand : Int
+    , unit : String
+    , userEstimateRunOut : String
+    , confirmed : Bool
     }
 
 
@@ -76,6 +85,7 @@ type Toggle
 type alias Model =
     { title : String
     , items : Items
+    , newItem : NewItem
     , barDragingItemId : String
     , barDragingWidth : Maybe Float
     , barDragingLeft : Maybe Float
@@ -90,6 +100,7 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     ( { title = ""
       , items = []
+      , newItem = NewItem "" 500 500 "g" "4 weeks" False
       , barDragingItemId = ""
       , barDragingWidth = Nothing
       , barDragingLeft = Nothing
@@ -133,11 +144,6 @@ mapItem =
         (Json.field "estimateOnHand" Json.int)
         (Json.field "maxOnHand" Json.int)
         (Json.field "unit" Json.string)
-
-
-getNewItem : Id -> Item
-getNewItem id =
-    Item id "" 0 0 500 "g" (Just True) (Just "4 weeks") Nothing
 
 
 
@@ -200,9 +206,14 @@ type Msg
     | ModifyEstimateOnHand Id String
     | ModifyMaxOnHand Id String
     | ModifyName Id String
-    | ModifyEstimateTime Id String
     | ModifyUnit Id String
-    | SaveNewItem Item
+    | ModifyNewName String
+    | ModifyNewOnHand String
+    | ModifyNewEstimateTime String
+    | ModifyNewMaxOnHand String
+    | ModifyNewUnit String
+    | SaveNewItem
+    | SaveNewItemServer
     | GotNewItem (Result Http.Error ItemResponse)
     | OnBarMouseDown Id Float Rectangle
     | OnBarMouseUp
@@ -251,11 +262,7 @@ update msg model =
                 updatedItems =
                     updateItems model id newName Name
             in
-            if isItemNew model.items id then
-                ( { model | items = updatedItems, settings = On }, Cmd.none )
-
-            else
-                ( { model | items = updatedItems }, Cmd.none )
+            ( { model | items = updatedItems }, Cmd.none )
 
         ModifyEstimateOnHandBar id newEstimate ->
             case model.restockMode of
@@ -271,14 +278,71 @@ update msg model =
         ModifyMaxOnHand id newMax ->
             ( { model | items = updateItems model id newMax MaxOnHand }, Cmd.none )
 
-        ModifyEstimateTime id newTime ->
-            ( { model | items = updateItems model id newTime EstimateTime }, Cmd.none )
-
         ModifyUnit id newUnit ->
             ( { model | items = updateItems model id newUnit Unit }, Cmd.none )
 
-        SaveNewItem item ->
-            ( updateSaveNewModel model item.id
+        ModifyNewName name ->
+            let
+                newItem =
+                    model.newItem
+
+                updatedNewItem =
+                    { newItem | name = name }
+            in
+            ( { model | newItem = updatedNewItem }, Cmd.none )
+
+        ModifyNewOnHand onHand ->
+            let
+                newItem =
+                    model.newItem
+
+                updatedNewItem =
+                    { newItem | onHand = onHand |> parseValueToInt }
+            in
+            ( { model | newItem = updatedNewItem }, Cmd.none )
+
+        ModifyNewEstimateTime estimateTime ->
+            let
+                newItem =
+                    model.newItem
+
+                updatedNewItem =
+                    { newItem | userEstimateRunOut = estimateTime }
+            in
+            ( { model | newItem = updatedNewItem }, Cmd.none )
+
+        ModifyNewMaxOnHand maxOnHand ->
+            let
+                newItem =
+                    model.newItem
+
+                updatedNewItem =
+                    { newItem | maxOnHand = maxOnHand |> parseValueToInt }
+            in
+            ( { model | newItem = updatedNewItem }, Cmd.none )
+
+        ModifyNewUnit unit ->
+            let
+                newItem =
+                    model.newItem
+
+                updatedNewItem =
+                    { newItem | unit = unit }
+            in
+            ( { model | newItem = updatedNewItem }, Cmd.none )
+
+        SaveNewItem ->
+            let
+                newItem =
+                    model.newItem
+
+                updatedNewItem =
+                    { newItem | confirmed = True }
+            in
+            update SaveNewItemServer { model | newItem = updatedNewItem }
+
+        SaveNewItemServer ->
+            ( model
             , Cmd.batch
                 [ focusElement
                 , Http.post
@@ -286,11 +350,11 @@ update msg model =
                     , body =
                         Http.jsonBody
                             (Encode.object
-                                [ ( "name", Encode.string item.name )
-                                , ( "maxOnHand", Encode.int item.maxOnHand )
-                                , ( "onHand", Encode.int item.maxOnHand )
-                                , ( "unit", Encode.string item.unit )
-                                , ( "userEstimateRunOut", Encode.string (Maybe.withDefault "" item.userEstimateRunOut) )
+                                [ ( "name", Encode.string model.newItem.name )
+                                , ( "maxOnHand", Encode.int model.newItem.maxOnHand )
+                                , ( "onHand", Encode.int model.newItem.onHand )
+                                , ( "unit", Encode.string model.newItem.unit )
+                                , ( "userEstimateRunOut", Encode.string model.newItem.userEstimateRunOut )
                                 ]
                             )
                     , expect = Http.expectJson GotNewItem mapItem
@@ -300,8 +364,15 @@ update msg model =
 
         GotNewItem result ->
             case result of
-                Ok newItem ->
-                    ( { model | items = processNewItem model newItem }, Cmd.none )
+                Ok item ->
+                    let
+                        newItem =
+                            model.newItem
+
+                        updatedNewItem =
+                            { newItem | confirmed = False, name = "" }
+                    in
+                    ( { model | items = processNewItem model item, newItem = updatedNewItem }, Cmd.none )
 
                 Err _ ->
                     ( model, Cmd.none )
@@ -364,7 +435,7 @@ update msg model =
 
 buildNewItemsFromResponse : ItemsResponse -> List Item
 buildNewItemsFromResponse itemsResponse =
-    List.append (transformItemsReponse itemsResponse) [ getNewItem "new-item" ]
+    transformItemsReponse itemsResponse
 
 
 toggleOnOff : Toggle -> Toggle
@@ -382,22 +453,21 @@ filterOutUnchanged items =
 
 
 buildEncodedItemList : Items -> List (List ( String, Encode.Value ))
-buildEncodedItemList items =
-    List.filter (\item -> item.isNew /= Just True) items
-        |> List.map
-            (\item ->
-                [ ( "id", Encode.string item.id )
-                , ( "name", Encode.string item.name )
-                , ( "maxOnHand", Encode.int item.maxOnHand )
-                , ( "onHand", Encode.int item.estimateOnHand )
-                , ( "unit", Encode.string item.unit )
-                ]
-            )
+buildEncodedItemList =
+    List.map
+        (\item ->
+            [ ( "id", Encode.string item.id )
+            , ( "name", Encode.string item.name )
+            , ( "maxOnHand", Encode.int item.maxOnHand )
+            , ( "onHand", Encode.int item.estimateOnHand )
+            , ( "unit", Encode.string item.unit )
+            ]
+        )
 
 
 processNewItem : Model -> ItemResponse -> List Item
 processNewItem model newItem =
-    List.append (model.items |> List.filter (\item -> item.id /= "new-item")) [ transformItemResponse newItem, getNewItem "new-item" ]
+    List.append (model.items |> List.filter (\item -> item.id /= "new-item")) [ transformItemResponse newItem ]
 
 
 transformItemsReponse : ItemsResponse -> List Item
@@ -411,7 +481,7 @@ transformItemsReponse itemsResponse =
 
 transformItemResponse : ItemResponse -> Item
 transformItemResponse itemResponse =
-    Item itemResponse.id itemResponse.name itemResponse.estimateDays itemResponse.estimateOnHand itemResponse.maxOnHand itemResponse.unit Nothing Nothing (Just itemResponse.estimateOnHand)
+    Item itemResponse.id itemResponse.name itemResponse.estimateDays itemResponse.estimateOnHand itemResponse.maxOnHand itemResponse.unit Nothing (Just itemResponse.estimateOnHand)
 
 
 buildNewEstimateFromMouseMove : Model -> Id -> Float -> String
@@ -448,28 +518,9 @@ updateItems model id newVal prop =
     model.items |> List.map (\item -> updateItem item newVal id prop)
 
 
-isItemNew : Items -> Id -> Bool
-isItemNew items id =
-    getItemFromId items id |> List.any (\item -> item.isNew == Just True)
-
-
 getItemFromId : Items -> Id -> Items
 getItemFromId items id =
     items |> List.filter (\item -> item.id == id)
-
-
-updateSaveNewModel : Model -> Id -> Model
-updateSaveNewModel model id =
-    { model | items = List.append (model.items |> List.map (\item -> updateSaveNewItem item id)) [ getNewItem "new-item" ] }
-
-
-updateSaveNewItem : Item -> Id -> Item
-updateSaveNewItem item id =
-    if id == item.id then
-        { item | isNew = Just False }
-
-    else
-        item
 
 
 updateItem : Item -> String -> String -> Prop -> Item
@@ -543,8 +594,15 @@ view model =
                 , div [ class "centerBoth" ] [ img [ class "filters__settingsCog", src "/src/svg/cog.svg", onClick ToggleSettings ] [] ]
                 ]
             , div [ class "listContainer" ]
-                [ div [ class "listContainer__header" ] (buildListHeader model.settings)
-                , ul [ class "listContainer__rows" ] (buildRows model)
+                [ div [ class "listContainer__header" ]
+                    (if List.length model.items > 0 then
+                        buildListHeader model.settings
+
+                     else
+                        buildNewItemHeader model.settings
+                    )
+                , ul [ class "listContainer__rows", classList [ ( "hidden", List.length model.items == 0 ) ] ] (buildRows model)
+                , viewNewRow model.newItem model.settings model.items
                 ]
             ]
         ]
@@ -576,29 +634,30 @@ buildListHeader settings =
     ]
 
 
+buildNewItemHeader : Toggle -> List (Html Msg)
+buildNewItemHeader settings =
+    [ span [] [ text "Item" ]
+    , span [] [ text "I might run out in" ]
+    , span [] [ text "I currently have" ]
+    , span [ classList [ ( "hidden", settings == Off ) ] ] [ text "When I restock I want" ]
+    ]
+
+
 buildRows : Model -> List (Html Msg)
 buildRows model =
-    model.items |> filterUsingPercentage model |> List.map (\item -> toRow item model.restockMode model.settings)
+    model.items |> filterUsingPercentage model |> List.map (\item -> viewItemRow item model.restockMode model.settings)
 
 
-toRow : Item -> Toggle -> Toggle -> Html Msg
-toRow item restockMode settings =
+viewItemRow : Item -> Toggle -> Toggle -> Html Msg
+viewItemRow item restockMode settings =
     li [ class "row" ]
         [ input
             [ class "inputBox"
-            , id
-                (if item.isNew == Just True then
-                    "new-item-name-input"
-
-                 else
-                    ""
-                )
             , onInput (ModifyName item.id)
             , value item.name
-            , placeholder (getPlaceholderText item)
             ]
             []
-        , div [ class "quantity inputBox", classList [ ( "hidden", item.isNew == Just True ) ] ]
+        , div [ class "quantity inputBox" ]
             [ input
                 [ class "quantity__edit inputBox__innerEdit"
                 , classList [ ( "quantity__edit--excessive", isOverstocked item ) ]
@@ -608,17 +667,7 @@ toRow item restockMode settings =
                 []
             , span [ class "quantity__unit" ] [ text "Days" ]
             ]
-        , div [ class "quantity inputBox", classList [ ( "inputBox--covered", shouldCoverInputBox item ), ( "hidden", item.isNew /= Just True ) ] ]
-            [ input
-                [ class "quantity__edit inputBox__innerEdit"
-                , classList [ ( "quantity__edit--excessive", isOverstocked item ) ]
-                , onInput (ModifyEstimateOnHand item.id)
-                , value (item.estimateOnHand |> String.fromInt)
-                ]
-                []
-            , span [ class "quantity__unit" ] [ input [ class "quantity__unit__innerEdit inputBox__innerEdit", value item.unit, onInput (ModifyUnit item.id) ] [] ]
-            ]
-        , div [ class "bar", classList [ ( "hidden", item.isNew == Just True ), ( "bar--disabled", restockMode == Off ) ] ]
+        , div [ class "bar", classList [ ( "bar--disabled", restockMode == Off ) ] ]
             [ div [ class "bar__used bar__quantityUsed", onClick (ModifyEstimateOnHandBar item.id (item.maxOnHand |> String.fromInt)) ] []
             , div [ class "bar__quantityExcessive", style "width" (buildQuantityExcessiveWidth item) ] []
             , div [ classList (quantityLeftClassList item), style "width" (buildQuantityRemainingWidth item) ]
@@ -629,10 +678,6 @@ toRow item restockMode settings =
                     []
                 ]
             ]
-        , div [ class "inputBox time", classList [ ( "hidden", item.isNew == Nothing || item.isNew == Just False ), ( "inputBox--covered", shouldCoverInputBox item ) ] ]
-            [ div [ class "time__helpText" ] [ text "Estimate" ]
-            , input [ class "time__input inputBox__innerEdit", value (Maybe.withDefault "" item.userEstimateRunOut), onInput (ModifyEstimateTime item.id) ] []
-            ]
         , div [ class "quantity inputBox", classList [ ( "hidden", settings == Off ) ] ]
             [ input
                 [ class "quantity__edit inputBox__innerEdit"
@@ -642,16 +687,77 @@ toRow item restockMode settings =
                 [ text (item.maxOnHand |> String.fromInt) ]
             , span [ class "quantity__unit" ] [ input [ class "quantity__unit__innerEdit inputBox__innerEdit", value item.unit, onInput (ModifyUnit item.id) ] [] ]
             ]
-        , div
-            [ classList (getConfirmTickClassList item)
-            , onClick (SaveNewItem item)
-            , onKeyDown
-                (\key -> onConfirmKeyDown key item)
-            , tabindex 0
+        ]
+
+
+viewNewRow : NewItem -> Toggle -> Items -> Html Msg
+viewNewRow newItem settings items =
+    div []
+        [ div
+            [ class "listContainer__header"
+            , classList [ ( "hidden", shouldHideNewRowHeader newItem items ) ]
+            , style "margin-top" (newItemRowHeaderMarginTop newItem)
             ]
-            [ img [ src "/src/svg/tick.svg" ] []
+            (buildNewItemHeader settings)
+        , div [ class "row" ]
+            [ input
+                [ class "inputBox"
+                , id "new-item-name-input"
+                , onInput ModifyNewName
+                , value newItem.name
+                , placeholder "Add new item..."
+                ]
+                []
+            , div [ class "quantity inputBox", classList [ ( "inputBox--covered", newItem.name == "" ) ] ]
+                [ input
+                    [ class "quantity__edit inputBox__innerEdit"
+                    , onInput ModifyNewOnHand
+                    , value (newItem.onHand |> String.fromInt)
+                    ]
+                    []
+                , span [ class "quantity__unit" ] [ input [ class "quantity__unit__innerEdit inputBox__innerEdit", value newItem.unit, onInput ModifyNewUnit ] [] ]
+                ]
+            , div [ class "inputBox time", classList [ ( "inputBox--covered", newItem.name == "" ) ] ]
+                [ div [ class "time__helpText" ] [ text "Estimate" ]
+                , input [ class "time__input inputBox__innerEdit", value newItem.userEstimateRunOut, onInput ModifyNewEstimateTime ] []
+                ]
+            , div [ class "quantity inputBox", classList [ ( "hidden", settings == Off ) ] ]
+                [ input
+                    [ class "quantity__edit inputBox__innerEdit"
+                    , onInput ModifyNewMaxOnHand
+                    , value (newItem.maxOnHand |> String.fromInt)
+                    ]
+                    [ text (newItem.maxOnHand |> String.fromInt) ]
+                , span [ class "quantity__unit" ] [ input [ class "quantity__unit__innerEdit inputBox__innerEdit", value newItem.unit, onInput ModifyNewUnit ] [] ]
+                ]
+            , div
+                [ classList (getConfirmTickClassList newItem)
+                , onClick SaveNewItem
+                , onKeyDown (\key -> onConfirmKeyDown key)
+                , tabindex 0
+                ]
+                [ img [ src "/src/svg/tick.svg" ] []
+                ]
             ]
         ]
+
+
+shouldHideNewRowHeader : NewItem -> Items -> Bool
+shouldHideNewRowHeader newItem items =
+    if newItem.name /= "" && List.length items == 0 then
+        True
+
+    else
+        newItem.name == ""
+
+
+newItemRowHeaderMarginTop : NewItem -> String
+newItemRowHeaderMarginTop newItem =
+    if newItem.name == "" then
+        "0"
+
+    else
+        "20px"
 
 
 onLeverMouseDown : (Float -> Rectangle -> Msg) -> Json.Decoder Msg
@@ -663,68 +769,29 @@ onLeverMouseDown msg =
 
 shouldCoverInputBox : Item -> Bool
 shouldCoverInputBox item =
-    item.isNew == Just True && item.name == ""
+    item.name == ""
 
 
-onConfirmKeyDown : Int -> Item -> Msg
-onConfirmKeyDown key item =
+onConfirmKeyDown : Int -> Msg
+onConfirmKeyDown key =
     if key == 13 then
-        SaveNewItem item
+        SaveNewItem
 
     else
         NoOp
 
 
-getConfirmTickClassList : Item -> List ( String, Bool )
-getConfirmTickClassList item =
+getConfirmTickClassList : NewItem -> List ( String, Bool )
+getConfirmTickClassList newItem =
     [ ( "row__confirmTick", True )
-    , ( "row__confirmTick--hidden", shouldUseHiddenClass item )
-    , ( "row__confirmTick--doesNotHaveName", item.name == "" )
-    , ( "row__confirmTick--allwaysHidden", shouldUseAlwaysHiddenClass item )
+    , ( "hidden", newItem.name == "" )
+    , ( "row__confirmTick--hidden", newItem.confirmed )
     ]
-
-
-shouldUseHiddenClass : Item -> Bool
-shouldUseHiddenClass item =
-    case item.isNew of
-        Just isNew ->
-            if isNew == True then
-                False
-
-            else
-                True
-
-        Nothing ->
-            False
-
-
-shouldUseAlwaysHiddenClass : Item -> Bool
-shouldUseAlwaysHiddenClass item =
-    case item.isNew of
-        Just isNew ->
-            False
-
-        Nothing ->
-            True
 
 
 onKeyDown : (Int -> msg) -> Attribute msg
 onKeyDown tagger =
     on "keydown" (Json.map tagger keyCode)
-
-
-getPlaceholderText : Item -> String
-getPlaceholderText item =
-    case item.isNew of
-        Just isNew ->
-            if isNew then
-                "Add new item....."
-
-            else
-                ""
-
-        Nothing ->
-            ""
 
 
 quantityLeftClassList : Item -> List ( String, Bool )

@@ -720,7 +720,7 @@ viewNewRow newItem settings items =
                     []
                 , span [ class "quantity__unit" ] [ input [ class "quantity__unit__innerEdit inputBox__innerEdit", value newItem.unit, onInput ModifyNewUnit ] [] ]
                 ]
-            , div [ class "quantity inputBox", classList [ ( "hidden", settings == Off ) ] ]
+            , div [ class "quantity inputBox", classList [ ( "hidden", settings == Off ), ( "inputBox--covered", newItem.name == "" ) ] ]
                 [ input
                     [ class "quantity__edit inputBox__innerEdit"
                     , onInput ModifyNewMaxOnHand

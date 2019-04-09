@@ -33,9 +33,9 @@
     --list-container-side-padding: 42px;
     --border-radius: 5px;
     --settings-cog-size: calc(var(--list-container-side-padding) - var(--column-gap));
-    --input-unit-combo-width: 160px;
+    --input-unit-combo-width: minmax(0, 1fr);
     --max-on-hand-width: var(--input-unit-combo-width);
-    --row-columns-settings-off: 240px var(--input-unit-combo-width) 225px;
+    --row-columns-settings-off: minmax(0,1.5fr) var(--input-unit-combo-width) minmax(0, 1.5fr);
     --row-columns-settings-on: var(--row-columns-settings-off) var(--max-on-hand-width);
     --list-row-columns: var(--row-columns-settings-off);
     --filter-row-columns: var(--row-columns-settings-off) var(--settings-cog-size);
@@ -43,6 +43,10 @@
     --outside-list-container-offset: 10px;
     --right-outside-list-row: calc((var(--list-container-side-padding) + var(--outside-list-container-offset)) * -1);
     --filter-bar-top-bottom-padding: 12px;
+
+    --list-container-difference: 130px;
+    --list-container-width: 740px;
+    --list-container-settings-on-width: 898px;
 
     /* z-index */
     --quantity-used-index: 0;
@@ -68,6 +72,11 @@ body {
 
 .container--settingsOn {
     --list-row-columns: var(--row-columns-settings-on);
+}
+
+.container--settingsOn .listContainer {
+    width: var(--list-container-settings-on-width);
+    transform: translateX(calc(var(--list-container-difference) / 2));
 }
 
 /* Header */
@@ -117,6 +126,8 @@ body {
     padding-top: var(--filter-bar-top-bottom-padding);
     padding-bottom: var(--filter-bar-top-bottom-padding);
     padding-left: var(--list-container-side-padding);
+    width: var(--list-container-width);
+    box-sizing: border-box;
 }
 
 .filters__button {
@@ -168,6 +179,8 @@ body {
     padding: 0 var(--list-container-side-padding) 32px;
     background-color: var(--color-alias-list-container);
     border-radius: var(--border-radius);
+    width: 735px;
+    box-sizing: border-box;
 }
 
 .listContainer__header {

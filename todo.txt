@@ -9,7 +9,8 @@ x (A) Add validation for initial estimation run out date
 (C) Prevent shifting content when clicking setting button
 (C) onbeforeunload if scheduled save has not happened
 (D) Remove focus on restock button once clicked (to avoid focus state)
-(D) Use html.lazy
+(D) Use html.lazy +improvements
+(D) Split time estimate amount and unit on frontend +improvements
 
 # Bugs
 - When estimate on hand and max on hand is 0 the row dies

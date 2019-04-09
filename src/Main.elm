@@ -86,6 +86,7 @@ type alias Model =
     { title : String
     , items : Items
     , newItem : NewItem
+    , newItemWarning : String
     , barDragingItemId : String
     , barDragingWidth : Maybe Float
     , barDragingLeft : Maybe Float
@@ -101,6 +102,7 @@ init _ =
     ( { title = ""
       , items = []
       , newItem = NewItem "" 500 500 "g" "4 weeks" False
+      , newItemWarning = ""
       , barDragingItemId = ""
       , barDragingWidth = Nothing
       , barDragingLeft = Nothing
@@ -210,6 +212,7 @@ type Msg
     | ModifyNewName String
     | ModifyNewOnHand String
     | ModifyNewEstimateTime String
+    | ValidateNewEstimateTime
     | ModifyNewMaxOnHand String
     | ModifyNewUnit String
     | SaveNewItem
@@ -311,6 +314,13 @@ update msg model =
             in
             ( { model | newItem = updatedNewItem }, Cmd.none )
 
+        ValidateNewEstimateTime ->
+            if isValidTimeString model.newItem.userEstimateRunOut then
+                ( { model | newItemWarning = "" }, Cmd.none )
+
+            else
+                ( { model | newItemWarning = "Estimated Empty needs to be in the format of \"4 weeks\"" }, Cmd.none )
+
         ModifyNewMaxOnHand maxOnHand ->
             let
                 newItem =
@@ -332,14 +342,18 @@ update msg model =
             ( { model | newItem = updatedNewItem }, Cmd.none )
 
         SaveNewItem ->
-            let
-                newItem =
-                    model.newItem
+            if isValidTimeString model.newItem.userEstimateRunOut then
+                let
+                    newItem =
+                        model.newItem
 
-                updatedNewItem =
-                    { newItem | confirmed = True }
-            in
-            update SaveNewItemServer { model | newItem = updatedNewItem }
+                    updatedNewItem =
+                        { newItem | confirmed = True }
+                in
+                update SaveNewItemServer { model | newItem = updatedNewItem }
+
+            else
+                ( model, Cmd.none )
 
         SaveNewItemServer ->
             ( model
@@ -431,6 +445,21 @@ update msg model =
 
         NoOp ->
             ( model, Cmd.none )
+
+
+isValidTimeString : String -> Bool
+isValidTimeString timeString =
+    let
+        splitTimeString =
+            String.split " " timeString
+
+        amount =
+            List.head splitTimeString |> Maybe.withDefault ""
+
+        unit =
+            List.drop 1 splitTimeString |> List.head |> Maybe.withDefault "" |> String.toLower
+    in
+    String.toFloat amount /= Nothing && List.member unit [ "week", "day", "month", "year", "weeks", "days", "months", "years" ]
 
 
 buildNewItemsFromResponse : ItemsResponse -> List Item
@@ -602,7 +631,7 @@ view model =
                         buildNewItemHeader model.settings
                     )
                 , ul [ class "listContainer__rows", classList [ ( "hidden", List.length model.items == 0 ) ] ] (buildRows model)
-                , viewNewRow model.newItem model.settings model.items
+                , viewNewRow model.newItem model
                 ]
             ]
         ]
@@ -690,15 +719,15 @@ viewItemRow item restockMode settings =
         ]
 
 
-viewNewRow : NewItem -> Toggle -> Items -> Html Msg
-viewNewRow newItem settings items =
+viewNewRow : NewItem -> Model -> Html Msg
+viewNewRow newItem model =
     div []
         [ div
             [ class "listContainer__header"
-            , classList [ ( "hidden", shouldHideNewRowHeader newItem items ) ]
+            , classList [ ( "hidden", shouldHideNewRowHeader newItem model.items ) ]
             , style "margin-top" (newItemRowHeaderMarginTop newItem)
             ]
-            (buildNewItemHeader settings)
+            (buildNewItemHeader model.settings)
         , div [ class "row" ]
             [ input
                 [ class "inputBox"
@@ -709,7 +738,7 @@ viewNewRow newItem settings items =
                 ]
                 []
             , div [ class "inputBox time", classList [ ( "inputBox--covered", newItem.name == "" ) ] ]
-                [ input [ class "time__input inputBox__innerEdit", value newItem.userEstimateRunOut, onInput ModifyNewEstimateTime ] []
+                [ input [ class "time__input inputBox__innerEdit", value newItem.userEstimateRunOut, onInput ModifyNewEstimateTime, onBlur ValidateNewEstimateTime ] []
                 ]
             , div [ class "quantity inputBox", classList [ ( "inputBox--covered", newItem.name == "" ) ] ]
                 [ input
@@ -720,7 +749,7 @@ viewNewRow newItem settings items =
                     []
                 , span [ class "quantity__unit" ] [ input [ class "quantity__unit__innerEdit inputBox__innerEdit", value newItem.unit, onInput ModifyNewUnit ] [] ]
                 ]
-            , div [ class "quantity inputBox", classList [ ( "hidden", settings == Off ), ( "inputBox--covered", newItem.name == "" ) ] ]
+            , div [ class "quantity inputBox", classList [ ( "hidden", model.settings == Off ), ( "inputBox--covered", newItem.name == "" ) ] ]
                 [ input
                     [ class "quantity__edit inputBox__innerEdit"
                     , onInput ModifyNewMaxOnHand
@@ -738,6 +767,7 @@ viewNewRow newItem settings items =
                 [ img [ src "/src/svg/tick.svg" ] []
                 ]
             ]
+        , div [ class "warningMessage", classList [ ( "visibilityHidden", model.newItemWarning == "" ) ] ] [ text model.newItemWarning ]
         ]
 
 

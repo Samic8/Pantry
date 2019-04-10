@@ -291,8 +291,15 @@ update msg model =
 
                 updatedNewItem =
                     { newItem | name = name }
+
+                settings =
+                    if name /= "" then
+                        On
+
+                    else
+                        model.settings
             in
-            ( { model | newItem = updatedNewItem }, Cmd.none )
+            ( { model | newItem = updatedNewItem, settings = settings }, Cmd.none )
 
         ModifyNewOnHand onHand ->
             let

@@ -6,6 +6,7 @@ x (A) Add new create experience with shifting position to test it out
 x    - Seperate new item from items data set
 x (A) Shift new row inputs
 x (A) Add validation for initial estimation run out date
+x (A) Open max on hand when creating new item
 (C) Prevent shifting content when clicking setting button
 (C) onbeforeunload if scheduled save has not happened
 (D) Remove focus on restock button once clicked (to avoid focus state)
@@ -23,6 +24,7 @@ x (A) Add way of specifying if restock ran out or is top up
 (A) Loading state +empty
 (A) Error screen experience
 (A) Explain that estimates happen over time to the user +empty
+(B) Ability to reverse restock (incase user thinks reducing quantity is updating current) design in ~/Documents/panty/Cancel Restock +ux
 (B) Experience of creating a new pantry
 (C) Create Favicon
 (C) Center title with list container

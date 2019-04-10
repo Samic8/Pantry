@@ -7,9 +7,8 @@ x    - Seperate new item from items data set
 x (A) Shift new row inputs
 x (A) Add validation for initial estimation run out date
 x (A) Open max on hand when creating new item
-(C) Prevent shifting content when clicking setting button
-(C) onbeforeunload if scheduled save has not happened
-(D) Remove focus on restock button once clicked (to avoid focus state)
+(D) Prevent shifting content when clicking setting button
+(D) onbeforeunload if scheduled save has not happened
 (D) Use html.lazy +improvements
 (D) Split time estimate amount and unit on frontend +improvements
 

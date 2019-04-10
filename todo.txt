@@ -7,6 +7,7 @@ x    - Seperate new item from items data set
 x (A) Shift new row inputs
 x (A) Add validation for initial estimation run out date
 x (A) Open max on hand when creating new item
+x (A) Add tooltip on bar showing quantity
 (D) Prevent shifting content when clicking setting button
 (D) onbeforeunload if scheduled save has not happened
 (D) Use html.lazy +improvements
@@ -14,19 +15,19 @@ x (A) Open max on hand when creating new item
 
 # Bugs
 - When estimate on hand and max on hand is 0 the row dies
+- When restocking it returns max on hand
 x - Filter bar can't be moved unless in restock
 - Handle errors with message to user
 
 # Design
-x (A) Add way of specifying if restock ran out or is top up
-(A) Empty screen experience. Help easy customers in (maybe show them what a full pantry would look like) +empty
-(A) Loading state +empty
-(A) Error screen experience
-(A) Explain that estimates happen over time to the user +empty
-(B) Ability to reverse restock (incase user thinks reducing quantity is updating current) design in ~/Documents/panty/Cancel Restock +ux
-(B) Experience of creating a new pantry
-(C) Create Favicon
-(C) Center title with list container
+(A) Empty screen experience. Help easy customers in (maybe show them what a full pantry would look like) +empty +design
+(A) Loading state +empty +design
+(A) Error screen experience +design
+(A) Explain that estimates happen over time to the user +empty +design
+(B) Ability to reverse restock (incase user thinks reducing quantity is updating current) design in ~/Documents/panty/Cancel Restock +ux +design
+(B) Experience of creating a new pantry +design
+(C) Create Favicon +design
+(C) Center title with list container +design
 
 # Road-map Ideas
 - Use affiliation marketing to generate collection of low items and add them to a shopping cart online

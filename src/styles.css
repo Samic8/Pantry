@@ -50,6 +50,7 @@
     --quantity-used-index: 0;
     --quantity-bar-index: calc(var(--quantity-used-index) + 1);
     --sticky-header-index: calc(var(--quantity-bar-index) + 1);
+    --tooltip-index: calc(var(--quantity-bar-index) + 1);
 }
 
 body {
@@ -425,6 +426,43 @@ body {
     padding-left: 7px;
     margin-right: var(--input-padding-left);
     text-align: left;
+}
+
+/* Tooltip */
+.tooltipParent {
+    position: relative;
+}
+
+.tooltipParent:hover .tooltip {
+    display: flex;
+}
+
+.tooltip {
+    display: none;
+    align-items: center;
+    position: absolute;
+    color: var(--color-black);
+    height: 33px;
+    padding: 0 13px;
+    bottom: calc(100% + 5px);
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: var(--border-radius);
+    background-color: var(--color-grey-darkest);
+    z-index: var(--tooltip-index);
+}
+
+.tooltip::after {
+    content: '';
+    position: absolute;
+    transform: translate(-50%, 100%);
+    left: 50%;
+    bottom: 0;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid var(--color-grey-darkest);
 }
 
 /* Utility Classes */

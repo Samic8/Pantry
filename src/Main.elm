@@ -703,7 +703,7 @@ viewItemRow item restockMode settings =
                 []
             , span [ class "quantity__unit" ] [ text "Days" ]
             ]
-        , div [ class "bar", classList [ ( "bar--disabled", restockMode == Off ) ] ]
+        , div [ class "bar tooltipParent", classList [ ( "bar--disabled", restockMode == Off ) ] ]
             [ div [ class "bar__used bar__quantityUsed", onClick (ModifyEstimateOnHandBar item.id (item.maxOnHand |> String.fromInt)) ] []
             , div [ class "bar__quantityExcessive", style "width" (buildQuantityExcessiveWidth item) ] []
             , div [ classList (quantityLeftClassList item), style "width" (buildQuantityRemainingWidth item) ]
@@ -713,6 +713,7 @@ viewItemRow item restockMode settings =
                     ]
                     []
                 ]
+            , div [ class "tooltip" ] [ text ((item.estimateOnHand |> String.fromInt) ++ " " ++ item.unit) ]
             ]
         , div [ class "quantity inputBox", classList [ ( "hidden", settings == Off ) ] ]
             [ input

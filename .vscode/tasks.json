@@ -10,12 +10,12 @@
         },
         {
             "type": "npm",
-            "script": "server",
+            "script": "make:client:dev",
             "problemMatcher": []
         },
         {
             "type": "npm",
-            "script": "make:client:dev",
+            "script": "start:server",
             "problemMatcher": []
         }
     ]

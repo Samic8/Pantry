@@ -153,7 +153,8 @@ function buildEstimateOnHand({maxOnHand, restocks}) {
 
 function buildEstimateOnHandForInitialRestock({date, userEstimateRunOut, newOnHand}) {
     const totalDays = getTotalDaysForEstimatedRunOut({ userEstimateRunOut, date });
-    return Math.round(newOnHand - (newOnHand * (getDaysSince({ date }) / totalDays)));
+    const estimate = Math.round(newOnHand - (newOnHand * (getDaysSince({ date }) / totalDays)));
+    return Math.max(0, estimate);
 }
 
 function getTotalDaysForEstimatedRunOut({userEstimateRunOut, date}) {

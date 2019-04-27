@@ -57,7 +57,6 @@ app.post('/cupboard/items', async (req, res) => {
                     date: today,
                     newOnHand: item.onHand,
                     didRunOut: today,
-                    beforeRestock: item.beforeRestock,
                 }
             ];
         } else {
@@ -101,8 +100,7 @@ app.post('/cupboard/new-item', async (req, res) => {
         },
         cupboard: { connect: { urlSlug } }
     }).$fragment(fragmentItemsWithRestocks);
-
-    res.json(buildItemFromResponse(createItemResponse))
+    res.json(buildItemFromResponse(createItemResponse));
 });
 
 function buildItemFromResponse(item) {
@@ -129,13 +127,15 @@ function buildEstimateDays({maxOnHand, restocks}) {
 
 function buildMeanDays({maxOnHand, restocks}) {
     const withoutInitial = restocks.slice(1);
-    const averageDays = _.mean(withoutInitial.map((restock, index) => {
+    const averages = withoutInitial.map((restock, index) => {
         const previousRestock = restocks[index];
-        const totalDays = moment(previousRestock.date ).diff(restocks.didRunOut, 'days');
-        const amount = previousRestock.newOnHand - restock.beforeRestock;
-        // Time to run out of maxOnHand based on this rate
-        return (maxOnHand / amount) * Math.max(1, totalDays);
-    }));
+        const totalDays = moment(restock.didRunOut).diff(previousRestock.date, 'days');
+        // Time to run out of maxOnHand based on this restock
+        const compareToMaxOnHand = maxOnHand / previousRestock.newOnHand;
+        return (Number.isFinite(compareToMaxOnHand) ? compareToMaxOnHand : 0) * Math.max(1, totalDays);
+    });
+    
+    const averageDays = averages.reduce((prev, next) => prev + next, 0);
 
     return averageDays;
 }
@@ -148,7 +148,8 @@ function buildEstimateOnHand({maxOnHand, restocks}) {
     const averageDays = buildMeanDays({maxOnHand, restocks});
 
     const daysElapsedSinceRestock = getToday().diff(restocks[restocks.length - 1].date, 'days');
-    return Math.max(0, Math.round(((averageDays - daysElapsedSinceRestock) / averageDays) * maxOnHand));
+    // TODO Needs to multiply by newOnHand then divide by maxOnHand?
+    return Math.max(0, Math.round(((averageDays - daysElapsedSinceRestock) / averageDays) * maxOnHand)) || 0;
 }
 
 function buildEstimateOnHandForInitialRestock({date, userEstimateRunOut, newOnHand}) {
@@ -184,7 +185,6 @@ const fragmentItemsWithRestocks = `
             newOnHand
             userEstimateRunOut
             didRunOut
-            beforeRestock
         }
     }
 `;

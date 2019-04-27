@@ -170,7 +170,7 @@ subscriptions model =
 
 maybeSaveChangedItems : Model -> Msg
 maybeSaveChangedItems model =
-    if List.length (model.items |> filterOutUnchanged) > 0 then
+    if (List.length (model.items |> filterOutUnchanged) > 0) && model.mouseMoveFocus == Nothing then
         SaveChangedItems
 
     else

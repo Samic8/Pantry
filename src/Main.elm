@@ -664,7 +664,7 @@ shouldIncludeItemInView model item =
 buildListHeader : Toggle -> List (Html Msg)
 buildListHeader settings =
     [ span [] [ text "Item" ]
-    , span [] [ text "Estimated Empty" ]
+    , span [] [ text "Estimated Empty In" ]
     , span [] [ text "Estimated Remaining Today" ]
     , span [ classList [ ( "hidden", settings == Off ) ] ] [ text "Restock Quantity" ]
     ]

@@ -119,9 +119,8 @@ function buildEstimateDays({maxOnHand, restocks}) {
         const { userEstimateRunOut, date } = restocks[0];
         const totalDays = getTotalDaysForEstimatedRunOut({ userEstimateRunOut, date });
         const daysRemaining = totalDays - getDaysSince({ date });
-        return Math.round(daysRemaining);
+        return Math.max(0, Math.round(daysRemaining));
     }
-
     return Math.round(buildMeanDays({maxOnHand, restocks}));
 }
 

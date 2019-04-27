@@ -14,8 +14,8 @@ x (A) Add tooltip on bar showing quantity
 (D) Split time estimate amount and unit on frontend +improvements
 
 # Bugs
-- When estimate on hand and max on hand is 0 the row dies
-- When restocking it returns max on hand (after a few restocks) +bug
+x - When estimate on hand and max on hand is 0 the row dies
+x - When restocking it returns max on hand (after a few restocks) +bug
 x - Filter bar can't be moved unless in restock
 - Handle errors with message to user
 

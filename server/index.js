@@ -150,10 +150,9 @@ function buildEstimateOnHand({maxOnHand, restocks}) {
     }
 
     const averageDays = buildMeanDays({maxOnHand, restocks});
-
+    const {newOnHand} = restocks[restocks.length - 1];
     const daysElapsedSinceRestock = getToday().diff(restocks[restocks.length - 1].date, 'days');
-    // TODO Needs to multiply by newOnHand then divide by maxOnHand?
-    return Math.max(0, Math.round(((averageDays - daysElapsedSinceRestock) / averageDays) * maxOnHand)) || 0;
+    return Math.max(0, Math.round(((averageDays - daysElapsedSinceRestock) / averageDays) * newOnHand));
 }
 
 function buildEstimateOnHandForInitialRestock({date, userEstimateRunOut, newOnHand}) {

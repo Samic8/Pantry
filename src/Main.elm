@@ -1,4 +1,4 @@
-module Main exposing (CupboardResult, EstimateDays, EstimateOnHand, Id, Item, ItemResponse, Items, ItemsResponse, MaxOnHand, Model, MouseMoveFocus(..), Msg(..), NewItem, Prop(..), Toggle(..), buildEncodedItemList, buildListHeader, buildNewEstimateFromMouseMove, buildNewItemHeader, buildNewItemsFromResponse, buildPercentageFromMouseMove, buildQuantityExcessiveWidth, buildQuantityRemainingWidth, buildRows, calcEstimateRemainingPercentage, cupboardDecoder, filterOutUnchanged, filterUsingPercentage, focusElement, getConfirmTickClassList, getItemFromId, hasEstimateOnHandChanged, init, isOverstocked, isQuantityExcessive, main, mapItem, maybeSaveChangedItems, mouseDecoder, newItemRowHeaderMarginTop, onConfirmKeyDown, onKeyDown, onLeverMouseDown, parseValueToInt, processNewItem, quantityLeftClassList, shouldCoverInputBox, shouldHideNewRowHeader, shouldIncludeItemInView, subscribeToMouseMove, subscriptions, toStringValue, toggleOnOff, transformItemResponse, transformItemsReponse, update, updateItem, updateItems, view, viewItemRow, viewNewRow)
+module Main exposing (CupboardResult, EstimateDays, EstimateOnHand, Id, Item, ItemResponse, Items, ItemsResponse, MaxOnHand, Model, MouseMoveFocus(..), Msg(..), NewItem, Prop(..), Toggle(..), buildEncodedItemList, buildListHeader, buildNewEstimateFromMouseMove, buildNewItemHeader, buildNewItemsFromResponse, buildPercentageFromMouseMove, buildQuantityExcessiveWidth, buildQuantityRemainingWidth, buildRows, calcEstimateRemainingPercentage, cupboardDecoder, filterOutUnchanged, filterUsingPercentage, focusElement, getConfirmTickClassList, getItemFromId, hasEstimateOnHandChanged, init, isOverstocked, isQuantityExcessive, main, mapItem, maybeSaveChangedItems, mouseDecoder, newItemRowHeaderMarginTop, onConfirmKeyDown, onKeyDown, onLeverMouseDown, parseValueToInt, processNewItem, quantityLeftClassList, shouldCoverInputBox, shouldHideNewRowHeader, shouldIncludeItemInView, subscribeToMouseMove, subscriptions, toStringValue, toggleOnOff, transformItemResponse, transformItemsResponse, update, updateItem, updateItems, view, viewItemRow, viewNewRow)
 
 import Browser
 import Browser.Dom as Dom
@@ -471,7 +471,7 @@ isValidTimeString timeString =
 
 buildNewItemsFromResponse : ItemsResponse -> List Item
 buildNewItemsFromResponse itemsResponse =
-    transformItemsReponse itemsResponse
+    transformItemsResponse itemsResponse
 
 
 toggleOnOff : Toggle -> Toggle
@@ -506,8 +506,8 @@ processNewItem model newItem =
     List.append (model.items |> List.filter (\item -> item.id /= "new-item")) [ transformItemResponse newItem ]
 
 
-transformItemsReponse : ItemsResponse -> List Item
-transformItemsReponse itemsResponse =
+transformItemsResponse : ItemsResponse -> List Item
+transformItemsResponse itemsResponse =
     List.map
         (\itemRes ->
             transformItemResponse itemRes

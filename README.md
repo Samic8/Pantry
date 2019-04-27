@@ -1,6 +1,8 @@
 # Pantry
 Estimates when you need to re-stock your kitchen pantry.
 
+![Preview Screenshot of Pantry](https://github.com/samic8/pantry/raw/master/assets/pantry-preview.png)
+
 ## Development
 This application is in early stages of development. Development will become easier as the install process is simplified (once I figure all the things out).
 ```

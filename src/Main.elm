@@ -713,7 +713,7 @@ viewItemRow item restockMode settings =
                     ]
                     []
                 ]
-            , div [ class "tooltip" ] [ text ((item.estimateOnHand |> String.fromInt) ++ " " ++ item.unit) ]
+            , div [ class "tooltip" ] [ text ("Estimated Remaining: " ++ (item.estimateOnHand |> String.fromInt) ++ " " ++ item.unit) ]
             ]
         , div [ class "quantity inputBox", classList [ ( "hidden", settings == Off ) ] ]
             [ input

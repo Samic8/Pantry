@@ -443,6 +443,7 @@ body {
     position: absolute;
     color: var(--color-black);
     height: 33px;
+    white-space: nowrap;
     padding: 0 13px;
     bottom: calc(100% + 5px);
     left: 50%;

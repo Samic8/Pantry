@@ -1,6 +1,9 @@
 # Pantry
 Estimates when you need to re-stock your kitchen pantry.
 
+## Design
+Some early design prototypes can be found [here](https://www.figma.com/proto/PB3uVQbeSEQ14qQO4hrPionR/Pantry?node-id=103%3A0&viewport=407%2C321%2C0.249057&scaling=min-zoom).
+
 ![Preview Screenshot of Pantry](https://github.com/samic8/pantry/raw/master/assets/pantry-preview.png)
 
 ## Development

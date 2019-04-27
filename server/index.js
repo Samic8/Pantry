@@ -121,7 +121,12 @@ function buildEstimateDays({maxOnHand, restocks}) {
         const daysRemaining = totalDays - getDaysSince({ date });
         return Math.max(0, Math.round(daysRemaining));
     }
-    return Math.round(buildMeanDays({maxOnHand, restocks}));
+
+    const daysElapsedSinceRestock = getToday().diff(restocks[restocks.length - 1].date, 'days');
+    const {newOnHand} = restocks[restocks.length - 1];
+    const averageDays = Math.round(buildMeanDays({maxOnHand, restocks}));
+    const estimate = Math.round(newOnHand / (maxOnHand / averageDays) - daysElapsedSinceRestock);
+    return Math.max(0, estimate);
 }
 
 function buildMeanDays({maxOnHand, restocks}) {

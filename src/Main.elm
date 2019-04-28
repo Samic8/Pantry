@@ -616,25 +616,6 @@ parseValueToInt stringVal =
 
 
 -- VIEW
--- Routing
-
-
-type Route
-    = Create
-    | Cupboard String
-
-
-getRoute : Parser (Route -> a) a
-getRoute =
-    Url.Parser.oneOf
-        [ Url.Parser.map Create Url.Parser.top
-        , Url.Parser.map Cupboard (Url.Parser.s "cupboard" </> Url.Parser.string)
-        ]
-
-
-isCreatePage : Url.Url -> Bool
-isCreatePage url =
-    Url.Parser.parse getRoute url == Just Create
 
 
 view : Model -> Browser.Document Msg
@@ -952,3 +933,25 @@ hasEstimateOnHandChanged item default =
 
         Nothing ->
             default
+
+
+
+-- Routing
+
+
+type Route
+    = Create
+    | Cupboard String
+
+
+getRoute : Parser (Route -> a) a
+getRoute =
+    Url.Parser.oneOf
+        [ Url.Parser.map Create Url.Parser.top
+        , Url.Parser.map Cupboard (Url.Parser.s "cupboard" </> Url.Parser.string)
+        ]
+
+
+isCreatePage : Url.Url -> Bool
+isCreatePage url =
+    Url.Parser.parse getRoute url == Just Create

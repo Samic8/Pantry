@@ -1,18 +1,17 @@
-# Pantry
-Estimates when you need to re-stock your kitchen pantry. This app is currently in a prototype stage so there is not much documentation or unit tests as of yet.
+# Pantry 🍆
+Pantry estimates when you need to re-stock your kitchen cupboard, it learns more about your usage the more you use it. Pantry is in a prototype state of development so don't expect much in the way of unit tests or documentation yet.
 
 ## Design
-Some early design prototypes can be found [here](https://www.figma.com/proto/PB3uVQbeSEQ14qQO4hrPionR/Pantry?node-id=103%3A0&viewport=407%2C321%2C0.249057&scaling=min-zoom).
+There early design prototypes [on a Figma prototype](https://www.figma.com/proto/PB3uVQbeSEQ14qQO4hrPionR/Pantry?node-id=103%3A0&viewport=407%2C321%2C0.249057&scaling=min-zoom).
 
 ![Preview Screenshot of Pantry](https://github.com/samic8/pantry/raw/master/assets/pantry-preview.png)
 
 ## Development
-This application is in early stages of development. Development will become easier as the install process is simplified (once I figure all the things out).
 ```
 npm install
 ```
 ### Setup Data-store
-Install [Docker](https://docs.docker.com/) and initalise Docker instance
+Install [Docker](https://docs.docker.com/) and initialize Docker instance
 ```
 cd data-store && docker-compose up -d
 ```

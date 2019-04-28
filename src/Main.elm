@@ -5,7 +5,7 @@ import Browser.Dom as Dom
 import Browser.Events
 import Browser.Navigation as Nav
 import DOM exposing (Rectangle, boundingClientRect, offsetLeft, offsetParent, offsetWidth, parentElement, target)
-import Html exposing (Attribute, Html, button, div, h1, header, img, input, label, li, section, span, text, ul)
+import Html exposing (Attribute, Html, button, div, h1, header, img, input, label, li, p, section, span, text, ul)
 import Html.Attributes exposing (class, classList, disabled, id, placeholder, src, style, tabindex, value)
 import Html.Events exposing (keyCode, on, onBlur, onClick, onInput, onMouseDown, onMouseUp, onSubmit)
 import Http
@@ -649,8 +649,10 @@ view model =
 
 viewCreate : Model -> List (Html Msg)
 viewCreate model =
-    [ div []
-        [ input [ value "" ] []
+    [ div [ class "getStartedContainer" ]
+        [ p [] [ text "What would you like to call your Cupboard?" ]
+        , input [ class "getStartedInput", value "" ] []
+        , button [ class "button getStartedButton" ] [ text "Get Started!" ]
         ]
     ]
 
@@ -659,8 +661,8 @@ viewCupboard : Model -> List (Html Msg)
 viewCupboard model =
     [ section [ class "filters" ]
         [ button
-            [ class "filters__button"
-            , classList [ ( "filters__button--grey", model.restockMode == On ) ]
+            [ class "filters__button button"
+            , classList [ ( "button--grey", model.restockMode == On ) ]
             , onClick ToggleRestockMode
             ]
             [ text

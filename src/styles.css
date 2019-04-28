@@ -125,6 +125,16 @@ body {
 .filters__button {
     grid-column: 2;
     width: 100%;
+}
+
+.filters__settingsCog {
+    width: var(--settings-cog-size);
+    height: var(--settings-cog-size);
+    cursor: pointer;
+}
+
+/* Button */
+.button {
     border: var(--input-border);
     background-color: var(--color-alias-input-background);
     border-radius: var(--border-radius);
@@ -135,19 +145,13 @@ body {
     cursor: pointer;
 }
 
-.filters__button--grey {
+.button--grey {
     border-color: var(--color-grey-darkest);
     color: var(--color-grey-darkest);
 }
 
-.filters__button:hover, .filters__button:focus {
+.button:hover, .button:focus {
     background-color: var(--color-alias-input-focus-background);
-}
-
-.filters__settingsCog {
-    width: var(--settings-cog-size);
-    height: var(--settings-cog-size);
-    cursor: pointer;
 }
 
 /* Filter Bar */
@@ -464,6 +468,30 @@ body {
     border-left: 4px solid transparent;
     border-right: 4px solid transparent;
     border-top: 5px solid var(--color-grey-darkest);
+}
+
+/* Get Started */
+.getStartedContainer {
+    display: flex;
+    flex-direction: column;
+    width: 330px;
+    padding: 1rem var(--list-container-side-padding) 2rem;
+    margin-top: 200px;
+    background-color: var(--color-alias-list-container);
+}
+
+.getStartedInput {
+    height: var(--input-height);
+    border: 0;
+    border-radius: var(--border-radius);
+    font-size: var(--primary-font-size);
+    padding-left: var(--input-padding-left);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.getStartedButton {
+    margin-top: 1rem;
 }
 
 /* Utility Classes */

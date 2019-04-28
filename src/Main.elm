@@ -3,6 +3,7 @@ module Main exposing (CupboardResult, EstimateDays, EstimateOnHand, Id, Item, It
 import Browser
 import Browser.Dom as Dom
 import Browser.Events
+import Browser.Navigation as Nav
 import DOM exposing (Rectangle, boundingClientRect, offsetLeft, offsetParent, offsetWidth, parentElement, target)
 import Html exposing (Attribute, Html, button, div, h1, header, img, input, label, li, section, span, text, ul)
 import Html.Attributes exposing (class, classList, disabled, id, placeholder, src, style, tabindex, value)
@@ -12,10 +13,19 @@ import Json.Decode as Json
 import Json.Encode as Encode
 import Task
 import Time
+import Url
+import Url.Parser exposing ((</>), Parser)
 
 
 main =
-    Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
+    Browser.application
+        { init = init
+        , update = update
+        , view = view
+        , subscriptions = subscriptions
+        , onUrlChange = OnUrlChanged
+        , onUrlRequest = OnUrlRequest
+        }
 
 
 
@@ -94,11 +104,13 @@ type alias Model =
     , mouseMoveFocus : Maybe MouseMoveFocus
     , restockMode : Toggle
     , settings : Toggle
+    , key : Nav.Key
+    , url : Url.Url
     }
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
+init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init flags url key =
     ( { title = ""
       , items = []
       , newItem = NewItem "" 500 500 "g" "4 weeks" False
@@ -110,6 +122,8 @@ init _ =
       , mouseMoveFocus = Nothing
       , restockMode = Off
       , settings = Off
+      , url = url
+      , key = key
       }
     , Http.get
         { url = "http://localhost:8000/cupboard"
@@ -226,6 +240,8 @@ type Msg
     | ToggleSettings
     | SaveChangedItems
     | GotNewItems (Result Http.Error ItemsResponse)
+    | OnUrlRequest Browser.UrlRequest
+    | OnUrlChanged Url.Url
     | NoOp
 
 
@@ -450,6 +466,17 @@ update msg model =
                 Err _ ->
                     ( model, Cmd.none )
 
+        OnUrlChanged url ->
+            ( { model | url = url }, Cmd.none )
+
+        OnUrlRequest urlRequest ->
+            case urlRequest of
+                Browser.Internal url ->
+                    ( model, Nav.pushUrl model.key (Url.toString url) )
+
+                Browser.External href ->
+                    ( model, Nav.load href )
+
         NoOp ->
             ( model, Cmd.none )
 
@@ -589,59 +616,104 @@ parseValueToInt stringVal =
 
 
 -- VIEW
+-- Routing
 
 
-view : Model -> Html Msg
+type Route
+    = Create
+    | Cupboard String
+
+
+getRoute : Parser (Route -> a) a
+getRoute =
+    Url.Parser.oneOf
+        [ Url.Parser.map Create Url.Parser.top
+        , Url.Parser.map Cupboard (Url.Parser.s "cupboard" </> Url.Parser.string)
+        ]
+
+
+isCreatePage : Url.Url -> Bool
+isCreatePage url =
+    Url.Parser.parse getRoute url == Just Create
+
+
+view : Model -> Browser.Document Msg
 view model =
-    div [ class "container", classList [ ( "container--settingsOn", model.settings == On ) ] ]
-        [ header [ class "header" ]
-            [ h1 [ class "header__logo" ]
-                [ span [] [ text "Pan" ]
-                , span [ class "header__logo__line" ] []
-                , span [] [ text "try" ]
-                ]
-            , input [ onInput ModifyTitle, onBlur SaveTitle, value model.title, class "header__title", placeholder "Enter Cupboard Title" ] []
-            ]
-        , section [ class "mainContent" ]
-            [ section [ class "filters" ]
-                [ button
-                    [ class "filters__button"
-                    , classList [ ( "filters__button--grey", model.restockMode == On ) ]
-                    , onClick ToggleRestockMode
+    { title = "Pantry"
+    , body =
+        [ div [ class "container", classList [ ( "container--settingsOn", model.settings == On ) ] ]
+            [ header [ class "header" ]
+                [ h1 [ class "header__logo" ]
+                    [ span [] [ text "Pan" ]
+                    , span [ class "header__logo__line" ] []
+                    , span [] [ text "try" ]
                     ]
-                    [ text
-                        (if model.restockMode == Off then
-                            "Restock"
+                , if isCreatePage model.url == False then
+                    input [ onInput ModifyTitle, onBlur SaveTitle, value model.title, class "header__title", placeholder "Enter Cupboard Title" ] []
 
-                         else
-                            "Exit Restock"
-                        )
-                    ]
-                , div [ class "filterBar bar" ]
-                    [ div [ class "bar__used filterBar__used" ] []
-                    , div [ class "bar__mainPercentage filterBar__mainPercentage", style "width" ((model.filterPercentage |> String.fromInt) ++ "%") ]
-                        [ div
-                            [ class "bar__mainPercentage__lever"
-                            , on "mousedown" (onLeverMouseDown OnFilterBarMouseDown)
-                            ]
-                            []
-                        ]
-                    ]
-                , div [ class "centerBoth" ] [ img [ class "filters__settingsCog", src "/src/svg/cog.svg", onClick ToggleSettings ] [] ]
+                  else
+                    div [] []
                 ]
-            , div [ class "listContainer" ]
-                [ div [ class "listContainer__header" ]
-                    (if List.length model.items > 0 then
-                        buildListHeader model.settings
+            , section [ class "mainContent" ]
+                (if isCreatePage model.url then
+                    viewCreate model
 
-                     else
-                        buildNewItemHeader model.settings
-                    )
-                , ul [ class "listContainer__rows", classList [ ( "hidden", List.length model.items == 0 ) ] ] (buildRows model)
-                , viewNewRow model.newItem model
-                ]
+                 else
+                    viewCupboard model
+                )
             ]
         ]
+    }
+
+
+viewCreate : Model -> List (Html Msg)
+viewCreate model =
+    [ div []
+        [ input [ value "" ] []
+        ]
+    ]
+
+
+viewCupboard : Model -> List (Html Msg)
+viewCupboard model =
+    [ section [ class "filters" ]
+        [ button
+            [ class "filters__button"
+            , classList [ ( "filters__button--grey", model.restockMode == On ) ]
+            , onClick ToggleRestockMode
+            ]
+            [ text
+                (if model.restockMode == Off then
+                    "Restock"
+
+                 else
+                    "Exit Restock"
+                )
+            ]
+        , div [ class "filterBar bar" ]
+            [ div [ class "bar__used filterBar__used" ] []
+            , div [ class "bar__mainPercentage filterBar__mainPercentage", style "width" ((model.filterPercentage |> String.fromInt) ++ "%") ]
+                [ div
+                    [ class "bar__mainPercentage__lever"
+                    , on "mousedown" (onLeverMouseDown OnFilterBarMouseDown)
+                    ]
+                    []
+                ]
+            ]
+        , div [ class "centerBoth" ] [ img [ class "filters__settingsCog", src "/src/svg/cog.svg", onClick ToggleSettings ] [] ]
+        ]
+    , div [ class "listContainer" ]
+        [ div [ class "listContainer__header" ]
+            (if List.length model.items > 0 then
+                buildListHeader model.settings
+
+             else
+                buildNewItemHeader model.settings
+            )
+        , ul [ class "listContainer__rows", classList [ ( "hidden", List.length model.items == 0 ) ] ] (buildRows model)
+        , viewNewRow model.newItem model
+        ]
+    ]
 
 
 filterUsingPercentage : Model -> Items -> List Item

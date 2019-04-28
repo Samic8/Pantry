@@ -11,6 +11,8 @@ app.use( bodyParser.urlencoded({ extended: true }));
 app.use('/src', express.static(path.join(`${__dirname}/../src`)));
 app.use('/dist', express.static(path.join(`${__dirname}/../dist`)));
 
+// TODO: figure out how to combine these paths
+app.get('/', (req, res) => res.sendFile(path.join(`${__dirname}/../index.html`)));
 app.get('/cupboard/*', (req, res) => res.sendFile(path.join(`${__dirname}/../index.html`)));
 
 app.get('/cupboard', async (req, res) => {

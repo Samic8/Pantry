@@ -5,8 +5,8 @@ import Browser.Dom as Dom
 import Browser.Events
 import Browser.Navigation as Nav
 import DOM exposing (Rectangle, boundingClientRect, offsetLeft, offsetParent, offsetWidth, parentElement, target)
-import Html exposing (Attribute, Html, button, div, h1, header, img, input, label, li, p, section, span, text, ul)
-import Html.Attributes exposing (class, classList, disabled, id, placeholder, src, style, tabindex, value)
+import Html exposing (Attribute, Html, a, button, div, h1, header, img, input, label, li, p, section, span, text, ul)
+import Html.Attributes exposing (class, classList, disabled, href, id, placeholder, src, style, tabindex, value)
 import Html.Events exposing (keyCode, on, onBlur, onClick, onInput, onMouseDown, onMouseUp, onSubmit)
 import Http
 import Json.Decode as Json
@@ -104,6 +104,7 @@ type alias Model =
     , mouseMoveFocus : Maybe MouseMoveFocus
     , restockMode : Toggle
     , settings : Toggle
+    , newCupboardName : String
     , key : Nav.Key
     , url : Url.Url
     }
@@ -122,6 +123,7 @@ init flags url key =
       , mouseMoveFocus = Nothing
       , restockMode = Off
       , settings = Off
+      , newCupboardName = ""
       , url = url
       , key = key
       }
@@ -242,6 +244,8 @@ type Msg
     | GotNewItems (Result Http.Error ItemsResponse)
     | OnUrlRequest Browser.UrlRequest
     | OnUrlChanged Url.Url
+    | CreateCupboard
+    | OnNewCupboardNameChange String
     | NoOp
 
 
@@ -477,6 +481,12 @@ update msg model =
                 Browser.External href ->
                     ( model, Nav.load href )
 
+        CreateCupboard ->
+            ( model, Cmd.none )
+
+        OnNewCupboardNameChange newVal ->
+            ( { model | newCupboardName = newVal }, Cmd.none )
+
         NoOp ->
             ( model, Cmd.none )
 
@@ -650,9 +660,8 @@ view model =
 viewCreate : Model -> List (Html Msg)
 viewCreate model =
     [ div [ class "getStartedContainer" ]
-        [ p [] [ text "What would you like to call your Cupboard?" ]
-        , input [ class "getStartedInput", value "" ] []
-        , button [ class "button getStartedButton" ] [ text "Get Started!" ]
+        [ input [ class "getStartedInput", value model.newCupboardName, onInput OnNewCupboardNameChange, placeholder "Give your cupboard a name" ] []
+        , a [ class "button getStartedButton", href ("/cupboard/" ++ model.newCupboardName) ] [ text "Get Started!" ]
         ]
     ]
 

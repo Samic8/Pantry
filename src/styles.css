@@ -475,7 +475,7 @@ body {
     display: flex;
     flex-direction: column;
     width: 330px;
-    padding: 1rem var(--list-container-side-padding) 2rem;
+    padding: 2rem var(--list-container-side-padding);
     margin-top: 200px;
     background-color: var(--color-alias-list-container);
 }
@@ -492,6 +492,10 @@ body {
 
 .getStartedButton {
     margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
 }
 
 /* Utility Classes */

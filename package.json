@@ -21,8 +21,7 @@
   "scripts": {
     "make:client:dev": "elm make src/Main.elm --output=dist/elm.js",
     "make:client:production": "./optimize.sh src/Main.elm",
-    "start:server": "node ./server/index.js",
-    "deploy": "cd ./data-store && prisma deploy"
+    "start:server": "node ./server/index.js && cd ./data-store && prisma deploy"
   },
   "repository": {
     "type": "git",

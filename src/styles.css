@@ -201,6 +201,7 @@ body {
     position: relative;
     grid-template-columns: var(--list-row-columns);
     grid-gap: var(--column-gap);
+    z-index: calc(var(--sticky-header-index) + 1);
 }
 
 .row__confirmTick {

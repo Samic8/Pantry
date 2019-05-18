@@ -195,4 +195,4 @@ const fragmentItemsWithRestocks = `
     }
 `;
 
-app.listen(8000);
+app.listen(8080, '0.0.0.0');

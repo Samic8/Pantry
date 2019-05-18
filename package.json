@@ -21,7 +21,7 @@
   "scripts": {
     "make:client:dev": "elm make src/Main.elm --output=dist/elm.js",
     "make:client:production": "./optimize.sh src/Main.elm",
-    "start:server": "npm run make:client:dev && node ./server/index.js"
+    "start:server": "node ./server/index.js"
   },
   "repository": {
     "type": "git",

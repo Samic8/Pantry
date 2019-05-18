@@ -172,6 +172,7 @@ function getDaysSince({ date }) {
 }
 
 function getUrlSlugFromReferer(referer) {
+    console.log(referer);
     return referer.match(/cupboard\/(.*)/)[1]
 }
 

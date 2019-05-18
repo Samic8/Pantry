@@ -1,4 +1,5 @@
-endpoint: http://prisma:4466
+#endpoint: http://prisma:4466
+endpoint: http://pan-try.com:4466/data-store/dev
 datamodel: datamodel.prisma
 
 generate:

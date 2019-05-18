@@ -2,7 +2,7 @@ version: '3'
 services:
   wepapp:
     ports:
-    - "49160:8080"
+    - "80:8080"
     build: .
 networks:
   default:

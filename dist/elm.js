@@ -5971,7 +5971,7 @@ var author$project$Main$init = F3(
 			elm$http$Http$get(
 				{
 					expect: A2(elm$http$Http$expectJson, author$project$Main$Initialise, author$project$Main$cupboardDecoder),
-					url: 'http://localhost:49160/cupboard'
+					url: 'http://pan-try.com:49160/cupboard'
 				}));
 	});
 var author$project$Main$NoOp = {$: 'NoOp'};
@@ -7168,7 +7168,7 @@ var author$project$Main$update = F2(
 									elm$http$Http$expectJson,
 									author$project$Main$GotTitle,
 									A2(elm$json$Json$Decode$field, 'title', elm$json$Json$Decode$string)),
-								url: 'http://localhost:49160/cupboard'
+								url: 'http://pan-try.com:49160/cupboard'
 							}));
 				case 'GotTitle':
 					var result = msg.a;
@@ -7352,7 +7352,7 @@ var author$project$Main$update = F2(
 														elm$json$Json$Encode$string(model.newItem.userEstimateRunOut))
 													]))),
 										expect: A2(elm$http$Http$expectJson, author$project$Main$GotNewItem, author$project$Main$mapItem),
-										url: 'http://localhost:49160/cupboard/new-item'
+										url: 'http://pan-try.com:49160/cupboard/new-item'
 									})
 								])));
 				case 'GotNewItem':
@@ -7475,7 +7475,7 @@ var author$project$Main$update = F2(
 									elm$http$Http$expectJson,
 									author$project$Main$GotNewItems,
 									elm$json$Json$Decode$list(author$project$Main$mapItem)),
-								url: 'http://localhost:49160/cupboard/items'
+								url: 'http://pan-try.com:49160/cupboard/items'
 							}));
 				case 'GotNewItems':
 					var result = msg.a;

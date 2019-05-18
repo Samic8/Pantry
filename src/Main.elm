@@ -128,7 +128,7 @@ init flags url key =
       , key = key
       }
     , Http.get
-        { url = "http://localhost:49160/cupboard"
+        { url = "http://pan-try.com:49160/cupboard"
         , expect = Http.expectJson Initialise cupboardDecoder
         }
     )
@@ -266,7 +266,7 @@ update msg model =
         SaveTitle ->
             ( model
             , Http.post
-                { url = "http://localhost:49160/cupboard"
+                { url = "http://pan-try.com:49160/cupboard"
                 , body = Http.jsonBody (Encode.object [ ( "title", Encode.string model.title ) ])
                 , expect = Http.expectJson GotTitle (Json.field "title" Json.string)
                 }
@@ -387,7 +387,7 @@ update msg model =
             , Cmd.batch
                 [ focusElement
                 , Http.post
-                    { url = "http://localhost:49160/cupboard/new-item"
+                    { url = "http://pan-try.com:49160/cupboard/new-item"
                     , body =
                         Http.jsonBody
                             (Encode.object
@@ -456,7 +456,7 @@ update msg model =
         SaveChangedItems ->
             ( model
             , Http.post
-                { url = "http://localhost:49160/cupboard/items"
+                { url = "http://pan-try.com:49160/cupboard/items"
                 , body = Http.jsonBody (Encode.list Encode.object (buildEncodedItemList (model.items |> filterOutUnchanged)))
                 , expect = Http.expectJson GotNewItems (Json.list mapItem)
                 }

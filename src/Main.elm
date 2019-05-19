@@ -636,7 +636,7 @@ view model =
     , body =
         [ div [ class "container", classList [ ( "container--settingsOn", model.settings == On ) ] ]
             [ header [ class "header" ]
-                [ h1 [ class "header__logo" ]
+                [ a [ class "header__logo", href model.apiUrl ]
                     [ span [] [ text "Pan" ]
                     , span [ class "header__logo__line" ] []
                     , span [] [ text "try" ]

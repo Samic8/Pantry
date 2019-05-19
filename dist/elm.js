@@ -5953,6 +5953,7 @@ var author$project$Main$init = F3(
 	function (flags, url, key) {
 		return _Utils_Tuple2(
 			{
+				apiUrl: flags.apiUrl,
 				barDragingItemId: '',
 				barDragingLeft: elm$core$Maybe$Nothing,
 				barDragingWidth: elm$core$Maybe$Nothing,
@@ -5971,7 +5972,7 @@ var author$project$Main$init = F3(
 			elm$http$Http$get(
 				{
 					expect: A2(elm$http$Http$expectJson, author$project$Main$Initialise, author$project$Main$cupboardDecoder),
-					url: 'http://pan-try.com/cupboard'
+					url: flags.apiUrl + '/cupboard'
 				}));
 	});
 var author$project$Main$NoOp = {$: 'NoOp'};
@@ -7168,7 +7169,7 @@ var author$project$Main$update = F2(
 									elm$http$Http$expectJson,
 									author$project$Main$GotTitle,
 									A2(elm$json$Json$Decode$field, 'title', elm$json$Json$Decode$string)),
-								url: 'http://pan-try.com/cupboard'
+								url: model.apiUrl + '/cupboard'
 							}));
 				case 'GotTitle':
 					var result = msg.a;
@@ -7352,7 +7353,7 @@ var author$project$Main$update = F2(
 														elm$json$Json$Encode$string(model.newItem.userEstimateRunOut))
 													]))),
 										expect: A2(elm$http$Http$expectJson, author$project$Main$GotNewItem, author$project$Main$mapItem),
-										url: 'http://pan-try.com/cupboard/new-item'
+										url: model.apiUrl + '/cupboard/new-item'
 									})
 								])));
 				case 'GotNewItem':
@@ -7475,7 +7476,7 @@ var author$project$Main$update = F2(
 									elm$http$Http$expectJson,
 									author$project$Main$GotNewItems,
 									elm$json$Json$Decode$list(author$project$Main$mapItem)),
-								url: 'http://pan-try.com/cupboard/items'
+								url: model.apiUrl + '/cupboard/items'
 							}));
 				case 'GotNewItems':
 					var result = msg.a;
@@ -8835,4 +8836,10 @@ var elm$browser$Browser$application = _Browser_application;
 var author$project$Main$main = elm$browser$Browser$application(
 	{init: author$project$Main$init, onUrlChange: author$project$Main$OnUrlChanged, onUrlRequest: author$project$Main$OnUrlRequest, subscriptions: author$project$Main$subscriptions, update: author$project$Main$update, view: author$project$Main$view});
 _Platform_export({'Main':{'init':author$project$Main$main(
-	elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
+	A2(
+		elm$json$Json$Decode$andThen,
+		function (apiUrl) {
+			return elm$json$Json$Decode$succeed(
+				{apiUrl: apiUrl});
+		},
+		A2(elm$json$Json$Decode$field, 'apiUrl', elm$json$Json$Decode$string)))(0)}});}(this));

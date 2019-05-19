@@ -107,10 +107,11 @@ type alias Model =
     , newCupboardName : String
     , key : Nav.Key
     , url : Url.Url
+    , apiUrl : String
     }
 
 
-init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init : { apiUrl : String } -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
     ( { title = ""
       , items = []
@@ -126,9 +127,10 @@ init flags url key =
       , newCupboardName = ""
       , url = url
       , key = key
+      , apiUrl = flags.apiUrl
       }
     , Http.get
-        { url = "http://pan-try.com/cupboard"
+        { url = flags.apiUrl ++ "/cupboard"
         , expect = Http.expectJson Initialise cupboardDecoder
         }
     )
@@ -266,7 +268,7 @@ update msg model =
         SaveTitle ->
             ( model
             , Http.post
-                { url = "http://pan-try.com/cupboard"
+                { url = model.apiUrl ++ "/cupboard"
                 , body = Http.jsonBody (Encode.object [ ( "title", Encode.string model.title ) ])
                 , expect = Http.expectJson GotTitle (Json.field "title" Json.string)
                 }
@@ -387,7 +389,7 @@ update msg model =
             , Cmd.batch
                 [ focusElement
                 , Http.post
-                    { url = "http://pan-try.com/cupboard/new-item"
+                    { url = model.apiUrl ++ "/cupboard/new-item"
                     , body =
                         Http.jsonBody
                             (Encode.object
@@ -456,7 +458,7 @@ update msg model =
         SaveChangedItems ->
             ( model
             , Http.post
-                { url = "http://pan-try.com/cupboard/items"
+                { url = model.apiUrl ++ "/cupboard/items"
                 , body = Http.jsonBody (Encode.list Encode.object (buildEncodedItemList (model.items |> filterOutUnchanged)))
                 , expect = Http.expectJson GotNewItems (Json.list mapItem)
                 }

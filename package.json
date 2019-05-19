@@ -10,18 +10,22 @@
     "lint-staged": "^8.1.4",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
+    "parcel-bundler": "^1.12.3",
     "prettier": "^1.16.4",
     "prettier-plugin-elm": "^0.4.2",
     "prisma": "^1.28.5",
     "prisma-client-lib": "^1.28.5"
   },
   "devDependencies": {
+    "cssnano": "^4.1.10",
+    "elm": "^0.19.0-no-deps",
     "uglify-js": "^3.5.2"
   },
   "scripts": {
-    "make:client:dev": "elm make src/Main.elm --output=dist/elm.js",
+    "make:client:dev": "elm make src/Main.elm --output=elm-dist/elm.js",
     "make:client:production": "./optimize.sh src/Main.elm",
-    "start:server": "node ./server/index.js && cd ./data-store && prisma deploy"
+    "start:server:dev": "ELM_APP_API_URL=http://localhost parcel build index.html && node ./server/index.js && cd ./data-store && prisma deploy",
+    "start:server:prod": "ELM_APP_API_URL=http://pan-try.com parcel build index.html && node ./server/index.js && cd ./data-store && prisma deploy"
   },
   "repository": {
     "type": "git",

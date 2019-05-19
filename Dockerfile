@@ -1,5 +1,8 @@
 FROM node:8
 
+ARG env=dev
+ENV env=${env}
+
 # Create app directory
 WORKDIR /usr/src/app
 
@@ -17,4 +20,4 @@ COPY . .
 
 EXPOSE 8080
 
-CMD [ "npm", "run", "start:server" ]
+CMD ["sh", "-c", "npm run start:server:$env"]

@@ -8,12 +8,13 @@ const _ = require('lodash');
 
 app.use( bodyParser.json() );
 app.use( bodyParser.urlencoded({ extended: true })); 
+// TODO: Figure out how to server svgs. Maybe parcel can load them?
 app.use('/src', express.static(path.join(`${__dirname}/../src`)));
-app.use('/dist', express.static(path.join(`${__dirname}/../dist`)));
+app.use(express.static('dist'))
 
 // TODO: figure out how to combine these paths
-app.get('/', (req, res) => res.sendFile(path.join(`${__dirname}/../index.html`)));
-app.get('/cupboard/*', (req, res) => res.sendFile(path.join(`${__dirname}/../index.html`)));
+// app.get('/', (req, res) => res.sendFile(path.join(`${__dirname}/../dist/index.html`)));
+app.get('/cupboard/*', (req, res) => res.sendFile(path.join(`${__dirname}/../dist/index.html`)));
 
 app.get('/cupboard', async (req, res) => {
     const urlSlug = getUrlSlugFromReferer(req.headers.referer);

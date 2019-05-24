@@ -1,5 +1,9 @@
 # Pantry 🍆
+<<<<<<< HEAD
 Pantry estimates when you need to restock your kitchen cupboard, it learns more about your usage the more you use it. Pantry is in a prototype state of development so don't expect much in the way of unit tests or documentation yet.
+=======
+This repository has been [moved to GitLab](https://gitlab.com/samic8/Pantry)
+>>>>>>> d7f21e5a80a2230178935fb84978cd53bdb7fc25
 
 ## Design
 There early design prototypes [on a Figma prototype](https://www.figma.com/proto/PB3uVQbeSEQ14qQO4hrPionR/Pantry?node-id=103%3A0&viewport=407%2C321%2C0.249057&scaling=min-zoom).

@@ -1,4 +1,4 @@
-# Pantry 🍆
+# Pantry 
 Pantry estimates when you need to restock your kitchen cupboard, it learns more about your usage the more you use it. Pantry is in a prototype state of development so don't expect much in the way of unit tests or documentation yet.
 
 ## Design
